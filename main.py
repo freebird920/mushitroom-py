@@ -3,6 +3,8 @@ import PIL.ImageDraw
 from PIL import ImageTk
 import platform
 import time
+from mushitroom_interface_object import MushitroomInterfaceObject
+from mushitroom_interface_object import MushitroomInterfaceGroup
 
 
 # ============
@@ -51,6 +53,32 @@ button_01 = mushitroom_object.MushitroomObject(
 button_02 = mushitroom_object.MushitroomObject(
     x=200, y=250, width=100, height=50, color="#FF0000"
 )
+ui_manager = MushitroomInterfaceGroup()
+# 2. 버튼 생성 (이제 index를 일일이 안 넣어줘도 됨, 넣는 순서대로니까)
+btn_start = MushitroomInterfaceObject(
+    index=0,
+    x=100,
+    y=100,
+    width=120,
+    height=40,
+    color="white",
+    text="START",
+)
+btn_exit = MushitroomInterfaceObject(
+    index=1,
+    x=100,
+    y=160,
+    width=120,
+    height=40,
+    color="white",
+    text="EXIT",
+)
+
+# 3. 그룹에 추가 (이러면 알아서 0번인 START가 선택됨)
+ui_manager.add_element(btn_start)
+ui_manager.add_element(btn_exit)
+from mushitroom_enums import FontWeight
+
 
 objects.append(button_01)
 objects.append(button_02)
@@ -88,6 +116,20 @@ def keyboard_event():
         shit_1.x = shit_1.x + 1
 
         print("우")
+    if "p" in pressed_keys:
+        bull_shit = mushitroom_object.MushitroomObject(
+            x=300, y=23, width=330, height=320, color="#FF0F0F"
+        )
+        objects.append(bull_shit)
+        print("추가할게 ㅋㅋ")
+
+    if "l" in pressed_keys:
+        bull_shit = mushitroom_object.MushitroomObject(
+            x=300, y=23, width=330, height=320, color="#FF0F0F"
+        )
+        del objects[len(objects) - 1]
+        # objects.remove(bull_shit)
+        print("망할게 ㅋㅋ")
 
 
 # keyboard event 바인드
@@ -104,9 +146,9 @@ def draw_frame() -> PIL.Image.Image:
     canvas = PIL.Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
     # draw_tool 선언
     draw_tool = PIL.ImageDraw.Draw(canvas)
+    ui_manager.draw(draw_tool)
     for obj in objects:
         obj.draw(draw_tool)
-    # canvas를 return 한다.
     return canvas
 
 
