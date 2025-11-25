@@ -39,9 +39,22 @@ if is_windows:
 import mushitroom_object
 
 objects: list[mushitroom_object.MushitroomObject] = []
-shit_1 = mushitroom_object.MushitroomObject(1, 2, 413, "black")
-objects.append(shit_1)
 
+shit_1 = mushitroom_object.MushitroomObject(
+    x=10, y=10, width=20, height=20, color="black"
+)
+
+button_01 = mushitroom_object.MushitroomObject(
+    x=100, y=250, width=100, height=50, color="#F0F0F0"
+)
+
+button_02 = mushitroom_object.MushitroomObject(
+    x=200, y=250, width=100, height=50, color="#FF0000"
+)
+
+objects.append(button_01)
+objects.append(button_02)
+objects.append(shit_1)
 # ====
 # 키보드 이벤트 (Windows에서 Test 하기 위함)
 # ====
@@ -62,12 +75,18 @@ def on_key_release(event):
 
 def keyboard_event():
     if "Up" in pressed_keys or "w" in pressed_keys:
+        shit_1.y = shit_1.y - 1
         print("위")
     if "Down" in pressed_keys or "s" in pressed_keys:
         print("아래")
+
+        shit_1.y = shit_1.y + 1
     if "Left" in pressed_keys or "a" in pressed_keys:
+        shit_1.x = shit_1.x - 1
         print("좌")
     if "Right" in pressed_keys or "d" in pressed_keys:
+        shit_1.x = shit_1.x + 1
+
         print("우")
 
 
