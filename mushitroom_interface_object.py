@@ -67,19 +67,17 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
                             io.BytesIO(font_data), font_size
                         )
                 else:
-                    # 진짜 파일이 없는 경우 등
                     print(f"❌ 폰트 경로 에러: {font_path}")
                     raise
 
             except Exception as e:
-                # 여기서도 실패하면 진짜 답 없음 (디폴트 폰트 로드)
                 print(f"❌ 폰트 로드 최종 실패: {e}")
                 self.font = PIL.ImageFont.load_default()
 
         self.text = text
         self.text_color = text_color
         self.index = index
-        self.on_action = on_action  # 함수 저장
+        self.on_action = on_action
 
     def select(self):
         self.is_selected = True
@@ -111,16 +109,13 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
 
 class MushitroomInterfaceGroup:
     def __init__(self):
-        # UI 요소들을 담을 리스트
         self.elements: List[MushitroomInterfaceObject] = []
-        # 현재 선택된 놈의 번호 (0번부터 시작)
         self.current_index: int = 0
 
     def add_element(self, element: MushitroomInterfaceObject):
         """UI 요소를 그룹에 추가합니다."""
         self.elements.append(element)
 
-        # 만약 이게 첫 번째로 추가된 놈이라면? -> 바로 선택 상태로 만듦 (초기화)
         if len(self.elements) == 1:
             self.current_index = 0
             element.select()

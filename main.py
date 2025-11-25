@@ -57,14 +57,34 @@ ui_manager = MushitroomInterfaceGroup()
 # 2. 버튼 생성 (이제 index를 일일이 안 넣어줘도 됨, 넣는 순서대로니까)
 from mushitroom_enums import FontWeight
 
-btn_start = MushitroomInterfaceObject(
+btn_adopt = MushitroomInterfaceObject(
     index=0,
-    x=100,
-    y=100,
+    x=50,
+    y=340,
     width=120,
     height=40,
     color="white",
-    text="START",
+    text="adopt",
+    font_weight=FontWeight.HEAVY,
+)
+btn_nurish = MushitroomInterfaceObject(
+    index=0,
+    x=150,
+    y=340,
+    width=120,
+    height=40,
+    color="white",
+    text="nurish",
+    font_weight=FontWeight.HEAVY,
+)
+btn_dance = MushitroomInterfaceObject(
+    index=0,
+    x=200,
+    y=340,
+    width=120,
+    height=40,
+    color="white",
+    text="dance",
     font_weight=FontWeight.HEAVY,
 )
 btn_exit = MushitroomInterfaceObject(
@@ -77,9 +97,20 @@ btn_exit = MushitroomInterfaceObject(
     text="EXIT",
     font_weight=FontWeight.HEAVY,
 )
-
-# 3. 그룹에 추가 (이러면 알아서 0번인 START가 선택됨)
-ui_manager.add_element(btn_start)
+display_money = MushitroomInterfaceObject(
+    index=9,
+    x=550,
+    y=20,
+    width=80,
+    height=20,
+    color="#FFFFFF",
+    text=f"money: {100_000}",
+    font_weight=FontWeight.HEAVY,
+)
+ui_manager.add_element(display_money)
+ui_manager.add_element(btn_adopt)
+ui_manager.add_element(btn_nurish)
+ui_manager.add_element(btn_dance)
 ui_manager.add_element(btn_exit)
 
 
