@@ -55,6 +55,8 @@ button_02 = mushitroom_object.MushitroomObject(
 )
 ui_manager = MushitroomInterfaceGroup()
 # 2. 버튼 생성 (이제 index를 일일이 안 넣어줘도 됨, 넣는 순서대로니까)
+from mushitroom_enums import FontWeight
+
 btn_start = MushitroomInterfaceObject(
     index=0,
     x=100,
@@ -63,6 +65,7 @@ btn_start = MushitroomInterfaceObject(
     height=40,
     color="white",
     text="START",
+    font_weight=FontWeight.HEAVY,
 )
 btn_exit = MushitroomInterfaceObject(
     index=1,
@@ -72,26 +75,29 @@ btn_exit = MushitroomInterfaceObject(
     height=40,
     color="white",
     text="EXIT",
+    font_weight=FontWeight.HEAVY,
 )
 
 # 3. 그룹에 추가 (이러면 알아서 0번인 START가 선택됨)
 ui_manager.add_element(btn_start)
 ui_manager.add_element(btn_exit)
-from mushitroom_enums import FontWeight
 
 
 objects.append(button_01)
 objects.append(button_02)
 objects.append(shit_1)
+
 # ====
 # 키보드 이벤트 (Windows에서 Test 하기 위함)
 # ====
 
-pressed_keys = set()
+pressed_keys: set[str] = set()
+just_pressed_keys: set[str] = set()
 
 
 def on_key_press(event):
-    # 키보드를 누르면 set에 추가 (예: 'w', 'Up', 'space')
+    if event.keysym not in pressed_keys:
+        just_pressed_keys.add(event.keysym)
     pressed_keys.add(event.keysym)
 
 
@@ -99,9 +105,13 @@ def on_key_release(event):
     # 키보드를 떼면 set에서 제거
     if event.keysym in pressed_keys:
         pressed_keys.remove(event.keysym)
+    just_pressed_keys.clear()
 
 
 def keyboard_event():
+    # =====
+    # 딸깎뀪용
+    # =====
     if "Up" in pressed_keys or "w" in pressed_keys:
         shit_1.y = shit_1.y - 1
         print("위")
@@ -111,25 +121,21 @@ def keyboard_event():
         shit_1.y = shit_1.y + 1
     if "Left" in pressed_keys or "a" in pressed_keys:
         shit_1.x = shit_1.x - 1
+
         print("좌")
     if "Right" in pressed_keys or "d" in pressed_keys:
         shit_1.x = shit_1.x + 1
-
         print("우")
-    if "p" in pressed_keys:
-        bull_shit = mushitroom_object.MushitroomObject(
-            x=300, y=23, width=330, height=320, color="#FF0F0F"
-        )
-        objects.append(bull_shit)
-        print("추가할게 ㅋㅋ")
 
-    if "l" in pressed_keys:
-        bull_shit = mushitroom_object.MushitroomObject(
-            x=300, y=23, width=330, height=320, color="#FF0F0F"
-        )
-        del objects[len(objects) - 1]
-        # objects.remove(bull_shit)
+    # =====
+    # 한 번 딸깍 용
+    # =====
+    if "bracketleft" in just_pressed_keys:
+        ui_manager.select_prev()
+    if "bracketright" in just_pressed_keys:
+        ui_manager.select_next()
         print("망할게 ㅋㅋ")
+    just_pressed_keys.clear()
 
 
 # keyboard event 바인드
@@ -173,7 +179,11 @@ def main_loop():
             time.sleep(FPS / 1000)
 
 
-if __name__ == "__main__":
+def main():
     main_loop()
     if root is not None:
         root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
