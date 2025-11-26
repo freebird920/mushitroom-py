@@ -2,6 +2,7 @@
 
 - [MUSHITROOM](#mushitroom)
   - [python 설정](#python-설정)
+    - [python uv 설정](#python-uv-설정)
     - [python .venv 설정](#python-venv-설정)
   - [windows를 위한 설정](#windows를-위한-설정)
   - [기본 세팅](#기본-세팅)
@@ -14,6 +15,20 @@
     - [2. 파이썬에서 사용법](#2-파이썬에서-사용법)
 
 ## python 설정
+
+### python uv 설정
+
+- 프로젝트 초기화
+
+    ```bash
+    uv sync
+    ```
+
+- 패키지 설치
+
+    ```bash
+    uv add [패키지명]
+    ```
 
 ### python .venv 설정
 

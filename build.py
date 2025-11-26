@@ -13,7 +13,6 @@ def build():
 
     print(f"🔨 빌드 시작: {source_dir.resolve()}")
 
-    # 2. 필터 함수 (불필요한 파일 제외)
     def filter_func(path: Path):
         ignore_list = {
             ".venv",
@@ -30,8 +29,7 @@ def build():
                 return False
         return True
 
-    # 3. [핵심] 임시 폴더에서 빌드 후 이동 (에러 방지)
-    # 시스템의 임시 폴더(Temp)는 프로젝트 폴더 바깥에 있으므로 안전함
+
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_output_path = Path(temp_dir) / "mushitroom.pyz"
 

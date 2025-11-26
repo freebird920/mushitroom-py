@@ -2,7 +2,7 @@ import sys
 import platform
 import time
 from PIL import Image, ImageDraw, ImageTk
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 # ============
 # 사용자 모듈 임포트
 # ============
@@ -142,12 +142,7 @@ if IS_WINDOWS:
         root.bind("<KeyRelease>", on_key_release)
 
 else:
-    # [Raspberry Pi] GPIO 버튼 바인딩 (핀 번호 수정 필요)
-    # 예시: btn_up = Button(17)
-    # 여기서는 변수만 매핑합니다. 실제 버튼 객체를 생성하세요.
-    # btn_up = Button(17)
-    # btn_down = Button(27) 
-    # ...
+    # [Raspberry Pi] GPIO 버튼 바인딩 
     pass 
 
 def update_input_state_rpi():
@@ -302,7 +297,7 @@ def main():
     if IS_WINDOWS:
         print("Starting Windows Mode (Tkinter Emulator)")
         main_loop_windows()
-        if device is not None and root is not None:
+        if root is not None:
             root.mainloop()
     else:
         print("Starting RPi Mode (Luma LCD)")
