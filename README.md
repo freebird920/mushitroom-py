@@ -9,6 +9,9 @@
     - [objects](#objects)
     - [키보드 이벤트](#키보드-이벤트)
   - [mushitroom\_config.py](#mushitroom_configpy)
+  - [SQLite 데이터베이스](#sqlite-데이터베이스)
+    - [1. 개요](#1-개요)
+    - [2. 파이썬에서 사용법](#2-파이썬에서-사용법)
 
 ## python 설정
 
@@ -152,4 +155,53 @@ HEIGHT: int = mushitroom_config.DISPLAY_HEIGHT
 BG_COLOR = mushitroom_config.BG_COLOR
 FPS = int(1000 / mushitroom_config.FPS)
 
+```
+
+## SQLite 데이터베이스
+
+### 1. 개요
+
+**SQLite**는 별도의 서버 프로세스(MySQL, PostgreSQL 등) 설치가 필요 없는 **경량화된 파일 기반의 관계형 데이터베이스(RDBMS)**
+
+- **Zero Configuration:** 설정이나 관리자가 필요 없음.
+- **Single File:** 데이터베이스 전체가 디스크 위의 파일 하나(예: `data.db`)에 저장되므로 이동과 백업이 간편.
+- **Standard:** 라즈베리파이와 같은 임베디드 시스템, 모바일 앱, 데스크톱 소프트웨어의 로컬 저장소로 널리 사용됨.
+
+### 2. 파이썬에서 사용법
+
+파이썬은 `sqlite3` 모듈을 기본 내장하고 있어 별도의 설치 없이 바로 사용할 수 있음.
+
+**기본 사용 패턴:**
+
+  1. **연결 (Connect):** DB 파일과 연결.
+  2. **커서 (Cursor):** SQL 명령을 실행할 객체를 생성.
+  3. **실행 (Execute):** SQL 문법으로 데이터를 조작.
+  4. **커밋 (Commit):** 변경된 내용을 파일에 확정 저장.
+
+```python
+import sqlite3
+
+# 1. DB 파일 연결 (없으면 자동 생성)
+conn = sqlite3.connect("mushitroom.db")
+cursor = conn.cursor()
+
+# 2. 테이블 생성 (IF NOT EXISTS로 중복 방지)
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS scores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        score INTEGER
+    )
+""")
+
+# 3. 데이터 삽입 (보안을 위해 ? 플레이스홀더 사용 권장)
+cursor.execute("INSERT INTO scores (username, score) VALUES (?, ?)", ("Mushitroom", 100))
+conn.commit()  # ★ 중요: 커밋을 해야 저장이 완료됨
+
+# 4. 데이터 조회
+cursor.execute("SELECT * FROM scores ORDER BY score DESC")
+print(cursor.fetchall())
+
+# 5. 연결 종료
+conn.close()
 ```

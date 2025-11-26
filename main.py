@@ -5,7 +5,7 @@ import platform
 import time
 from src.classes.mushitroom_interface_object import MushitroomInterfaceObject
 from src.classes.mushitroom_interface_object import MushitroomInterfaceGroup
-
+from src.services.sq_service import SqService
 
 # ============
 # 설정파일 불러오기
@@ -16,6 +16,15 @@ WIDTH: int = mushitroom_config.DISPLAY_WIDTH
 HEIGHT: int = mushitroom_config.DISPLAY_HEIGHT
 BG_COLOR = mushitroom_config.BG_COLOR
 FPS = int(1000 / mushitroom_config.FPS)
+
+
+# =====
+# DB 설정
+# =====
+db = SqService()
+player_name = "Mushitroom"
+final_score = 12500
+db.add_score(player_name, final_score)
 
 # ============
 # Windows 전용 설정
