@@ -3,14 +3,14 @@ import PIL.ImageDraw
 from PIL import ImageTk
 import platform
 import time
-from mushitroom_interface_object import MushitroomInterfaceObject
-from mushitroom_interface_object import MushitroomInterfaceGroup
+from src.classes.mushitroom_interface_object import MushitroomInterfaceObject
+from src.classes.mushitroom_interface_object import MushitroomInterfaceGroup
 
 
 # ============
 # 설정파일 불러오기
 # ============
-import mushitroom_config
+import src.settings.mushitroom_config as mushitroom_config
 
 WIDTH: int = mushitroom_config.DISPLAY_WIDTH
 HEIGHT: int = mushitroom_config.DISPLAY_HEIGHT
@@ -38,7 +38,7 @@ if is_windows:
 # ============
 # objects
 # ============
-import mushitroom_object
+import src.classes.mushitroom_object as mushitroom_object
 
 objects: list[mushitroom_object.MushitroomObject] = []
 
@@ -55,7 +55,7 @@ button_02 = mushitroom_object.MushitroomObject(
 )
 ui_manager = MushitroomInterfaceGroup()
 # 2. 버튼 생성 (이제 index를 일일이 안 넣어줘도 됨, 넣는 순서대로니까)
-from mushitroom_enums import FontWeight
+from src.settings.mushitroom_enums import FontWeight
 
 btn_adopt = MushitroomInterfaceObject(
     index=0,

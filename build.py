@@ -45,7 +45,6 @@ def build():
                 compressed=True,
             )
 
-            # 4. 임시 폴더 -> 진짜 dist 폴더로 이동
             if final_output_path.exists():
                 os.remove(final_output_path)  # 기존 파일 있으면 삭제
 

@@ -1,16 +1,16 @@
-import mushitroom_object
+import src.classes.mushitroom_object as mushitroom_object
 import os
 import io
 import zipfile
 import PIL.ImageFont
 from typing import List
-
+import posixpath
 from PIL.ImageDraw import ImageDraw
 
 
 # import mushitroom_enums
-from mushitroom_enums import FontWeight
-from mushitroom_enums import ObjectType
+from src.settings.mushitroom_enums import FontWeight
+from src.settings.mushitroom_enums import ObjectType
 
 
 class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
@@ -37,43 +37,56 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
             x, y, width, height, color, id, object_type=ObjectType.INTERFACE
         )
 
+        # 1. 일단 운영체제 기준 경로를 만듭니다.
         current_dir = os.path.dirname(__file__)
-        font_path = os.path.join(current_dir, "assets", "fonts", font_weight.value)
+        font_path = os.path.join(
+            current_dir, "../", "assets", "fonts", font_weight.value
+        )
 
         try:
-            # 1. 일반 폴더 상태일 때 (개발 중)
+            # [CASE 1] 개발 환경 (일반 폴더)
+            # OS가 ../ 처리를 알아서 해주므로 그냥 읽힙니다.
             self.font = PIL.ImageFont.truetype(font_path, font_size)
-        except (OSError, FileNotFoundError):
-            # 2. .pyz 압축 파일 내부일 때 (배포판)
-            # 경로가 "C:\...\mushitroom.pyz\assets\font.ttf" 처럼 되어 있으면
-            # 윈도우는 이걸 못 읽습니다. 그래서 직접 쪼개서 읽어야 합니다.
 
+        except (OSError, FileNotFoundError):
+            # [CASE 2] .pyz 배포 환경
+            # 폰트 로드에 실패하면 Zip 내부라고 가정하고 로직을 실행합니다.
             try:
-                # 경로 구분자 통일 (\ -> /)
+                # 경로 구분자를 무조건 / 로 통일 (Zip은 /만 씁니다)
                 unified_path = font_path.replace("\\", "/")
 
-                # .pyz가 경로에 포함되어 있는지 확인
                 if ".pyz/" in unified_path:
-                    # 쪼개기: [Zip파일경로] .pyz/ [내부파일경로]
-                    zip_file_path, internal_file_path = unified_path.split(".pyz/")
-                    zip_file_path += ".pyz"  # .pyz 붙여주기
+                    # 1. Zip 파일 경로와 내부 경로 쪼개기
+                    zip_file_path, internal_path_raw = unified_path.split(".pyz/")
+                    zip_file_path += ".pyz"
 
-                    # Zip 파일 열어서 데이터 읽기
+                    # 2. [핵심 수정] 내부 경로의 ".." 계산하기
+                    # 예: "src/classes/../assets/font.ttf" -> "src/assets/font.ttf"로 변환
+                    internal_path_clean = posixpath.normpath(internal_path_raw)
+
+                    # 3. Zip 열고 데이터 읽기
                     with zipfile.ZipFile(zip_file_path, "r") as z:
-                        # 파일 읽기 (바이트 데이터)
-                        font_data = z.read(internal_file_path)
-                        # 메모리에 담아서 Pillow에 넘기기
+                        # Zip 안에서 파일 찾기 (깨끗해진 경로 사용)
+                        font_data = z.read(internal_path_clean)
+
+                        # 바이트 데이터를 Pillow 폰트로 변환
                         self.font = PIL.ImageFont.truetype(
                             io.BytesIO(font_data), font_size
                         )
                 else:
-                    print(f"❌ 폰트 경로 에러: {font_path}")
-                    raise
+                    # .pyz 파일이 아닌데도 못 찾은 경우 (진짜 경로 에러)
+                    print(f"❌ 폰트 경로를 찾을 수 없음: {font_path}")
+                    self.font = PIL.ImageFont.load_default()
 
             except Exception as e:
-                print(f"❌ 폰트 로드 최종 실패: {e}")
+                unified_path = font_path.replace("\\", "/")
+                zip_file_path, internal_path_raw = unified_path.split(".pyz/")
+                internal_path_clean = posixpath.normpath(internal_path_raw)
+                print(f"❌ 폰트 로드 최종 실패 (기본 폰트 사용): {e}")
+                print(
+                    f"   - 시도한 내부 경로: {internal_path_clean if 'internal_path_clean' in locals() else '알수없음'}"
+                )
                 self.font = PIL.ImageFont.load_default()
-
         self.text = text
         self.text_color = text_color
         self.index = index

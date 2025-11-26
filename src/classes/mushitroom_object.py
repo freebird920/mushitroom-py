@@ -1,6 +1,6 @@
 from PIL import ImageDraw
 import uuid
-from mushitroom_enums import ObjectType
+from src.settings.mushitroom_enums import ObjectType
 
 
 class MushitroomObject:
