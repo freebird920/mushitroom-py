@@ -1,3 +1,6 @@
+from src.settings.mushitroom_enums import FontWeight
+import src.classes.mushitroom_object as mushitroom_object
+import tkinter as tk
 import PIL.Image
 import PIL.ImageDraw
 from PIL import ImageTk
@@ -35,7 +38,6 @@ assholes = db.get_all_users()
 if root is not None:
     windows일 때 실행할 코드
 """
-import tkinter as tk
 
 root: tk.Tk | None = None
 is_windows = platform.system() == "Windows"
@@ -49,7 +51,6 @@ if is_windows:
 # ============
 # objects
 # ============
-import src.classes.mushitroom_object as mushitroom_object
 
 objects: list[mushitroom_object.MushitroomObject] = []
 
@@ -66,7 +67,6 @@ button_02 = mushitroom_object.MushitroomObject(
 )
 ui_manager = MushitroomInterfaceGroup()
 # 2. 버튼 생성 (이제 index를 일일이 안 넣어줘도 됨, 넣는 순서대로니까)
-from src.settings.mushitroom_enums import FontWeight
 
 btn_adopt = MushitroomInterfaceObject(
     index=0,
@@ -124,7 +124,7 @@ ui_manager.add_element(btn_adopt)
 ui_manager.add_element(btn_nurish)
 ui_manager.add_element(btn_dance)
 ui_manager.add_element(btn_exit)
- 
+
 for user in assholes:
     print(f"User: {user.username}, Updated: {user.updated}")
     ui_manager.add_element(

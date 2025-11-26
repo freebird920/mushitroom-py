@@ -26,7 +26,11 @@
 - venv 활성화
 
     ```bash
+    # windows
     .venv\Scripts\activate
+
+    # linux
+    source .venv/bin/activate
     ```
 
 - venv 해제
