@@ -2,7 +2,7 @@ import sys
 import platform
 import time
 from PIL import Image, ImageDraw, ImageTk
-
+from typing import TYPE_CHECKING, Any
 # ============
 # 사용자 모듈 임포트
 # ============
@@ -39,11 +39,12 @@ except:
     assholes = []
 
 player_name = "Mushitroom"
-
 # ============
 # 1. 디바이스(화면) 설정 - OS별 분기
 # ============
-root = None
+if TYPE_CHECKING:
+    import tkinter as tk
+root: "tk.Tk | None" = None
 device = None
 
 if IS_WINDOWS:
@@ -136,9 +137,9 @@ if IS_WINDOWS:
         if sym == 'Return': input_state.enter = False
         if sym == 'bracketleft': input_state.prev = False
         if sym == 'bracketright': input_state.next = False
-
-    root.bind("<KeyPress>", on_key_press)
-    root.bind("<KeyRelease>", on_key_release)
+    if root is not None :
+        root.bind("<KeyPress>", on_key_press)
+        root.bind("<KeyRelease>", on_key_release)
 
 else:
     # [Raspberry Pi] GPIO 버튼 바인딩 (핀 번호 수정 필요)
@@ -275,10 +276,11 @@ def main_loop_windows():
     
     # 그리기 및 디스플레이 전송
     pil_image = draw_frame()
-    device.display(pil_image) # TkinterEmulator의 display 호출
-    
-    # 다음 프레임 예약 (FPS 준수)
-    root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
+    if device is not None and root is not None:
+        device.display(pil_image) 
+        
+        # 다음 프레임 예약 (FPS 준수)
+        root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
 
 def main_loop_rpi():
     """RPi용 루프 (While True 사용)"""
@@ -288,7 +290,8 @@ def main_loop_rpi():
         handle_game_logic()
         
         pil_image = draw_frame()
-        device.display(pil_image) 
+        if device is not None:
+            device.display(pil_image) 
         
         # FPS 조절
         elapsed = time.time() - start_time
@@ -299,7 +302,8 @@ def main():
     if IS_WINDOWS:
         print("Starting Windows Mode (Tkinter Emulator)")
         main_loop_windows()
-        root.mainloop()
+        if device is not None and root is not None:
+            root.mainloop()
     else:
         print("Starting RPi Mode (Luma LCD)")
         main_loop_rpi()
