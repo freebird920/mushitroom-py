@@ -24,9 +24,10 @@ FPS = int(1000 / mushitroom_config.FPS)
 db = SqService()
 player_name = "Mushitroom"
 final_score = 12500
-db.create_user("asshole")
+
+
 assholes = db.get_all_users()
-print(assholes)
+
 # ============
 # Windows 전용 설정
 # ============
@@ -86,6 +87,7 @@ btn_nurish = MushitroomInterfaceObject(
     color="white",
     text="nurish",
     font_weight=FontWeight.HEAVY,
+    on_action=lambda: db.create_user("asshole"),
 )
 btn_dance = MushitroomInterfaceObject(
     index=0,
@@ -122,8 +124,21 @@ ui_manager.add_element(btn_adopt)
 ui_manager.add_element(btn_nurish)
 ui_manager.add_element(btn_dance)
 ui_manager.add_element(btn_exit)
-
-
+ 
+for user in assholes:
+    print(f"User: {user.username}, Updated: {user.updated}")
+    ui_manager.add_element(
+        MushitroomInterfaceObject(
+            index=10,
+            x=10,
+            y=10 + 30 * assholes.index(user),
+            width=200,
+            height=25,
+            color="#DDDDDD",
+            text=f"{user.username} - {user.updated}",
+            font_weight=FontWeight.REGULAR,
+        )
+    )
 objects.append(button_01)
 objects.append(button_02)
 objects.append(shit_1)
@@ -140,6 +155,7 @@ def on_key_press(event):
     if event.keysym not in pressed_keys:
         just_pressed_keys.add(event.keysym)
     pressed_keys.add(event.keysym)
+    print(event.keysym)
 
 
 def on_key_release(event):
@@ -171,11 +187,14 @@ def keyboard_event():
     # =====
     # 한 번 딸깍 용
     # =====
+    if "Return" in just_pressed_keys:
+        ui_manager.elements[ui_manager.current_index].on_action()
+
     if "bracketleft" in just_pressed_keys:
         ui_manager.select_prev()
+
     if "bracketright" in just_pressed_keys:
         ui_manager.select_next()
-        print("망할게 ㅋㅋ")
     just_pressed_keys.clear()
 
 

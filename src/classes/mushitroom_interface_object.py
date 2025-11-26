@@ -3,7 +3,7 @@ import os
 import io
 import zipfile
 import PIL.ImageFont
-from typing import List
+from typing import List, Callable
 import posixpath
 from PIL.ImageDraw import ImageDraw
 
@@ -13,10 +13,15 @@ from src.settings.mushitroom_enums import FontWeight
 from src.settings.mushitroom_enums import ObjectType
 
 
+def noneFunction():
+    pass
+
+
 class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
     text: str | None = ""
     text_color: str = "black"
     is_selected = False
+    on_action: Callable = noneFunction
 
     def __init__(
         self,
@@ -31,7 +36,7 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
         font_size: int = 15,
         font_weight: FontWeight = FontWeight.REGULAR,
         id: str | None = None,
-        on_action=None,  # [추가] 엔터 눌렀을 때 실행할 함수
+        on_action: Callable = noneFunction,  # [추가] 엔터 눌렀을 때 실행할 함수
     ):
         super().__init__(
             x, y, width, height, color, id, object_type=ObjectType.INTERFACE

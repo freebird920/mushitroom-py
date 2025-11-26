@@ -2,6 +2,8 @@ import sqlite3
 import os
 import uuid
 import src.settings.mushitroom_config as mushitroom_config
+import src.schemas.user_schema as schemas
+from typing import List, Optional
 
 
 class SqService:
@@ -184,35 +186,30 @@ class SqService:
         finally:
             conn.close()
 
-    def get_all_users(self, limit=50):
+    def get_all_users(self, limit=50) -> List[schemas.User]:
         """
-        모든 유저 정보와 현재 소지금(money)을 함께 가져옵니다.
-        - 최신순 정렬
-        - 라즈베리 파이 메모리를 고려해 기본 limit 50 설정
+        [핵심 변경 사항]
+        - 반환 타입: List[schemas.UserWithMoney]
+        - 순수 User가 아닌 Money가 포함된 확장 모델을 반환합니다.
         """
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
-
-            # LEFT JOIN: 상태(state)가 없는 유저도 조회하기 위함
-            # COALESCE(s.money, 0): 돈 데이터가 없으면(NULL) 0원으로 처리
             query = f"""
                     SELECT 
                         u.id, 
                         u.username, 
-                        u.updated, 
-                        COALESCE(s.money, 0) as money
+                        u.updated
                     FROM {mushitroom_config.TABLE_USER} u
-                    LEFT JOIN {mushitroom_config.TABLE_GAME_STATE} s 
-                        ON u.id = s.user_id
                     ORDER BY u.updated DESC
                     LIMIT ?
                 """
             cursor.execute(query, (limit,))
             rows = cursor.fetchall()
 
-            # 딕셔너리 리스트로 변환하여 반환
-            return [dict(row) for row in rows]
+            # **dict(row)로 unpacking 할 때,
+            # UserWithMoney 클래스는 id, username, updated, money 모두를 받습니다.
+            return [schemas.User(**dict(row)) for row in rows]
 
         except Exception as e:
             print(f"❌ 유저 목록 조회 실패: {e}")
