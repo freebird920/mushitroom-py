@@ -205,3 +205,28 @@ print(cursor.fetchall())
 # 5. 연결 종료
 conn.close()
 ```
+
+```mermaid
+erDiagram
+    mushitroom_user ||--|| mushitroom_state : "has (1:1)"
+    mushitroom_user ||--o{ scores : "records (1:N)"
+    
+    mushitroom_user {
+        text id PK "UUID"
+        text username "User Nickname"
+        timestamp updated "Last Active"
+    }
+
+    mushitroom_state {
+        text id PK "State UUID"
+        text user_id FK "Link to User"
+        int money "Currency"
+        timestamp updated "Last Save"
+    }
+
+    scores {
+        int id PK "Auto Increment"
+        text user_id FK "Link to User"
+        int score "Game Score"
+        timestamp reg_date "Record Time"
+    }

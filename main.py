@@ -24,8 +24,9 @@ FPS = int(1000 / mushitroom_config.FPS)
 db = SqService()
 player_name = "Mushitroom"
 final_score = 12500
-db.add_score(player_name, final_score)
-
+db.create_user("asshole")
+assholes = db.get_all_users()
+print(assholes)
 # ============
 # Windows 전용 설정
 # ============
