@@ -1,7 +1,14 @@
-*.db
-/dist/
-__pycache__/
+# --- uv & Python 필수 ---
 .venv/
-env/
-venv/
+__pycache__/
+*.pyc
 
+# --- OS 및 에디터 잡동사니 ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- (선택) 데이터베이스나 환경변수 ---
+*.db
+*.sqlite3
+.env
