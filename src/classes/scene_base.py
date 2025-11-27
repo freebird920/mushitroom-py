@@ -1,16 +1,14 @@
 from typing import TYPE_CHECKING
 
-from src.services.scene_service import SceneService
 
 if TYPE_CHECKING:
     from PIL import ImageDraw
-
-    # [수정] 올바른 경로로 InputState import
+    from managers.scene_manager import SceneManager
     from src.classes.input_manager import InputState
 
 
 class BaseScene:
-    def __init__(self, manager: SceneService):
+    def __init__(self, manager: "SceneManager"):
         self.manager = manager  # 씬 전환을 위해 매니저를 알고 있어야 함
 
     def handle_input(self, input_state: "InputState"):

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 # [수정됨] 실제 파일 경로와 이름에 맞춰 import 경로 수정
 # 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
+from src.managers.scene_manager import SceneManager
 from src.classes.scene_base import BaseScene
 from src.scenes.select_user_scene import SelectUserScene
 
@@ -104,29 +105,6 @@ else:
 # ============
 # Scene Manager
 # ============
-class SceneManager:
-
-    def __init__(self, db_instance):
-        self.current_scene = None
-        self.db = db_instance
-
-    def switch_scene(self, new_scene: BaseScene):
-        if self.current_scene:
-            self.current_scene.on_exit()
-        self.current_scene = new_scene
-        self.current_scene.on_enter()
-
-    def handle_input(self, input_state):
-        if self.current_scene:
-            self.current_scene.handle_input(input_state)
-
-    def update(self):
-        if self.current_scene:
-            self.current_scene.update()
-
-    def draw(self, draw_tool):
-        if self.current_scene:
-            self.current_scene.draw(draw_tool)
 
 
 # 로컬 클래스 사용
