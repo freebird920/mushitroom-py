@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from src.services.scene_service import SceneService
+
 if TYPE_CHECKING:
     from PIL import ImageDraw
 
@@ -8,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class BaseScene:
-    def __init__(self, manager):
+    def __init__(self, manager: SceneService):
         self.manager = manager  # 씬 전환을 위해 매니저를 알고 있어야 함
 
     def handle_input(self, input_state: "InputState"):

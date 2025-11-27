@@ -20,7 +20,6 @@
 
 - 프로젝트 초기화
 
-    
     ```bash
     # On Windows.
     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
