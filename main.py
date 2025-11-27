@@ -4,14 +4,10 @@ import time
 from PIL import Image, ImageDraw, ImageTk
 from typing import TYPE_CHECKING
 
-# [수정됨] 실제 파일 경로와 이름에 맞춰 import 경로 수정
 # 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
-from src.managers.scene_manager import SceneManager
-from src.classes.scene_base import BaseScene
-from src.scenes.select_user_scene import SelectUserScene
+from src.managers.scene_manager import SceneManager, SceneType
+from src.managers.input_manager import InputManager
 
-# 파일명: src/classes/input_manager.py -> 모듈명: src.classes.input_manager
-from src.classes.input_manager import InputManager
 
 # ============
 # 사용자 모듈 임포트
@@ -19,10 +15,6 @@ from src.classes.input_manager import InputManager
 
 try:
     import src.settings.mushitroom_config as mushitroom_config
-    from src.settings.mushitroom_enums import FontWeight
-    import src.classes.mushitroom_object as mushitroom_object
-    from src.classes.mushitroom_interface_object import MushitroomInterfaceObject
-    from src.classes.mushitroom_interface_object import MushitroomInterfaceGroup
     from src.services.sq_service import SqService
 except ImportError as e:
     print(f"필수 모듈을 불러올 수 없습니다: {e}")
@@ -109,12 +101,12 @@ else:
 
 # 로컬 클래스 사용
 scene_manager = SceneManager(db)
-
+scene_manager.switch_scene(SceneType.SELECT_USER)
 # InputManager 초기화 (src.classes.input_manager)
 input_manager = InputManager(IS_WINDOWS, root)
 
 # 초기 씬 설정
-scene_manager.switch_scene(SelectUserScene(scene_manager, db))
+# scene_manager.switch_scene(SelectUserScene(scene_manager, db))
 
 
 # ============

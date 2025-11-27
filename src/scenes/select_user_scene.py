@@ -1,20 +1,24 @@
 from typing import TYPE_CHECKING
-from src.classes.scene_base import BaseScene
 from src.classes.mushitroom_interface_object import (
     MushitroomInterfaceGroup,
     MushitroomInterfaceObject,
 )
+
+
 from src.settings.mushitroom_enums import FontWeight
 from src.utils.name_generator import NameGenerator
+from src.classes.scene_base import BaseScene
+from src.managers.scene_manager import SceneType
+from src.schemas.user_schema import User
 
 if TYPE_CHECKING:
-    from src.classes.input_manager import InputState
+    from src.managers.input_manager import InputState
     from src.managers.scene_manager import SceneManager
 
 
 class SelectUserScene(BaseScene):
     def __init__(self, manager: "SceneManager", db):
-        super().__init__(manager)
+        super().__init__(manager, db)
         self.db = db
         self.ui_manager = MushitroomInterfaceGroup()
         self.users = []
@@ -82,7 +86,10 @@ class SelectUserScene(BaseScene):
 
     def select_user(self, user):
         print(f"유저 선택됨: {user.username}")
-        # self.manager.switch_scene(...)
+        self.manager.switch_scene(
+            scene_type=SceneType.USER_TEST,
+            user=user,
+        )
         pass
 
     def create_new_user(self):

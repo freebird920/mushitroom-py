@@ -1,4 +1,11 @@
-from enum import Enum
+from enum import Enum, auto
+
+
+class SceneType(Enum):
+    SELECT_USER = auto()
+    USER_TEST = auto()
+    GAME_PLAY = auto()
+    ENDING = auto()
 
 
 class ObjectType(Enum):

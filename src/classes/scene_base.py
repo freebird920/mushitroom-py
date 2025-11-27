@@ -2,14 +2,16 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
+    from src.services.sq_service import SqService
     from PIL import ImageDraw
     from managers.scene_manager import SceneManager
-    from src.classes.input_manager import InputState
+    from managers.input_manager import InputState
+    from src.services.sq_service import SqService
 
 
 class BaseScene:
-    def __init__(self, manager: "SceneManager"):
-        self.manager = manager  # 씬 전환을 위해 매니저를 알고 있어야 함
+    def __init__(self, manager: "SceneManager", db: "SqService"):
+        self.manager = manager
 
     def handle_input(self, input_state: "InputState"):
         """키 입력 처리"""
