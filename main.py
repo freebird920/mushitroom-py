@@ -126,7 +126,6 @@ class SceneManager:
         if self.current_scene:
             self.current_scene.draw(draw_tool)
 
-
 # 로컬 클래스 사용
 scene_manager = SceneManager(db)
 
