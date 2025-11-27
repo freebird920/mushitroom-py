@@ -3,6 +3,14 @@ import platform
 import time
 from PIL import Image, ImageDraw, ImageTk
 from typing import TYPE_CHECKING
+
+# [수정됨] 실제 파일 경로와 이름에 맞춰 import 경로 수정
+# 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
+from src.scenes.select_user_scene import SelectUserScene
+
+# 파일명: src/classes/input_manager.py -> 모듈명: src.classes.input_manager
+from src.classes.input_manager import InputManager
+
 # ============
 # 사용자 모듈 임포트
 # ============
@@ -33,12 +41,12 @@ IS_WINDOWS = platform.system() == "Windows"
 # ============
 try:
     db = SqService()
+    # assholes 변수는 user select scene에서 로드하므로 여기선 제거하거나 유지
     assholes = db.get_all_users()
 except:
-    print("DB 연결 실패 혹은 모듈 없음. 더미 데이터 사용.")
-    assholes = []
+    print("DB_ERROR")
+    sys.exit(1)
 
-player_name = "Mushitroom"
 # ============
 # 1. 디바이스(화면) 설정 - OS별 분기
 # ============
@@ -49,7 +57,7 @@ device = None
 
 if IS_WINDOWS:
     import tkinter as tk
-    
+
     class TkinterEmulator:
         def __init__(self, width, height):
             self.width = width
@@ -66,21 +74,23 @@ if IS_WINDOWS:
             # PIL 이미지를 Tkinter용으로 변환하여 라벨에 업데이트
             self.tk_image = ImageTk.PhotoImage(pil_image)
             self.label.config(image=self.tk_image)
-        
+
         def update_gui(self):
             # Tkinter 이벤트 루프 처리
             self.root.update()
             self.root.update_idletasks()
 
     device = TkinterEmulator(WIDTH, HEIGHT)
-    root = device.root # 키 바인딩용
+    root = device.root  # 키 바인딩용
 
 else:
     try:
         from luma.core.interface.serial import spi
-        from luma.lcd.device import st7789 as lcd_device# 본인 LCD에 맞게 변경 (ili9341 등)
+        from luma.lcd.device import (
+            st7789 as lcd_device,
+        )  # 본인 LCD에 맞게 변경 (ili9341 등)
         from gpiozero import Button
-        
+
         # SPI 설정 (핀 번호 확인 필수)
         serial = spi(port=0, device=0, gpio_DC=24, gpio_RST=25)
         device = lcd_device(serial, width=WIDTH, height=HEIGHT, rotate=1)
@@ -91,207 +101,100 @@ else:
 
 
 # ============
-# 2. 입력(Input) 매니저 - 키보드와 GPIO 통합
+# Scene Manager
 # ============
-class InputState:
-    def __init__(self):
-        self.up = False
-        self.down = False
-        self.left = False
-        self.right = False
-        self.enter = False
-        self.prev = False
-        self.next = False
-        self.pressed_keys = set() # 윈도우용
-        self.just_pressed_keys = set() # 윈도우용 (한번 클릭)
+class SceneManager:
+    def __init__(self, db_instance):
+        self.current_scene = None
+        self.db = db_instance
 
-input_state = InputState()
+    def switch_scene(self, new_scene):
+        if self.current_scene:
+            self.current_scene.on_exit()
+        self.current_scene = new_scene
+        self.current_scene.on_enter()
 
-if IS_WINDOWS:
-    # [Windows] 키보드 바인딩
-    def on_key_press(event):
-        sym = event.keysym
-        if sym not in input_state.pressed_keys:
-            input_state.just_pressed_keys.add(sym)
-        input_state.pressed_keys.add(sym)
-        
-        # 상태 매핑
-        if sym in ['Up', 'w']: input_state.up = True
-        if sym in ['Down', 's']: input_state.down = True
-        if sym in ['Left', 'a']: input_state.left = True
-        if sym in ['Right', 'd']: input_state.right = True
-        if sym == 'Return': input_state.enter = True
-        if sym == 'bracketleft': input_state.prev = True
-        if sym == 'bracketright': input_state.next = True
+    def handle_input(self, input_state):
+        if self.current_scene:
+            self.current_scene.handle_input(input_state)
 
-    def on_key_release(event):
-        sym = event.keysym
-        if sym in input_state.pressed_keys:
-            input_state.pressed_keys.remove(sym)
-        
-        # 상태 해제
-        if sym in ['Up', 'w']: input_state.up = False
-        if sym in ['Down', 's']: input_state.down = False
-        if sym in ['Left', 'a']: input_state.left = False
-        if sym in ['Right', 'd']: input_state.right = False
-        if sym == 'Return': input_state.enter = False
-        if sym == 'bracketleft': input_state.prev = False
-        if sym == 'bracketright': input_state.next = False
-    if root is not None :
-        root.bind("<KeyPress>", on_key_press)
-        root.bind("<KeyRelease>", on_key_release)
+    def update(self):
+        if self.current_scene:
+            self.current_scene.update()
 
-else:
-    # [Raspberry Pi] GPIO 버튼 바인딩 
-    pass 
-
-def update_input_state_rpi():
-    """라즈베리파이에서 GPIO 상태를 읽어 input_state 업데이트"""
-    if not IS_WINDOWS:
-        # 예시: input_state.up = btn_up.is_pressed
-        pass
+    def draw(self, draw_tool):
+        if self.current_scene:
+            self.current_scene.draw(draw_tool)
 
 
-# ============
-# 3. 게임 오브젝트 초기화
-# ============
-objects = []
+# 로컬 클래스 사용
+scene_manager = SceneManager(db)
 
-shit_1 = mushitroom_object.MushitroomObject(
-    x=10, y=10, width=20, height=20, color="black"
-)
-button_01 = mushitroom_object.MushitroomObject(
-    x=100, y=250, width=100, height=50, color="#F0F0F0"
-)
-button_02 = mushitroom_object.MushitroomObject(
-    x=200, y=250, width=100, height=50, color="#FF0000"
-)
+# InputManager 초기화 (src.classes.input_manager)
+input_manager = InputManager(IS_WINDOWS, root)
 
-objects.extend([button_01, button_02, shit_1])
-
-# UI 매니저
-ui_manager = MushitroomInterfaceGroup()
-
-btn_adopt = MushitroomInterfaceObject(
-    index=0, x=50, y=340, width=120, height=40, color="white", text="adopt", font_weight=FontWeight.HEAVY,
-)
-btn_nurish = MushitroomInterfaceObject(
-    index=0, x=150, y=340, width=120, height=40, color="white", text="nurish", font_weight=FontWeight.HEAVY,
-    on_action=lambda: db.create_user("asshole"),
-)
-btn_dance = MushitroomInterfaceObject(
-    index=0, x=200, y=340, width=120, height=40, color="white", text="dance", font_weight=FontWeight.HEAVY,
-)
-btn_exit = MushitroomInterfaceObject(
-    index=1, x=100, y=160, width=120, height=40, color="white", text="EXIT", font_weight=FontWeight.HEAVY,
-)
-display_money = MushitroomInterfaceObject(
-    index=9, x=550, y=20, width=80, height=20, color="#FFFFFF", text=f"money: {100_000}", font_weight=FontWeight.HEAVY,
-)
-
-ui_manager.add_element(display_money)
-ui_manager.add_element(btn_adopt)
-ui_manager.add_element(btn_nurish)
-ui_manager.add_element(btn_dance)
-ui_manager.add_element(btn_exit)
-
-for i, user in enumerate(assholes):
-    ui_manager.add_element(
-        MushitroomInterfaceObject(
-            index=10,
-            x=10,
-            y=10 + 30 * i,
-            width=200,
-            height=25,
-            color="#DDDDDD",
-            text=f"{user.username} - {user.updated}",
-            font_weight=FontWeight.REGULAR,
-        )
-    )
-
-
-# ============
-# 4. 메인 로직
-# ============
-def handle_game_logic():
-    # RPi일 경우 입력 업데이트
-    update_input_state_rpi()
-
-    # 이동 로직 (input_state 사용)
-    if input_state.up:
-        shit_1.y -= 1
-        print("위")
-    if input_state.down:
-        shit_1.y += 1
-        print("아래")
-    if input_state.left:
-        shit_1.x -= 1
-        print("좌")
-    if input_state.right:
-        shit_1.x += 1
-        print("우")
-
-    # 원샷 액션 (Just Pressed)
-    if IS_WINDOWS:
-        # 윈도우는 just_pressed_keys set 사용
-        if "Return" in input_state.just_pressed_keys:
-            ui_manager.elements[ui_manager.current_index].on_action()
-        if "bracketleft" in input_state.just_pressed_keys:
-            ui_manager.select_prev()
-        if "bracketright" in input_state.just_pressed_keys:
-            ui_manager.select_next()
-        
-        # 처리 후 초기화
-        input_state.just_pressed_keys.clear()
-    else:
-        # RPi 로직 (Button.is_pressed 등으로 구현 필요)
-        pass
-
-def draw_frame() -> Image.Image:
-    """화면을 그려서 PIL Image 객체로 반환"""
-    # 캔버스 생성
-    canvas = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
-    draw_tool = ImageDraw.Draw(canvas)
-    
-    # 그리기
-    ui_manager.draw(draw_tool)
-    for obj in objects:
-        obj.draw(draw_tool)
-        
-    return canvas
+# 초기 씬 설정
+scene_manager.switch_scene(SelectUserScene(scene_manager, db))
 
 
 # ============
 # 5. 메인 루프 (OS별 방식 다름)
 # ============
 
+
+# ============
+# 메인 루프
+# ============
+def handle_game_logic():
+    # 1. 입력 상태 업데이트 (RPi 폴링 등)
+    input_manager.update()
+
+    # 2. 씬에 입력 전달
+    scene_manager.handle_input(input_manager.state)
+
+    # 3. 게임 로직 업데이트
+    scene_manager.update()
+
+    # 4. 프레임 종료 전 Just Pressed 상태 초기화
+    input_manager.clear_just_pressed()
+
+
+def draw_frame() -> Image.Image:
+    canvas = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+    draw_tool = ImageDraw.Draw(canvas)
+    scene_manager.draw(draw_tool)
+    return canvas
+
+
 def main_loop_windows():
     """Windows용 루프 (Tkinter .after 사용)"""
     handle_game_logic()
-    
+
     # 그리기 및 디스플레이 전송
     pil_image = draw_frame()
     if device is not None and root is not None:
-        device.display(pil_image) 
-        
+        device.display(pil_image)
+
         # 다음 프레임 예약 (FPS 준수)
         root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
+
 
 def main_loop_rpi():
     """RPi용 루프 (While True 사용)"""
     while True:
         start_time = time.time()
-        
+
         handle_game_logic()
-        
+
         pil_image = draw_frame()
         if device is not None:
-            device.display(pil_image) 
-        
+            device.display(pil_image)
+
         # FPS 조절
         elapsed = time.time() - start_time
         sleep_time = max(0, FRAME_TIME_SEC - elapsed)
         time.sleep(sleep_time)
+
 
 def main():
     if IS_WINDOWS:
@@ -302,6 +205,7 @@ def main():
     else:
         print("Starting RPi Mode (Luma LCD)")
         main_loop_rpi()
+
 
 if __name__ == "__main__":
     main()
