@@ -160,10 +160,10 @@ class SelectUserScene(BaseScene):
             #     elem.visible = True
 
     def draw(self, draw_tool):
-        # 필요하다면 배경이나 리스트 영역 박스를 먼저 그림
-
-        # UI 매니저가 그리기
         self.ui_manager.draw(draw_tool)
 
-        # (옵션) 스크롤바 그리기
-        # 리스트가 길 때만 우측에 현재 위치를 나타내는 바를 그려줄 수 있습니다.
+    def on_exit(self):
+        print("=== 사용자 선택 화면 퇴장 ===")
+        self.ui_manager.elements.clear()
+        self.ui_manager.current_index = 0
+        self.scroll_y = 0

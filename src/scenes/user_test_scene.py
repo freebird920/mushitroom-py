@@ -13,15 +13,15 @@ from src.classes.mushitroom_png_object import PngObject
 from src.settings.mushitroom_enums import ObjectType, SceneType
 
 
-class UserSceneArgs(TypedDict):
-    user: "User"
-
-
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
     from src.managers.scene_manager import SceneManager
     from src.schemas.user_schema import User
     from src.services.sq_service import SqService
+
+
+class UserSceneArgs(TypedDict):
+    user: "User"
 
 
 class UserTestScene(BaseScene):
@@ -33,8 +33,10 @@ class UserTestScene(BaseScene):
     # 물리 엔진 상수
     GRAVITY = 1.5
     INITIAL_VELOCITY = 2
+    user: "User | None"
 
     def __init__(self, manager: "SceneManager", db: "SqService"):
+
         super().__init__(manager, db)
         self.score = 0
         # 1. 플레이어 설정
@@ -52,7 +54,7 @@ class UserTestScene(BaseScene):
         # 2. 장애물 변수 초기화
         self.obstacles = []
         self.spawn_timer = 0
-        score_ui = MushitroomInterfaceObject(
+        self.score_ui = MushitroomInterfaceObject(
             index=0,
             x=100,
             y=10,
@@ -62,15 +64,27 @@ class UserTestScene(BaseScene):
             text=f"{self.score}",
             text_color="black",
         )
-        self.ui_group.add_element(score_ui)
+        self.user_name_ui = MushitroomInterfaceObject(
+            index=0,
+            x=200,
+            y=10,
+            width=100,
+            height=10,
+            color="white",
+            text="",
+            text_color="black",
+        )
+
+        self.ui_group.add_element(self.score_ui)
 
     def on_enter(self, **kwargs: Unpack[UserSceneArgs]):  # type: ignore[override]
         super().on_enter()
         if kwargs.get("user"):
             self.user = kwargs["user"]
             print(f"유저: {self.user.username}")
-
+            self.user_name_ui.text = self.user.username
         # 씬 재진입 시 장애물 초기화 (선택사항)
+        self.ui_group.add_element(self.user_name_ui)
         self.obstacles.clear()
 
     # ---------------------------------------------------------
@@ -137,6 +151,7 @@ class UserTestScene(BaseScene):
                 print(f"게임 오버! 충돌 발생 (장애물 Y: {obstacle.y})")
                 self.manager.switch_scene(SceneType.SELECT_USER)
                 return
+        self.score_ui.text = f"{self.score}"
 
     def spawn_obstacle(self):
         """장애물 생성 및 초기 속도 설정"""

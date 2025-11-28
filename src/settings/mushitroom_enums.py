@@ -6,6 +6,7 @@ class SceneType(Enum):
     USER_TEST = auto()
     GAME_PLAY = auto()
     ENDING = auto()
+    PHISHING = auto()
 
 
 class ObjectType(Enum):
