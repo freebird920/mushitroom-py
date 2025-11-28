@@ -1,0 +1,4 @@
+gpiozero>=2.0.1
+luma-core>=2.5.2
+luma-lcd>=2.11.0
+pillow==12.0.0
