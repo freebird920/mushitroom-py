@@ -3,6 +3,10 @@ from typing import TYPE_CHECKING, TypedDict, Unpack, List
 
 from PIL.ImageDraw import ImageDraw
 
+from src.classes.mushitroom_interface_object import (
+    MushitroomInterfaceGroup,
+    MushitroomInterfaceObject,
+)
 from src.settings import mushitroom_config
 from src.classes.scene_base import BaseScene
 from src.classes.mushitroom_png_object import PngObject
@@ -24,15 +28,17 @@ class UserTestScene(BaseScene):
     player: PngObject
     obstacles: List[PngObject]
     spawn_timer: int
-
+    score: int
+    ui_group: MushitroomInterfaceGroup
     # 물리 엔진 상수
-    GRAVITY = 0.5
+    GRAVITY = 1.5
     INITIAL_VELOCITY = 2
 
     def __init__(self, manager: "SceneManager", db: "SqService"):
         super().__init__(manager, db)
-
+        self.score = 0
         # 1. 플레이어 설정
+        self.ui_group = MushitroomInterfaceGroup()
         self.player = PngObject(
             x=100,
             y=200,
@@ -46,6 +52,17 @@ class UserTestScene(BaseScene):
         # 2. 장애물 변수 초기화
         self.obstacles = []
         self.spawn_timer = 0
+        score_ui = MushitroomInterfaceObject(
+            index=0,
+            x=100,
+            y=10,
+            width=100,
+            height=10,
+            color="white",
+            text=f"{self.score}",
+            text_color="black",
+        )
+        self.ui_group.add_element(score_ui)
 
     def on_enter(self, **kwargs: Unpack[UserSceneArgs]):  # type: ignore[override]
         super().on_enter()
@@ -113,6 +130,7 @@ class UserTestScene(BaseScene):
             # 3. 화면 밖 제거 (메모리 관리)
             if obstacle.y > mushitroom_config.DISPLAY_HEIGHT:
                 self.obstacles.remove(obstacle)
+                self.score = self.score + 1
                 continue
 
             # 4. 충돌 체크 (게임 오버)
@@ -153,6 +171,7 @@ class UserTestScene(BaseScene):
 
     def draw(self, draw_tool: ImageDraw):
         super().draw(draw_tool)
+        self.ui_group.draw(draw_tool)
         self.player.draw(draw_tool)
         for obstacle in self.obstacles:
             obstacle.draw(draw_tool)
