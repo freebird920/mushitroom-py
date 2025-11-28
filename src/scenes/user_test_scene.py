@@ -100,8 +100,7 @@ class UserTestScene(BaseScene):
 
         if "Right" in input_state.pressed_keys:
             self.player.x = min(
-                mushitroom_config.DISPLAY_WIDTH
-                - self.player.width,  # DISPLAY_WIDTH가 없다면 DISPLAY_HEIGHT 사용 주의
+                mushitroom_config.DISPLAY_WIDTH - self.player.width,
                 self.player.x + step,
             )
 
