@@ -70,10 +70,11 @@ class InputManager:
                 "down": Button(27),
                 "left": Button(22),
                 "right": Button(23),
-                "prev": Button(mushitroom_config.BUTTON_UP),
-                "next": Button(mushitroom_config.BUTTON_DOWN),
-                "enter": Button(mushitroom_config.BUTTON_RETURN),
+                "prev": Button(mushitroom_config.BUTTON_UP, pull_up=True),
+                "next": Button(mushitroom_config.BUTTON_DOWN, pull_up=True),
+                "enter": Button(mushitroom_config.BUTTON_RETURN, pull_up=True),
             }
+
         except ImportError:
             print("GPIO 모듈 로드 실패: RPi 환경이 아니거나 라이브러리가 없습니다.")
             self.gpio_buttons = {}
