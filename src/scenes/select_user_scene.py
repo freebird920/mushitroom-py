@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from src.settings import mushitroom_config
 from src.components.mushitroom_button import MushitroomButton
 from src.classes.mushitroom_interface_object import (
     MushitroomInterfaceGroup,
@@ -10,7 +11,9 @@ from src.settings.mushitroom_enums import FontStyle, InputActions
 from src.utils.name_generator import NameGenerator
 from src.classes.scene_base import BaseScene
 from src.managers.scene_manager import SceneType
-from src.schemas.user_schema import User
+
+# from src.schemas.user_schema import User
+from src.components.ui_cursor import UiCursor
 
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
@@ -23,14 +26,14 @@ class SelectUserScene(BaseScene):
         self.db = db
         self.ui_manager = MushitroomInterfaceGroup()
         self.users = []
-
+        self.cursor = UiCursor(padding=6, color="#FF0000", line_width=3)
         # --- 스크롤 설정을 위한 변수들 ---
         self.scroll_y = 0  # 현재 스크롤된 양
         self.list_start_y = 60  # 리스트가 시작되는 Y 위치
         self.item_height = 50  # 각 버튼의 높이 + 간격
         # 화면의 높이 (manager에 screen_height가 있다고 가정하거나 상수로 지정)
         # 예: 전체 600px 중 하단 여백 등을 뺀 리스트가 보일 수 있는 최대 높이 설정
-        self.visible_height = 400
+        self.visible_height = mushitroom_config.DISPLAY_HEIGHT
 
     def on_enter(self):
         print("=== 사용자 선택 화면 진입 ===")
@@ -49,6 +52,7 @@ class SelectUserScene(BaseScene):
             height=50,
             color="black",
             text="SELECT USER",
+            is_focusable=False,
             font_weight=FontStyle.COOKIE_BOLD,
             text_color="white",
         )
@@ -111,25 +115,15 @@ class SelectUserScene(BaseScene):
             self.ui_manager.execute_current()
 
     def update(self):
-        # === 스크롤 로직 핵심 ===
-
-        # 1. 현재 선택된 인덱스 가져오기
+        # === 스크롤 로직 (기존 코드 유지) ===
         current_idx = self.ui_manager.current_index
-
-        # 타이틀(-1)이 선택되어 있다면 스크롤 계산 건너뜀
         if current_idx < 0:
             return
 
-        # 2. 선택된 아이템의 '원래' Y 위치 계산 (스크롤 적용 전 절대 위치)
         target_y = self.list_start_y + (current_idx * self.item_height)
 
-        # 3. 스크롤 범위 계산 (Camera Logic)
-        # 선택된 아이템이 화면 위로 나갔다면? -> 스크롤을 줄여서 위를 보여줌
         if target_y < self.list_start_y + self.scroll_y:
             self.scroll_y = target_y - self.list_start_y
-
-        # 선택된 아이템이 화면 아래로 나갔다면? -> 스크롤을 늘려서 아래를 보여줌
-        # (self.visible_height - self.item_height)는 화면의 바닥 기준선
         elif (
             target_y
             > self.list_start_y + self.scroll_y + self.visible_height - self.item_height
@@ -138,27 +132,30 @@ class SelectUserScene(BaseScene):
                 self.list_start_y + self.visible_height - self.item_height
             )
 
-        # 4. 모든 UI 요소의 위치 업데이트
+        # 4. 모든 UI 요소 위치 업데이트 (기존 코드 유지)
+        current_obj = None  # [변경] 현재 선택된 객체를 찾기 위한 변수
+
         for elem in self.ui_manager.elements:
-            # 타이틀(index=-1)은 고정 (스크롤 안 함)
             if elem.index == -1:
                 continue
 
-            # 리스트 아이템들의 원래 위치 계산
             original_y = self.list_start_y + (elem.index * self.item_height)
-
-            # 스크롤 오프셋 적용 (위로 밀어올리기 위해 뺌)
             elem.y = original_y - self.scroll_y
 
-            # (선택 사항) 화면 밖의 요소는 그리지 않게 하거나 투명하게 처리하고 싶다면 여기서 처리
-            # 예: 화면 밖 요소는 visible=False 처리 등
-            # if elem.y < self.list_start_y or elem.y > self.list_start_y + self.visible_height:
-            #     elem.visible = False # 만약 객체에 visible 속성이 있다면
-            # else:
-            #     elem.visible = True
+            # [변경 2] 현재 루프 도는 요소가 '선택된 요소'라면 저장해둠
+            if elem.index == current_idx:
+                current_obj = elem
+
+        # [변경 3] 커서에게 "지금 이 녀석을 따라다녀라"라고 알려줌
+        # 버튼의 위치(elem.y)가 위에서 스크롤에 의해 업데이트되었으므로,
+        # 커서는 최신 위치를 알 수 있게 됩니다.
+        if current_obj:
+            self.cursor.set_target(current_obj)
+            self.cursor.update()
 
     def draw(self, draw_tool):
         self.ui_manager.draw(draw_tool)
+        self.cursor.draw(draw_tool)
 
     def on_exit(self):
         print("=== 사용자 선택 화면 퇴장 ===")

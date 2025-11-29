@@ -33,11 +33,14 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
         font_size: int = 15,
         font_weight: FontStyle = FontStyle.REGULAR,
         id: str | None = None,
-        on_action: Callable = noneFunction,  # [추가] 엔터 눌렀을 때 실행할 함수
+        on_action: Callable = noneFunction,
+        is_focusable: bool = True,  # [추가] 선택 가능 여부 (기본값 True)
     ):
         super().__init__(
             x, y, width, height, color, id, object_type=ObjectType.INTERFACE
         )
+
+        self.is_focusable = is_focusable  # [추가] 속성 저장
 
         # 1. 일단 운영체제 기준 경로를 만듭니다.
         current_dir = os.path.dirname(__file__)
@@ -101,7 +104,7 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
     def deselect(self):
         self.is_selected = False
 
-    # [추가] 액션 실행 (딸깍!)
+    # 액션 실행 (딸깍!)
     def trigger_action(self):
         if self.on_action:
             print(f"[{self.text}] 버튼 실행!")
@@ -109,15 +112,16 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
 
     def draw(self, canvas: ImageDraw):
         super().draw(canvas)
-        color_override = self.text_color
-        if self.is_selected:
-            color_override = "red"
+
+        # [변경] 선택되었다고 색상을 바꾸는 로직을 제거했습니다.
+        # 이제 커서(UiCursor)가 선택됨을 표시하므로 글자는 원래 색을 유지합니다.
+
         if self.text is not None:
             canvas.text(
                 (self.x, self.y),
                 self.text,
                 font=self.font,
-                fill=color_override,
+                fill=self.text_color,  # 무조건 설정된 색상 사용
                 anchor="mm",  # 가운데 정렬
             )
 
@@ -131,44 +135,64 @@ class MushitroomInterfaceGroup:
         """UI 요소를 그룹에 추가합니다."""
         self.elements.append(element)
 
-        if len(self.elements) == 1:
-            self.current_index = 0
-            element.select()
+        # [변경] 추가된 요소가 '선택 가능(is_focusable)'하고,
+        # 현재 그룹에 선택된 요소가 하나도 없다면 얘를 선택합니다.
+        if element.is_focusable:
+            has_selection = any(e.is_selected for e in self.elements)
+            if not has_selection:
+                self.current_index = len(self.elements) - 1
+                element.select()
 
     def select_next(self):
-        """다음 메뉴로 이동 (마지막이면 처음으로)"""
+        """다음 선택 가능한 메뉴로 이동"""
         if not self.elements:
             return  # 리스트 비었으면 패스
 
-        # 1. 지금 선택된 놈 불 끄기
-        self.elements[self.current_index].deselect()
+        start_index = self.current_index
+        check_index = start_index
 
-        # 2. 번호 증가 (나머지 연산 % 으로 순환)
-        self.current_index = (self.current_index + 1) % len(self.elements)
+        # [변경] 한 바퀴 돌면서 focusable인 녀석을 찾을 때까지 반복
+        for _ in range(len(self.elements)):
+            check_index = (check_index + 1) % len(self.elements)
+            target = self.elements[check_index]
 
-        # 3. 새로 선택된 놈 불 켜기
-        self.elements[self.current_index].select()
-        print(f"이동함 -> {self.current_index}번")
+            if target.is_focusable:
+                # 찾았다!
+                self.elements[start_index].deselect()  # 기존 놈 끄기
+                target.select()  # 새 놈 켜기
+                self.current_index = check_index  # 인덱스 갱신
+                print(f"이동함 -> {self.current_index}번 ({target.text})")
+                return
 
     def select_prev(self):
-        """이전 메뉴로 이동"""
+        """이전 선택 가능한 메뉴로 이동"""
         if not self.elements:
             return
 
-        self.elements[self.current_index].deselect()
+        start_index = self.current_index
+        check_index = start_index
 
-        # 번호 감소 (음수 되면 알아서 뒤로 감)
-        self.current_index = (self.current_index - 1) % len(self.elements)
+        # [변경] 한 바퀴 돌면서 focusable인 녀석을 찾을 때까지 반복
+        for _ in range(len(self.elements)):
+            # 파이썬은 음수 % 연산 시 뒤로 감 (알아서 순환)
+            check_index = (check_index - 1) % len(self.elements)
+            target = self.elements[check_index]
 
-        self.elements[self.current_index].select()
-        print(f"이동함 -> {self.current_index}번")
+            if target.is_focusable:
+                self.elements[start_index].deselect()
+                target.select()
+                self.current_index = check_index
+                print(f"이동함 -> {self.current_index}번 ({target.text})")
+                return
 
     def execute_current(self):
         """지금 선택된 놈의 액션(딸깍) 실행"""
         if self.elements:
             target = self.elements[self.current_index]
-            print(f"실행 -> {target.text}")
-            target.trigger_action()
+            # 선택 불가능한 놈이 혹시라도 걸려있으면 실행 안 함
+            if target.is_focusable:
+                print(f"실행 -> {target.text}")
+                target.trigger_action()
 
     def draw(self, canvas: ImageDraw):
         """그룹 안에 있는 모든 UI를 한방에 그리기"""

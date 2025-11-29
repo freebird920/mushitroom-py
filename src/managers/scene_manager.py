@@ -94,4 +94,3 @@ class SceneManager:
     def quit(self):
         if self.current_scene:
             self.current_scene.on_exit()
-        # 필요한 경우 DB 연결 종료 등 처리

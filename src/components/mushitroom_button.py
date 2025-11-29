@@ -11,6 +11,7 @@ from src.utils.resource_loader import load_custom_font, load_resized_image
 
 class MushitroomButton(MushitroomInterfaceObject):
     button_href: str
+    is_focusable: bool
     _image_cache: Image.Image | None
     _font: ImageFont.ImageFont | ImageFont.FreeTypeFont
 
@@ -28,6 +29,7 @@ class MushitroomButton(MushitroomInterfaceObject):
         font_weight: FontStyle = FontStyle.REGULAR,
         id: str | None = None,
         on_action: Callable = noneFunction,
+        is_focusable: bool = True,
     ):
         super().__init__(
             index,
@@ -44,8 +46,7 @@ class MushitroomButton(MushitroomInterfaceObject):
             on_action,
         )
 
-        # [수정] 실행 위치에 상관없이 안전하게 경로 계산
-        current_dir = os.path.dirname(__file__)
+        self.is_focusable = is_focusable
 
         # 1. 이미지 로드
         # img_path = os.path.join(current_dir, "../", "assets", "images", "button.png")

@@ -73,17 +73,17 @@ class InputManager:
             # GPIO 버튼 설정
             self.gpio_buttons: Dict[InputActions, Button] = {
                 InputActions.PREV: Button(
-                    mushitroom_config.BUTTON_UP,
+                    mushitroom_config.GPIO_PINS.BUTTON_UP,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
                 InputActions.NEXT: Button(
-                    mushitroom_config.BUTTON_DOWN,
+                    mushitroom_config.GPIO_PINS.BUTTON_DOWN,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
                 InputActions.ENTER: Button(
-                    mushitroom_config.BUTTON_RETURN,
+                    mushitroom_config.GPIO_PINS.BUTTON_RETURN,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
