@@ -1,8 +1,10 @@
 README.md
 pyproject.toml
+src/assets/__init__.py
 src/classes/__init__.py
 src/classes/mushitroom_interface_object.py
 src/classes/mushitroom_object.py
+src/classes/mushitroom_png_object.py
 src/classes/scene_base.py
 src/managers/__init__.py
 src/managers/input_manager.py
@@ -13,6 +15,7 @@ src/mushitroom_py.egg-info/dependency_links.txt
 src/mushitroom_py.egg-info/requires.txt
 src/mushitroom_py.egg-info/top_level.txt
 src/scenes/__init__.py
+src/scenes/phishing_test_scene.py
 src/scenes/select_user_scene.py
 src/scenes/user_test_scene.py
 src/schemas/__init__.py
