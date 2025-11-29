@@ -10,7 +10,7 @@ from src.classes.mushitroom_interface_object import (
 from src.settings import mushitroom_config
 from src.classes.scene_base import BaseScene
 from src.classes.mushitroom_png_object import PngObject
-from src.settings.mushitroom_enums import ObjectType, SceneType
+from src.settings.mushitroom_enums import InputActions, ObjectType, SceneType
 
 
 if TYPE_CHECKING:
@@ -48,7 +48,7 @@ class UserTestScene(BaseScene):
             height=30,
             color="red",
             object_type=ObjectType.DEFAULT,
-            href="./src/assets/images/mushitroom_01.png",
+            href="./src/assets/images/magui3.png",
         )
 
         # 2. 장애물 변수 초기화
@@ -96,7 +96,7 @@ class UserTestScene(BaseScene):
         step = 10
 
         # 씬 전환
-        if "Escape" in input_state.just_pressed_keys:
+        if InputActions.ENTER in input_state.just_pressed_actions:
             self.manager.switch_scene(SceneType.SELECT_USER)
 
         # 플레이어 이동 (화면 밖으로 나가지 않게 제한)
@@ -164,7 +164,7 @@ class UserTestScene(BaseScene):
             height=30,
             color="blue",
             object_type=ObjectType.DEFAULT,
-            href="./src/assets/images/mushitroom_02.png",
+            href="./src/assets/images/tong3.png",
         )
         # 동적 속성 추가: 초기 속도
         new_obstacle.velocity_y = self.INITIAL_VELOCITY

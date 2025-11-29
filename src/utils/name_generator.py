@@ -38,6 +38,13 @@ class NameGenerator:
         "부지런한",
         "잠오는",
         "윤어게인",
+        "윤어게인",
+        "윤어게인",
+        "윤어게인",
+        "윤어게인",
+        "윤어게인",
+        "윤어게인",
+        "윤어게인",
     ]
 
     # 명사 리스트
@@ -62,7 +69,6 @@ class NameGenerator:
     def get_random_name(cls) -> str:
         """
         랜덤한 닉네임을 생성하여 반환합니다.
-        예: '축축한 곰팡이', '춤추는 독버섯'
         """
         adj = random.choice(cls.ADJECTIVES)
         noun = random.choice(cls.NOUNS)

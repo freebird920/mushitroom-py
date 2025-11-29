@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Dict, Type, Optional
 from src.settings.mushitroom_enums import SceneType
 
 if TYPE_CHECKING:
+    from src.managers.input_manager import InputState
     from src.classes.scene_base import BaseScene
     from services.sq_service import SqService
 
@@ -77,7 +78,7 @@ class SceneManager:
         # 여기서 씬 내부 변수(점수, 위치 등)가 초기화되어야 합니다.
         self.current_scene.on_enter(**kwargs)
 
-    def handle_input(self, input_state):
+    def handle_input(self, input_state: "InputState"):
         if self.current_scene:
             self.current_scene.handle_input(input_state)
 
@@ -93,4 +94,3 @@ class SceneManager:
     def quit(self):
         if self.current_scene:
             self.current_scene.on_exit()
-        # 필요한 경우 DB 연결 종료 등 처리

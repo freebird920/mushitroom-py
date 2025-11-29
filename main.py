@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw
 from typing import TYPE_CHECKING
 
 # 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
+from src.settings.mushitroom_config import BACKLIGHT_PWM
 from src.managers.scene_manager import SceneManager, SceneType
 from src.managers.input_manager import InputManager
 
@@ -23,7 +24,7 @@ except ImportError as e:
 # ============
 # 전역 설정
 # ============
-WIDTH = mushitroom_config.DISPLAY_WIDTH
+
 HEIGHT = mushitroom_config.DISPLAY_HEIGHT
 ROTATE = mushitroom_config.DISPLAY_ROTATE
 BG_COLOR = mushitroom_config.BG_COLOR
@@ -48,11 +49,17 @@ except:
 if TYPE_CHECKING:
     import tkinter as tk
 root: "tk.Tk | None" = None
-device = None
+device: "TkinterEmulator | st7789 |None" = None
 
 if IS_WINDOWS:
     import tkinter as tk
     from PIL import ImageTk
+    import ctypes
+
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except Exception:
+        ctypes.windll.user32.SetProcessDPIAware()
 
     class TkinterEmulator:
         def __init__(self, width, height):
@@ -63,7 +70,6 @@ if IS_WINDOWS:
             self.label = tk.Label(self.root)
             self.label.pack()
             self.root.geometry(f"{width}x{height}")
-            # 키보드 포커스
             self.root.focus_set()
 
         def display(self, pil_image):
@@ -76,7 +82,9 @@ if IS_WINDOWS:
             self.root.update()
             self.root.update_idletasks()
 
-    device = TkinterEmulator(WIDTH, HEIGHT)
+    device = TkinterEmulator(
+        width=mushitroom_config.DISPLAY_WIDTH, height=mushitroom_config.DISPLAY_HEIGHT
+    )
     root = device.root  # 키 바인딩용
 
 else:
@@ -86,7 +94,10 @@ else:
     try:
         from luma.core.interface.serial import spi
         from luma.lcd.device import st7789  # 정확한 모델명 사용
-        from gpiozero import Button
+        from gpiozero import PWMLED
+
+        backlight = PWMLED(BACKLIGHT_PWM)
+        backlight.value = 0.8
 
         # 1. SPI 설정 (아까 성공한 핀맵)
         # port=0, device=0 -> SPI0
@@ -101,8 +112,10 @@ else:
 
         # 2. 디바이스 초기화 (중요: width, height, rotate 명시)
         # 2.4인치 240x320 꽉 채우기
-        device = st7789(serial, width=WIDTH, height=HEIGHT, rotate=ROTATE)
-        print(f"Luma LCD Device Loaded: {WIDTH}x{HEIGHT}")
+        device = st7789(
+            serial, width=mushitroom_config.DISPLAY_WIDTH, height=HEIGHT, rotate=ROTATE
+        )
+        print(f"Luma LCD Device Loaded: {mushitroom_config.DISPLAY_WIDTH}x{HEIGHT}")
 
     except Exception as e:
         print(f"Luma 디바이스 로드 실패: {e}")
@@ -111,7 +124,7 @@ else:
 
 scene_manager = SceneManager(db)
 scene_manager.switch_scene(SceneType.SELECT_USER)
-# InputManager 초기화 (src.classes.input_manager)
+
 input_manager = InputManager(IS_WINDOWS, root)
 
 # 초기 씬 설정
@@ -128,7 +141,7 @@ input_manager = InputManager(IS_WINDOWS, root)
 # ============
 def handle_game_logic():
     # 1. 입력 상태 업데이트 (RPi 폴링 등)
-    input_manager.update()
+    # input_manager.update()
 
     # 2. 씬에 입력 전달
     scene_manager.handle_input(input_manager.state)
@@ -141,7 +154,11 @@ def handle_game_logic():
 
 
 def draw_frame() -> Image.Image:
-    canvas = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+    canvas = Image.new(
+        "RGBA",
+        (mushitroom_config.DISPLAY_WIDTH, mushitroom_config.DISPLAY_HEIGHT),
+        BG_COLOR,
+    )
     draw_tool = ImageDraw.Draw(canvas)
     scene_manager.draw(draw_tool)
     return canvas
@@ -155,13 +172,11 @@ def main_loop_windows():
     pil_image = draw_frame()
     if device is not None and root is not None:
         device.display(pil_image)
-
-        # 다음 프레임 예약 (FPS 준수)
         root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
 
 
 def main_loop_rpi():
-    """RPi용 루프 (While True 사용)"""
+
     while True:
         start_time = time.time()
 

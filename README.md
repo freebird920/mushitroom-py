@@ -271,3 +271,7 @@ git fetch origin
 git reset --hard origin/main
 uv sync
 ```
+
+```bash
+git fetch origin && git reset --hard origin/main && uv sync
+```
