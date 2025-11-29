@@ -4,8 +4,10 @@ from src.settings import mushitroom_config
 if TYPE_CHECKING:
     import tkinter as tk
 
+
 class InputState:
     """현재 프레임의 입력 상태를 저장하는 데이터 클래스"""
+
     def __init__(self):
         # 지속적인 상태 (누르고 있는 동안 True)
         self.up: bool = False
@@ -19,7 +21,7 @@ class InputState:
         # 물리적 키 상태
         self.pressed_keys: Set[str] = set()
         self.just_pressed_keys: Set[str] = set()
-        
+
         # [추가] 논리적 액션 상태 (이번 프레임에 막 눌린 행동들)
         # 예: 'q'를 누르면 여기에 'prev'가 들어감
         self.just_pressed_actions: Set[str] = set()
@@ -36,9 +38,9 @@ class InputManager:
             "down": ["Down", "s"],
             "left": ["Left", "a"],
             "right": ["Right", "d"],
-            "enter": ["Return", "space"], # space도 엔터로 처리하면 편함
-            "prev": ["bracketleft", "q", "Left"], # 왼쪽 화살표도 prev로
-            "next": ["bracketright", "e", "Right"], # 오른쪽 화살표도 next로
+            "enter": ["Return", "space"],  # space도 엔터로 처리하면 편함
+            "prev": ["bracketleft", "q", "Left"],  # 왼쪽 화살표도 prev로
+            "next": ["bracketright", "e", "Right"],  # 오른쪽 화살표도 next로
         }
 
         # [최적화] 역방향 매핑 생성 (물리적 키 -> 논리적 동작)
@@ -59,16 +61,36 @@ class InputManager:
         root.bind("<KeyRelease>", self._on_key_release)
 
     def _setup_rpi(self):
-        # ... (기존 GPIO 코드 유지) ...
+        try:
+
+            from gpiozero import Button
+
+            # TODO: 실제 핀 번호에 맞게 수정 필요
+
+            self.gpio_buttons = {
+                "up": Button(17),
+                "down": Button(27),
+                "left": Button(22),
+                "right": Button(23),
+                "prev": Button(mushitroom_config.BUTTON_UP, pull_up=True),
+                "next": Button(mushitroom_config.BUTTON_DOWN, pull_up=True),
+                "enter": Button(mushitroom_config.BUTTON_RETURN, pull_up=True),
+            }
+
+        except ImportError:
+
+            print("GPIO 모듈 로드 실패: RPi 환경이 아니거나 라이브러리가 없습니다.")
+
+            self.gpio_buttons = {}
         pass
 
     def _on_key_press(self, event):
         sym = event.keysym
-        
+
         # 1. 물리적 키 기록
         if sym not in self.state.pressed_keys:
             self.state.just_pressed_keys.add(sym)
-            
+
             # 2. [핵심] 논리적 액션 매핑 및 기록
             # 키가 눌린 '순간'에만 액션을 트리거함
             action = self._key_to_action.get(sym)
@@ -82,7 +104,7 @@ class InputManager:
         sym = event.keysym
         if sym in self.state.pressed_keys:
             self.state.pressed_keys.remove(sym)
-            
+
         action = self._key_to_action.get(sym)
         if action:
             self._update_logical_bool(action, False)
@@ -95,4 +117,4 @@ class InputManager:
     def clear_just_pressed(self):
         """프레임 종료 후 트리거 초기화"""
         self.state.just_pressed_keys.clear()
-        self.state.just_pressed_actions.clear() # 액션도 초기화
+        self.state.just_pressed_actions.clear()  # 액션도 초기화
