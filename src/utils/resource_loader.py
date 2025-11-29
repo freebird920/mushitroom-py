@@ -77,7 +77,7 @@ def load_resized_image(path: str, width: int, height: int) -> Image.Image | None
         try:
             with Image.open(img_stream) as img:
                 img = img.convert("RGBA")
-                return img.resize((width, height))
+                return img.resize((width, height), resample=Image.Resampling.NEAREST)
         except UnidentifiedImageError:
             print(f"❌ 이미지 식별 불가: {path}")
         except Exception as e:
