@@ -96,7 +96,7 @@ else:
             device=0,
             gpio_DC=mushitroom_config.DISPLAY_DC,
             gpio_RST=mushitroom_config.DISPLAY_RST,
-            # bus_speed_hz=mushitroom_config.SPI_SPEED,
+            bus_speed_hz=mushitroom_config.SPI_SPEED,
         )
 
         # 2. 디바이스 초기화 (중요: width, height, rotate 명시)

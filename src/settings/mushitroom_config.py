@@ -7,7 +7,7 @@ DISPLAY_HEIGHT: int = 240
 DISPLAY_ROTATE: int = 2
 BG_COLOR = "white"
 FPS: int = 60
-SPI_SPEED = 60 * 1_000 * 1_000
+SPI_SPEED = 40 * 1_000 * 1_000
 
 # ============
 # GPIO PIN OUT
