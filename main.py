@@ -130,7 +130,7 @@ input_manager = InputManager(IS_WINDOWS, root)
 # ============
 def handle_game_logic():
     # 1. 입력 상태 업데이트 (RPi 폴링 등)
-    input_manager.update()
+    # input_manager.update()
 
     # 2. 씬에 입력 전달
     scene_manager.handle_input(input_manager.state)

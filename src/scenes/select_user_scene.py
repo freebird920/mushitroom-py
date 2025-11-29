@@ -99,19 +99,18 @@ class SelectUserScene(BaseScene):
         self.on_enter()
 
     def handle_input(self, input_state: "InputState"):
-        just_pressed = input_state.just_pressed_keys
+        # [핵심] 이제 논리적 액션만 확인하면 됩니다.
+        # just_pressed_actions: 이번 프레임에 막 눌린 키들의 '의미'
+        actions = input_state.just_pressed_actions
 
-        if "bracketleft" in just_pressed or "q" in just_pressed:
+        if "prev" in actions:
             self.ui_manager.select_prev()
 
-        if "bracketright" in just_pressed or "e" in just_pressed:
+        if "next" in actions:
             self.ui_manager.select_next()
 
-        if "Return" in just_pressed:
-            current_btn = self.ui_manager.elements[self.ui_manager.current_index]
-            # 타이틀(index=-1)이 선택되는 것을 방지
-            if self.ui_manager.current_index >= 0 and current_btn.on_action:
-                current_btn.on_action()
+        if "enter" in actions:
+            self.ui_manager.execute_current()
 
     def update(self):
         # === 스크롤 로직 핵심 ===
