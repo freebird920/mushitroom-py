@@ -66,9 +66,21 @@ class InputManager:
             from gpiozero import Button
 
             self.gpio_buttons = {
-                "prev": Button(mushitroom_config.BUTTON_UP, pull_up=True),
-                "next": Button(mushitroom_config.BUTTON_DOWN, pull_up=True),
-                "enter": Button(mushitroom_config.BUTTON_RETURN, pull_up=True),
+                "prev": Button(
+                    mushitroom_config.BUTTON_UP,
+                    pull_up=True,
+                    bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
+                ),
+                "next": Button(
+                    mushitroom_config.BUTTON_DOWN,
+                    pull_up=True,
+                    bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
+                ),
+                "enter": Button(
+                    mushitroom_config.BUTTON_RETURN,
+                    pull_up=True,
+                    bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
+                ),
             }
             for action, btn in self.gpio_buttons.items():
                 btn.when_pressed = lambda a=action: self._on_gpio_press(a)
