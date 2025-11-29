@@ -11,10 +11,7 @@ from PIL.ImageDraw import ImageDraw
 # import mushitroom_enums
 from src.settings.mushitroom_enums import FontWeight
 from src.settings.mushitroom_enums import ObjectType
-
-
-def noneFunction():
-    pass
+from src.utils.none_function import noneFunction
 
 
 class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
