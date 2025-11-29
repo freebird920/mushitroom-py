@@ -60,7 +60,7 @@ class InputManager:
     def _setup_rpi(self):
         """Raspberry Pi GPIO 설정"""
         try:
-            from gpiozero import Button  
+            from gpiozero import Button
 
             # TODO: 실제 핀 번호에 맞게 수정 필요
             self.gpio_buttons = {

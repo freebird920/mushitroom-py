@@ -91,14 +91,17 @@ else:
         # 1. SPI 설정 (아까 성공한 핀맵)
         # port=0, device=0 -> SPI0
         # DC=GPIO 24, RST=GPIO 25
-        serial = spi(port=0, device=0, gpio_DC=24, gpio_RST=25)
+        serial = spi(
+            port=0,
+            device=0,
+            gpio_DC=mushitroom_config.DISPLAY_DC,
+            gpio_RST=mushitroom_config.DISPLAY_RST,
+            bus_speed_hz=mushitroom_config.SPI_SPEED,
+        )
 
         # 2. 디바이스 초기화 (중요: width, height, rotate 명시)
         # 2.4인치 240x320 꽉 채우기
         device = st7789(serial, width=WIDTH, height=HEIGHT, rotate=ROTATE)
-
-        # 백라이트 켜기 (혹시 GPIO로 제어한다면 추가, 보통은 VCC 연결로 퉁침)
-
         print(f"Luma LCD Device Loaded: {WIDTH}x{HEIGHT}")
 
     except Exception as e:
