@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from src.components.mushitroom_button import MushitroomButton
 from src.classes.mushitroom_interface_object import (
     MushitroomInterfaceGroup,
     MushitroomInterfaceObject,
@@ -40,15 +41,15 @@ class SelectUserScene(BaseScene):
         self.users = self.db.get_all_users()
 
         # 1. 고정 타이틀 (스크롤 영향을 받지 않음)
-        title = MushitroomInterfaceObject(
+        title = MushitroomButton(
             index=-1,  # 선택 불가능하도록 -1
-            x=80,
-            y=10,
+            x=100,
+            y=25,
             width=200,
-            height=30,
+            height=50,
             color="black",
             text="SELECT USER",
-            font_weight=FontWeight.HEAVY,
+            font_weight=FontWeight.EXTRA_BOLD,
             text_color="white",
         )
         self.ui_manager.add_element(title)
