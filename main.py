@@ -49,11 +49,17 @@ except:
 if TYPE_CHECKING:
     import tkinter as tk
 root: "tk.Tk | None" = None
-device = None
+device: "TkinterEmulator | st7789 |None" = None
 
 if IS_WINDOWS:
     import tkinter as tk
     from PIL import ImageTk
+    import ctypes
+
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except Exception:
+        ctypes.windll.user32.SetProcessDPIAware()
 
     class TkinterEmulator:
         def __init__(self, width, height):
@@ -64,7 +70,6 @@ if IS_WINDOWS:
             self.label = tk.Label(self.root)
             self.label.pack()
             self.root.geometry(f"{width}x{height}")
-            # 키보드 포커스
             self.root.focus_set()
 
         def display(self, pil_image):
@@ -77,7 +82,9 @@ if IS_WINDOWS:
             self.root.update()
             self.root.update_idletasks()
 
-    device = TkinterEmulator(mushitroom_config.DISPLAY_WIDTH, HEIGHT)
+    device = TkinterEmulator(
+        width=mushitroom_config.DISPLAY_WIDTH, height=mushitroom_config.DISPLAY_HEIGHT
+    )
     root = device.root  # 키 바인딩용
 
 else:
@@ -117,7 +124,7 @@ else:
 
 scene_manager = SceneManager(db)
 scene_manager.switch_scene(SceneType.SELECT_USER)
-# InputManager 초기화 (src.classes.input_manager)
+
 input_manager = InputManager(IS_WINDOWS, root)
 
 # 초기 씬 설정
@@ -147,7 +154,11 @@ def handle_game_logic():
 
 
 def draw_frame() -> Image.Image:
-    canvas = Image.new("RGB", (mushitroom_config.DISPLAY_WIDTH, HEIGHT), BG_COLOR)
+    canvas = Image.new(
+        "RGBA",
+        (mushitroom_config.DISPLAY_WIDTH, mushitroom_config.DISPLAY_HEIGHT),
+        BG_COLOR,
+    )
     draw_tool = ImageDraw.Draw(canvas)
     scene_manager.draw(draw_tool)
     return canvas
@@ -161,13 +172,11 @@ def main_loop_windows():
     pil_image = draw_frame()
     if device is not None and root is not None:
         device.display(pil_image)
-
-        # 다음 프레임 예약 (FPS 준수)
         root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
 
 
 def main_loop_rpi():
-    """RPi용 루프 (While True 사용)"""
+
     while True:
         start_time = time.time()
 
