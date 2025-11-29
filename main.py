@@ -1,7 +1,7 @@
 import sys
 import platform
 import time
-from PIL import Image, ImageDraw, ImageTk
+from PIL import Image, ImageDraw
 from typing import TYPE_CHECKING
 
 # 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
@@ -25,6 +25,7 @@ except ImportError as e:
 # ============
 WIDTH = mushitroom_config.DISPLAY_WIDTH
 HEIGHT = mushitroom_config.DISPLAY_HEIGHT
+ROTATE = mushitroom_config.DISPLAY_ROTATE
 BG_COLOR = mushitroom_config.BG_COLOR
 FPS = mushitroom_config.FPS
 FRAME_TIME_SEC = 1.0 / FPS
@@ -51,6 +52,7 @@ device = None
 
 if IS_WINDOWS:
     import tkinter as tk
+    from PIL import ImageTk
 
     class TkinterEmulator:
         def __init__(self, width, height):
@@ -78,28 +80,32 @@ if IS_WINDOWS:
     root = device.root  # 키 바인딩용
 
 else:
+    # =================================================
+    # [Raspberry Pi 설정] ST7789V 2.4인치 (240x320)
+    # =================================================
     try:
         from luma.core.interface.serial import spi
-        from luma.lcd.device import (
-            st7789 as lcd_device,
-        )  # 본인 LCD에 맞게 변경 (ili9341 등)
+        from luma.lcd.device import st7789  # 정확한 모델명 사용
         from gpiozero import Button
 
-        # SPI 설정 (핀 번호 확인 필수)
+        # 1. SPI 설정 (아까 성공한 핀맵)
+        # port=0, device=0 -> SPI0
+        # DC=GPIO 24, RST=GPIO 25
         serial = spi(port=0, device=0, gpio_DC=24, gpio_RST=25)
-        device = lcd_device(serial, width=WIDTH, height=HEIGHT, rotate=1)
-        print("Luma LCD Device Loaded.")
+
+        # 2. 디바이스 초기화 (중요: width, height, rotate 명시)
+        # 2.4인치 240x320 꽉 채우기
+        device = st7789(serial, width=WIDTH, height=HEIGHT, rotate=ROTATE)
+
+        # 백라이트 켜기 (혹시 GPIO로 제어한다면 추가, 보통은 VCC 연결로 퉁침)
+
+        print(f"Luma LCD Device Loaded: {WIDTH}x{HEIGHT}")
+
     except Exception as e:
         print(f"Luma 디바이스 로드 실패: {e}")
         sys.exit(1)
 
 
-# ============
-# Scene Manager
-# ============
-
-
-# 로컬 클래스 사용
 scene_manager = SceneManager(db)
 scene_manager.switch_scene(SceneType.SELECT_USER)
 # InputManager 초기화 (src.classes.input_manager)
