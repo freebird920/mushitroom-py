@@ -19,6 +19,7 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
     text_color: str = "black"
     is_selected = False
     on_action: Callable = noneFunction
+    index: int | None
 
     def __init__(
         self,

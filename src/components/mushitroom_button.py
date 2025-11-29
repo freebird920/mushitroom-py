@@ -14,6 +14,7 @@ class MushitroomButton(MushitroomInterfaceObject):
     is_focusable: bool
     _image_cache: Image.Image | None
     _font: ImageFont.ImageFont | ImageFont.FreeTypeFont
+    index: None | int
 
     def __init__(
         self,

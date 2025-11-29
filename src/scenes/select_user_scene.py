@@ -136,19 +136,15 @@ class SelectUserScene(BaseScene):
         current_obj = None  # [변경] 현재 선택된 객체를 찾기 위한 변수
 
         for elem in self.ui_manager.elements:
-            if elem.index == -1:
+            if elem.index == None:
                 continue
 
             original_y = self.list_start_y + (elem.index * self.item_height)
             elem.y = original_y - self.scroll_y
 
-            # [변경 2] 현재 루프 도는 요소가 '선택된 요소'라면 저장해둠
             if elem.index == current_idx:
                 current_obj = elem
 
-        # [변경 3] 커서에게 "지금 이 녀석을 따라다녀라"라고 알려줌
-        # 버튼의 위치(elem.y)가 위에서 스크롤에 의해 업데이트되었으므로,
-        # 커서는 최신 위치를 알 수 있게 됩니다.
         if current_obj:
             self.cursor.set_target(current_obj)
             self.cursor.update()
