@@ -22,3 +22,13 @@ class FontStyle(Enum):
     EXTRA_BOLD = "NanumSquareNeo-dEb.ttf"
     HEAVY = "NanumSquareNeo-eHv.ttf"
     COOKIE_BOLD = "CookieRun-Bold.ttf"
+
+
+class InputActions(Enum):
+    DOWN = "down"
+    UP = "up"
+    RIGHT = "right"
+    LEFT = "left"
+    PREV = "prev"
+    NEXT = "next"
+    ENTER = "enter"

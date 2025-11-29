@@ -6,7 +6,7 @@ from src.classes.mushitroom_interface_object import (
 )
 
 
-from src.settings.mushitroom_enums import FontStyle
+from src.settings.mushitroom_enums import FontStyle, InputActions
 from src.utils.name_generator import NameGenerator
 from src.classes.scene_base import BaseScene
 from src.managers.scene_manager import SceneType
@@ -57,15 +57,15 @@ class SelectUserScene(BaseScene):
         # 2. 유저 목록 버튼 생성
         # Y좌표는 나중에 update()에서 계산하므로 여기선 초기 순서만 중요함
         for i, user in enumerate(self.users):
-            btn = MushitroomInterfaceObject(
+            btn = MushitroomButton(
                 index=i,
-                x=80,
+                x=100,
                 y=self.list_start_y + (i * self.item_height),  # 초기 위치
                 width=200,
-                height=40,
-                color="#DDDDDD",
+                height=50,
+                color="#000000",
                 text=f"{user.username}",
-                font_weight=FontStyle.REGULAR,
+                font_weight=FontStyle.COOKIE_BOLD,
                 on_action=lambda u=user: self.select_user(u),
             )
             self.ui_manager.add_element(btn)
@@ -101,13 +101,13 @@ class SelectUserScene(BaseScene):
     def handle_input(self, input_state: "InputState"):
         actions = input_state.just_pressed_actions
 
-        if "prev" in actions:
+        if InputActions.UP in actions or InputActions.PREV in actions:
             self.ui_manager.select_prev()
 
-        if "next" in actions:
+        if InputActions.DOWN in actions or InputActions.NEXT in actions:
             self.ui_manager.select_next()
 
-        if "enter" in actions:
+        if InputActions.ENTER in actions:
             self.ui_manager.execute_current()
 
     def update(self):

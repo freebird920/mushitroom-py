@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Set, Dict, List, Optional
+from src.settings.mushitroom_enums import InputActions
 from src.settings import mushitroom_config
 
 if TYPE_CHECKING:
@@ -6,25 +7,31 @@ if TYPE_CHECKING:
 
 
 class InputState:
-    """현재 프레임의 입력 상태를 저장하는 데이터 클래스"""
+    """현재 프레임의 입력 상태를 저장하는 데이터 클래스 (Set 기반 리팩토링)"""
 
     def __init__(self):
-        # 지속적인 상태 (누르고 있는 동안 True)
-        self.up: bool = False
-        self.down: bool = False
-        self.left: bool = False
-        self.right: bool = False
-        self.enter: bool = False
-        self.prev: bool = False
-        self.next: bool = False
+        # [변경] 개별 bool 변수 제거 -> 눌려있는 액션들의 집합 (Hold)
+        # 예: {InputActions.UP, InputActions.ENTER}
+        self.held_actions: Set[InputActions] = set()
 
-        # 물리적 키 상태
+        # [변경] 이번 프레임에 막 눌린 액션들의 집합 (Trigger)
+        self.just_pressed_actions: Set[InputActions] = set()
+
+        # 물리적 키 상태 (디버깅용 혹은 로우 레벨 처리용)
         self.pressed_keys: Set[str] = set()
-        self.just_pressed_keys: Set[str] = set()
 
-        # [추가] 논리적 액션 상태 (이번 프레임에 막 눌린 행동들)
-        # 예: 'q'를 누르면 여기에 'prev'가 들어감
-        self.just_pressed_actions: Set[str] = set()
+    def is_held(self, action: InputActions) -> bool:
+        """해당 액션 키를 누르고 있는가?"""
+        return action in self.held_actions
+
+    def is_just_pressed(self, action: InputActions) -> bool:
+        """해당 액션 키를 방금 눌렀는가?"""
+        return action in self.just_pressed_actions
+
+    def clear_just_pressed(self):
+        """프레임 종료 후 트리거 초기화"""
+        self.just_pressed_actions.clear()
+        # pressed_keys의 just_pressed 로직이 필요 없다면 제거해도 됩니다.
 
 
 class InputManager:
@@ -33,19 +40,18 @@ class InputManager:
         self.is_windows = is_windows
 
         # 키 매핑: 논리적 동작 -> 물리적 키 리스트
-        self.key_map: Dict[str, List[str]] = {
-            "up": ["Up", "w"],
-            "down": ["Down", "s"],
-            "left": ["Left", "a"],
-            "right": ["Right", "d"],
-            "enter": ["Return", "space"],  # space도 엔터로 처리하면 편함
-            "prev": ["bracketleft", "q", "Left"],  # 왼쪽 화살표도 prev로
-            "next": ["bracketright", "e", "Right"],  # 오른쪽 화살표도 next로
+        self.key_map: Dict[InputActions, List[str]] = {
+            InputActions.UP: ["Up"],
+            InputActions.DOWN: ["Down"],
+            InputActions.LEFT: ["Left"],
+            InputActions.RIGHT: ["Right"],
+            InputActions.ENTER: ["Return", "space"],
+            InputActions.PREV: ["bracketleft", "q", "Left"],
+            InputActions.NEXT: ["bracketright", "e", "Right"],
         }
 
-        # [최적화] 역방향 매핑 생성 (물리적 키 -> 논리적 동작)
-        # 예: {'q': 'prev', 'Up': 'up', ...}
-        self._key_to_action: Dict[str, str] = {}
+        # 역방향 매핑 생성 (물리적 키 -> 논리적 동작)
+        self._key_to_action: Dict[str, InputActions] = {}
         for action, keys in self.key_map.items():
             for key in keys:
                 self._key_to_action[key] = action
@@ -62,51 +68,54 @@ class InputManager:
 
     def _setup_rpi(self):
         try:
-
             from gpiozero import Button
 
-            self.gpio_buttons = {
-                "prev": Button(
+            # GPIO 버튼 설정
+            self.gpio_buttons: Dict[InputActions, Button] = {
+                InputActions.PREV: Button(
                     mushitroom_config.BUTTON_UP,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
-                "next": Button(
+                InputActions.NEXT: Button(
                     mushitroom_config.BUTTON_DOWN,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
-                "enter": Button(
+                InputActions.ENTER: Button(
                     mushitroom_config.BUTTON_RETURN,
                     pull_up=True,
                     bounce_time=mushitroom_config.BUTTON_BOUNCE_TIME,
                 ),
             }
+
+            # 람다 대신 부분 적용이나 클로저를 명확히 사용하여 바인딩
             for action, btn in self.gpio_buttons.items():
+                # GPIOZero는 press/release 이벤트를 제공함
                 btn.when_pressed = lambda a=action: self._on_gpio_press(a)
                 btn.when_released = lambda a=action: self._on_gpio_release(a)
+
         except ImportError:
-
             print("GPIO 모듈 로드 실패: RPi 환경이 아니거나 라이브러리가 없습니다.")
-
             self.gpio_buttons = {}
-        pass
 
     def _on_key_press(self, event):
         sym = event.keysym
 
-        # 1. 물리적 키 기록
+        # 물리 키 기록 (필요하다면 유지)
         if sym not in self.state.pressed_keys:
-            self.state.just_pressed_keys.add(sym)
-
-            # 2. [핵심] 논리적 액션 매핑 및 기록
-            # 키가 눌린 '순간'에만 액션을 트리거함
-            action = self._key_to_action.get(sym)
-            if action:
-                self.state.just_pressed_actions.add(action)
-                self._update_logical_bool(action, True)
-
+            # 여기서는 물리 키 just_pressed 로직은 생략했습니다. 필요하면 추가 가능.
+            pass
         self.state.pressed_keys.add(sym)
+
+        # 논리 액션 처리
+        action = self._key_to_action.get(sym)
+        if action:
+            # [변경] 기존에는 bool 체크였으나, 이제 set 체크로 변경
+            if action not in self.state.held_actions:
+                self.state.just_pressed_actions.add(action)
+
+            self.state.held_actions.add(action)
 
     def _on_key_release(self, event):
         sym = event.keysym
@@ -115,27 +124,20 @@ class InputManager:
 
         action = self._key_to_action.get(sym)
         if action:
-            self._update_logical_bool(action, False)
+            # [변경] set에서 제거 (discard는 없어도 에러 안 남)
+            self.state.held_actions.discard(action)
 
-    def _on_gpio_press(self, action: str):
-        # 1. 막 눌린 상태(Trigger) 기록
-        # GPIO는 물리 키 개념보다 논리 액션이 1:1이므로 바로 액션에 넣습니다.
-        if not getattr(self.state, action):  # 이미 눌려있는 상태가 아닐 때만
+    def _on_gpio_press(self, action: InputActions):
+        # [변경] GPIO 로직도 set 기반으로 단순화
+        if action not in self.state.held_actions:
             self.state.just_pressed_actions.add(action)
 
-        # 2. 지속 상태(Hold) 업데이트
-        self._update_logical_bool(action, True)
+        self.state.held_actions.add(action)
 
-    # [추가] GPIO 전용 릴리즈 핸들러
-    def _on_gpio_release(self, action: str):
-        self._update_logical_bool(action, False)
-
-    def _update_logical_bool(self, action: str, is_pressed: bool):
-        """논리적 상태(boolean) 업데이트 (setattr 활용)"""
-        if hasattr(self.state, action):
-            setattr(self.state, action, is_pressed)
+    def _on_gpio_release(self, action: InputActions):
+        # [변경] set에서 제거
+        self.state.held_actions.discard(action)
 
     def clear_just_pressed(self):
-        """프레임 종료 후 트리거 초기화"""
-        self.state.just_pressed_keys.clear()
-        self.state.just_pressed_actions.clear()  # 액션도 초기화
+        """게임 루프의 끝에서 호출하여 트리거 상태 초기화"""
+        self.state.clear_just_pressed()
