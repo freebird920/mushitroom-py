@@ -90,7 +90,7 @@ else:
         from gpiozero import PWMLED
 
         backlight = PWMLED(BACKLIGHT_PWM)
-        backlight.value = 1.0
+        backlight.value = 0.8
 
         # 1. SPI 설정 (아까 성공한 핀맵)
         # port=0, device=0 -> SPI0
