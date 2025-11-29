@@ -13,6 +13,8 @@
   - [SQLite 데이터베이스](#sqlite-데이터베이스)
     - [1. 개요](#1-개요)
     - [2. 파이썬에서 사용법](#2-파이썬에서-사용법)
+  - [Raspberry pi zero 2](#raspberry-pi-zero-2)
+    - [git 설정](#git-설정)
 
 ## python 설정
 
@@ -254,3 +256,18 @@ erDiagram
         int score "Game Score"
         timestamp reg_date "Record Time"
     }
+```
+
+## Raspberry pi zero 2
+
+### git 설정
+
+```bash
+git clone https://github.com/freebird920/mushitroom-py.git
+```
+
+```bash
+git fetch origin
+git reset --hard origin/main
+uv sync
+```
