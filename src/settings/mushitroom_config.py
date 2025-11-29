@@ -16,7 +16,6 @@ DISPLAY_DC = 24
 DISPLAY_RST = 25
 
 
-
 BUTTON_UP = 21
 # ===
 TABLE_USER: str = "USER_INFO"

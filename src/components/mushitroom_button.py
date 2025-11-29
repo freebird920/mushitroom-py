@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # 기존 import 유지
 from src.classes.mushitroom_interface_object import MushitroomInterfaceObject
-from src.settings.mushitroom_enums import FontWeight
+from src.settings.mushitroom_enums import FontStyle
 from src.utils.none_function import noneFunction
 from src.utils.resource_loader import load_custom_font, load_resized_image
 
@@ -25,7 +25,7 @@ class MushitroomButton(MushitroomInterfaceObject):
         text: str | None = None,
         text_color: str = "black",
         font_size: int = 15,
-        font_weight: FontWeight = FontWeight.REGULAR,
+        font_weight: FontStyle = FontStyle.REGULAR,
         id: str | None = None,
         on_action: Callable = noneFunction,
     ):
@@ -48,16 +48,16 @@ class MushitroomButton(MushitroomInterfaceObject):
         current_dir = os.path.dirname(__file__)
 
         # 1. 이미지 로드
-        img_path = os.path.join(current_dir, "../", "assets", "images", "button.png")
+        # img_path = os.path.join(current_dir, "../", "assets", "images", "button.png")
         self._image_cache = load_resized_image(
-            path=img_path, width=self.width, height=self.height
+            path="./src/assets/images/button.png", width=self.width, height=self.height
         )
 
         # 2. 폰트 로드 (나눔스퀘어네오 하드코딩 된 경로 안전하게 수정)
-        font_path = os.path.join(
-            current_dir, "../", "assets", "fonts", "NanumSquareNeo-bRg.ttf"
+
+        self._font = load_custom_font(
+            path=f"./src/assets/fonts/{font_weight.value}", size=font_size
         )
-        self._font = load_custom_font(path=font_path, size=font_size)
 
     def draw(self, canvas: ImageDraw.ImageDraw):
         """

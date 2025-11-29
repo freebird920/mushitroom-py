@@ -23,7 +23,7 @@ except ImportError as e:
 # ============
 # 전역 설정
 # ============
-WIDTH = mushitroom_config.DISPLAY_WIDTH
+
 HEIGHT = mushitroom_config.DISPLAY_HEIGHT
 ROTATE = mushitroom_config.DISPLAY_ROTATE
 BG_COLOR = mushitroom_config.BG_COLOR
@@ -76,7 +76,7 @@ if IS_WINDOWS:
             self.root.update()
             self.root.update_idletasks()
 
-    device = TkinterEmulator(WIDTH, HEIGHT)
+    device = TkinterEmulator(mushitroom_config.DISPLAY_WIDTH, HEIGHT)
     root = device.root  # 키 바인딩용
 
 else:
@@ -101,8 +101,10 @@ else:
 
         # 2. 디바이스 초기화 (중요: width, height, rotate 명시)
         # 2.4인치 240x320 꽉 채우기
-        device = st7789(serial, width=WIDTH, height=HEIGHT, rotate=ROTATE)
-        print(f"Luma LCD Device Loaded: {WIDTH}x{HEIGHT}")
+        device = st7789(
+            serial, width=mushitroom_config.DISPLAY_WIDTH, height=HEIGHT, rotate=ROTATE
+        )
+        print(f"Luma LCD Device Loaded: {mushitroom_config.DISPLAY_WIDTH}x{HEIGHT}")
 
     except Exception as e:
         print(f"Luma 디바이스 로드 실패: {e}")
@@ -141,7 +143,7 @@ def handle_game_logic():
 
 
 def draw_frame() -> Image.Image:
-    canvas = Image.new("RGB", (WIDTH, HEIGHT), BG_COLOR)
+    canvas = Image.new("RGB", (mushitroom_config.DISPLAY_WIDTH, HEIGHT), BG_COLOR)
     draw_tool = ImageDraw.Draw(canvas)
     scene_manager.draw(draw_tool)
     return canvas

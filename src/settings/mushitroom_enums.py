@@ -15,9 +15,10 @@ class ObjectType(Enum):
     INTERFACE = "INTERFACE"
 
 
-class FontWeight(Enum):
+class FontStyle(Enum):
     LIGHT = "NanumSquareNeo-aLt.ttf"
     REGULAR = "NanumSquareNeo-bRg.ttf"
     BOLD = "NanumSquareNeo-cBd.ttf"
     EXTRA_BOLD = "NanumSquareNeo-dEb.ttf"
     HEAVY = "NanumSquareNeo-eHv.ttf"
+    COOKIE_BOLD = "CookieRun-Bold.ttf"

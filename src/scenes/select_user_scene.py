@@ -6,7 +6,7 @@ from src.classes.mushitroom_interface_object import (
 )
 
 
-from src.settings.mushitroom_enums import FontWeight
+from src.settings.mushitroom_enums import FontStyle
 from src.utils.name_generator import NameGenerator
 from src.classes.scene_base import BaseScene
 from src.managers.scene_manager import SceneType
@@ -49,7 +49,7 @@ class SelectUserScene(BaseScene):
             height=50,
             color="black",
             text="SELECT USER",
-            font_weight=FontWeight.EXTRA_BOLD,
+            font_weight=FontStyle.COOKIE_BOLD,
             text_color="white",
         )
         self.ui_manager.add_element(title)
@@ -65,7 +65,7 @@ class SelectUserScene(BaseScene):
                 height=40,
                 color="#DDDDDD",
                 text=f"{user.username}",
-                font_weight=FontWeight.REGULAR,
+                font_weight=FontStyle.REGULAR,
                 on_action=lambda u=user: self.select_user(u),
             )
             self.ui_manager.add_element(btn)
@@ -80,7 +80,7 @@ class SelectUserScene(BaseScene):
             height=40,
             color="#AAAAFF",
             text="+ NEW USER",
-            font_weight=FontWeight.HEAVY,
+            font_weight=FontStyle.HEAVY,
             on_action=self.create_new_user,
         )
         self.ui_manager.add_element(btn_create)

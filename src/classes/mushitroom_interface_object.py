@@ -9,7 +9,7 @@ from PIL.ImageDraw import ImageDraw
 
 
 # import mushitroom_enums
-from src.settings.mushitroom_enums import FontWeight
+from src.settings.mushitroom_enums import FontStyle
 from src.settings.mushitroom_enums import ObjectType
 from src.utils.none_function import noneFunction
 
@@ -31,7 +31,7 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
         text: str | None = None,
         text_color: str = "black",
         font_size: int = 15,
-        font_weight: FontWeight = FontWeight.REGULAR,
+        font_weight: FontStyle = FontStyle.REGULAR,
         id: str | None = None,
         on_action: Callable = noneFunction,  # [추가] 엔터 눌렀을 때 실행할 함수
     ):
