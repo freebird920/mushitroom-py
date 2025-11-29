@@ -70,7 +70,9 @@ class InputManager:
                 "next": Button(mushitroom_config.BUTTON_DOWN, pull_up=True),
                 "enter": Button(mushitroom_config.BUTTON_RETURN, pull_up=True),
             }
-
+            for action, btn in self.gpio_buttons.items():
+                btn.when_pressed = lambda a=action: self._on_gpio_press(a)
+                btn.when_released = lambda a=action: self._on_gpio_release(a)
         except ImportError:
 
             print("GPIO 모듈 로드 실패: RPi 환경이 아니거나 라이브러리가 없습니다.")
@@ -102,6 +104,19 @@ class InputManager:
         action = self._key_to_action.get(sym)
         if action:
             self._update_logical_bool(action, False)
+
+    def _on_gpio_press(self, action: str):
+        # 1. 막 눌린 상태(Trigger) 기록
+        # GPIO는 물리 키 개념보다 논리 액션이 1:1이므로 바로 액션에 넣습니다.
+        if not getattr(self.state, action):  # 이미 눌려있는 상태가 아닐 때만
+            self.state.just_pressed_actions.add(action)
+
+        # 2. 지속 상태(Hold) 업데이트
+        self._update_logical_bool(action, True)
+
+    # [추가] GPIO 전용 릴리즈 핸들러
+    def _on_gpio_release(self, action: str):
+        self._update_logical_bool(action, False)
 
     def _update_logical_bool(self, action: str, is_pressed: bool):
         """논리적 상태(boolean) 업데이트 (setattr 활용)"""
