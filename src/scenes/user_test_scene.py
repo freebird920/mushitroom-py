@@ -48,7 +48,7 @@ class UserTestScene(BaseScene):
             height=30,
             color="red",
             object_type=ObjectType.DEFAULT,
-            href="./src/assets/images/mushitroom_01.png",
+            href="./src/assets/images/magui3.png",
         )
 
         # 2. 장애물 변수 초기화
@@ -164,7 +164,7 @@ class UserTestScene(BaseScene):
             height=30,
             color="blue",
             object_type=ObjectType.DEFAULT,
-            href="./src/assets/images/mushitroom_02.png",
+            href="./src/assets/images/tong3.png",
         )
         # 동적 속성 추가: 초기 속도
         new_obstacle.velocity_y = self.INITIAL_VELOCITY
