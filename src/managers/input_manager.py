@@ -65,13 +65,7 @@ class InputManager:
 
             from gpiozero import Button
 
-            # TODO: 실제 핀 번호에 맞게 수정 필요
-
             self.gpio_buttons = {
-                "up": Button(17),
-                "down": Button(27),
-                "left": Button(22),
-                "right": Button(23),
                 "prev": Button(mushitroom_config.BUTTON_UP, pull_up=True),
                 "next": Button(mushitroom_config.BUTTON_DOWN, pull_up=True),
                 "enter": Button(mushitroom_config.BUTTON_RETURN, pull_up=True),

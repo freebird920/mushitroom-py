@@ -99,8 +99,6 @@ class SelectUserScene(BaseScene):
         self.on_enter()
 
     def handle_input(self, input_state: "InputState"):
-        # [핵심] 이제 논리적 액션만 확인하면 됩니다.
-        # just_pressed_actions: 이번 프레임에 막 눌린 키들의 '의미'
         actions = input_state.just_pressed_actions
 
         if "prev" in actions:
