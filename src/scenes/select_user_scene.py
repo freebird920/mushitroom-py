@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING
-from classes.render_coordinate import RenderCoordinate
-from classes.render_size import RenderSize
-from components.render_button import RenderButton
+from src.managers import ui_component_manager
+from src.components.render_ui_component import RenderUiComponent
+from src.classes.render_coordinate import RenderCoordinate
+from src.classes.render_size import RenderSize
+from src.components.render_button import RenderButton
 from src.settings import mushitroom_config
 from src.components.mushitroom_button import MushitroomButton
 from src.classes.mushitroom_interface_object import (
@@ -13,7 +15,10 @@ from src.classes.mushitroom_interface_object import (
 from src.settings.mushitroom_enums import FontStyle, InputActions
 from src.utils.name_generator import NameGenerator
 from src.classes.scene_base import BaseScene
+
+# import managers
 from src.managers.scene_manager import SceneType
+from src.managers.ui_component_manager import UiComponentManager
 
 # from src.schemas.user_schema import User
 from src.components.ui_cursor import UiCursor
@@ -21,9 +26,12 @@ from src.components.ui_cursor import UiCursor
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
     from src.managers.scene_manager import SceneManager
+    from PIL.ImageDraw import ImageDraw
 
 
 class SelectUserScene(BaseScene):
+    ui_component_manager: UiComponentManager
+
     def __init__(self, manager: "SceneManager", db):
         super().__init__(manager, db)
         self.db = db
@@ -37,6 +45,26 @@ class SelectUserScene(BaseScene):
         # 화면의 높이 (manager에 screen_height가 있다고 가정하거나 상수로 지정)
         # 예: 전체 600px 중 하단 여백 등을 뺀 리스트가 보일 수 있는 최대 높이 설정
         self.visible_height = mushitroom_config.DISPLAY_HEIGHT
+        self.ui_component_manager = UiComponentManager()
+
+        render_button = RenderButton(
+            coordinate=RenderCoordinate(
+                x=mushitroom_config.DISPLAY_WIDTH // 2,
+                y=mushitroom_config.DISPLAY_HEIGHT // 2,
+            ),
+            size=RenderSize(
+                width=80,
+                height=80,
+            ),
+            text="shit",
+        )
+        self.ui_component_manager.add_component(
+            RenderUiComponent(
+                is_selectable=False,
+                render_object=render_button,
+            )
+        )
+        # render_button.draw(draw_tool)
 
     def on_enter(self):
         print("=== 사용자 선택 화면 진입 ===")
@@ -45,38 +73,29 @@ class SelectUserScene(BaseScene):
 
         # DB에서 유저 조회
         self.users = self.db.get_all_users()
-
-        # 1. 고정 타이틀 (스크롤 영향을 받지 않음)
-        title = MushitroomButton(
-            index=None,
-            x=100,
-            y=25,
-            width=200,
-            height=50,
-            color="black",
-            text="SELECT USER",
-            is_focusable=False,
-            font_weight=FontStyle.COOKIE_BOLD,
-            text_color="white",
-        )
-        self.ui_manager.add_element(title)
-
+        current_height = 0
         # 2. 유저 목록 버튼 생성
         # Y좌표는 나중에 update()에서 계산하므로 여기선 초기 순서만 중요함
         for i, user in enumerate(self.users):
-            btn = MushitroomButton(
-                index=i,
-                x=100,
-                y=self.list_start_y + (i * self.item_height),  # 초기 위치
-                width=200,
-                height=50,
-                color="#000000",
+            button_shit = RenderButton(
+                coordinate=RenderCoordinate(
+                    x=mushitroom_config.DISPLAY_WIDTH // 2,
+                    y=current_height,
+                ),
+                size=RenderSize(
+                    width=80,
+                    height=80,
+                ),
                 text=f"{user.username}",
-                font_weight=FontStyle.COOKIE_BOLD,
-                on_action=lambda u=user: self.select_user(u),
             )
-            self.ui_manager.add_element(btn)
+            render_button_shit = RenderUiComponent(
+                render_object=button_shit,
+                is_selectable=True,
+                on_activate=lambda u=user: self.select_user(u),
+            )
 
+            self.ui_component_manager.add_component(render_button_shit)
+            current_height = current_height + 80
         # 3. 새 유저 생성 버튼
         new_user_index = len(self.users)
         btn_create = MushitroomInterfaceObject(
@@ -152,13 +171,9 @@ class SelectUserScene(BaseScene):
             self.cursor.set_target(current_obj)
             self.cursor.update()
 
-    def draw(self, draw_tool):
-        render_button = RenderButton(
-            coordinate=RenderCoordinate(x=40, y=40),
-            size=RenderSize(width=80, height=80),
-            text="shit",
-        )
-        render_button.draw(draw_tool)
+    def draw(self, draw_tool: "ImageDraw"):
+        self.ui_component_manager.draw(draw_tool)
+        pass
         # self.ui_manager.draw(draw_tool)
         # self.cursor.draw(draw_tool)
 

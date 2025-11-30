@@ -1,4 +1,4 @@
-uvimport sys
+import sys
 import platform
 import time
 from PIL import Image, ImageDraw

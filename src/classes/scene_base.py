@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.services.sq_service import SqService
-    from PIL import ImageDraw
+    # from PIL import ImageDraw
     from managers.scene_manager import SceneManager
     from managers.input_manager import InputState
     from src.services.sq_service import SqService
-
+    from PIL.ImageDraw import ImageDraw
 
 class BaseScene:
     def __init__(self, manager: "SceneManager", db: "SqService"):
@@ -21,7 +21,7 @@ class BaseScene:
         """게임 로직 업데이트 (이동, 충돌 등)"""
         pass
 
-    def draw(self, draw_tool: "ImageDraw.ImageDraw"):
+    def draw(self, draw_tool: "ImageDraw"):
         """화면 그리기"""
         pass
 

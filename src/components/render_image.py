@@ -4,7 +4,7 @@ from PIL import Image
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
 from src.classes.render_object import RenderObject
-from utils.resource_loader import load_resized_image
+from src.utils.resource_loader import load_resized_image
 
 
 class RenderImage(RenderObject):

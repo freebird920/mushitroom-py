@@ -10,8 +10,12 @@ if TYPE_CHECKING:
 class RenderObject:
     coordinate: "RenderCoordinate"
     size: "RenderSize"
-    
-    def __init__(self, coordinate: "RenderCoordinate", size: "RenderSize") -> None:
+
+    def __init__(
+        self,
+        coordinate: "RenderCoordinate",
+        size: "RenderSize",
+    ) -> None:
         self.coordinate = coordinate
         self.size = size
         pass

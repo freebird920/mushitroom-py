@@ -5,7 +5,7 @@ from src.classes.render_size import RenderSize
 from src.classes.render_object import RenderObject
 from PIL import ImageFont
 
-from utils.resource_loader import load_custom_font
+from src.utils.resource_loader import load_custom_font
 
 
 class RenderText(RenderObject):
@@ -16,11 +16,11 @@ class RenderText(RenderObject):
     def __init__(
         self,
         coordinate: RenderCoordinate,
-        text: str,
-        size: RenderSize,
         font_size: int,
         font_style: FontStyle,
-        color: str,
+        color: str = "black",
+        text: str = "",
+        size: RenderSize = RenderSize(0, 0),
     ) -> None:
         super().__init__(coordinate, size)
         self._font = load_custom_font(
@@ -34,15 +34,12 @@ class RenderText(RenderObject):
         return super().update()
 
     def draw(self, canvas: ImageDraw):
-        half_width = self.size.width // 2
-        half_height = self.size.height // 2
-        top_left_x = self.coordinate.x - half_width
-        top_left_y = self.coordinate.y - half_height
+
         canvas.text(
             font=self._font,
             xy=(
-                top_left_x,
-                top_left_y,
+                self.coordinate.x,
+                self.coordinate.y,
             ),
             text=self.text,
             fill=self.color,
