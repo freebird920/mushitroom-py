@@ -132,8 +132,6 @@ class SelectUserScene(BaseScene):
     def draw(self, draw_tool: "ImageDraw"):
         self.ui_component_manager.draw(draw_tool)
         pass
-        # self.ui_manager.draw(draw_tool)
-        # self.cursor.draw(draw_tool)
 
     def on_exit(self):
         print("=== 사용자 선택 화면 퇴장 ===")
