@@ -1,12 +1,15 @@
 import sys
 import platform
 import time
-from PIL import Image, ImageDraw
 from typing import TYPE_CHECKING
 
-# 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
-# from src.settings.mushitroom_config import BACKLIGHT_PWM
-from settings.mushitroom_config import GPIO_PINS
+# import pillow
+from PIL import Image, ImageDraw
+
+# import settings
+from src.settings.mushitroom_config import GPIO_PINS
+
+# import managers
 from src.managers.scene_manager import SceneManager, SceneType
 from src.managers.input_manager import InputManager
 
