@@ -24,6 +24,13 @@ class RenderUiComponent:
     def draw(self, canvas: "ImageDraw"):
         return self.render_object.draw(canvas)
 
+    def run_callback(
+        self,
+        callback_function: Optional[Callable[[], None]],
+    ):
+        if callback_function is not None:
+            return callback_function()
+
     def activate(self):
         if not self.is_selectable:
             return
