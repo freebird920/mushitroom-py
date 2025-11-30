@@ -5,7 +5,8 @@ from PIL import Image, ImageDraw
 from typing import TYPE_CHECKING
 
 # 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
-from src.settings.mushitroom_config import BACKLIGHT_PWM
+# from src.settings.mushitroom_config import BACKLIGHT_PWM
+from settings.mushitroom_config import GPIO_PINS
 from src.managers.scene_manager import SceneManager, SceneType
 from src.managers.input_manager import InputManager
 
@@ -98,7 +99,7 @@ else:
         from luma.lcd.device import st7789  # 정확한 모델명 사용
         from gpiozero import PWMLED
 
-        backlight = PWMLED(BACKLIGHT_PWM)
+        backlight = PWMLED(GPIO_PINS.BACKLIGHT_PWM.value)
         backlight.value = 0.8
 
         # 1. SPI 설정 (아까 성공한 핀맵)
@@ -107,8 +108,8 @@ else:
         serial = spi(
             port=0,
             device=0,
-            gpio_DC=mushitroom_config.DISPLAY_DC,
-            gpio_RST=mushitroom_config.DISPLAY_RST,
+            gpio_DC=mushitroom_config.GPIO_PINS.DISPLAY_DC.value,
+            gpio_RST=mushitroom_config.GPIO_PINS.DISPLAY_RST.value,
             bus_speed_hz=mushitroom_config.SPI_SPEED,
         )
 
