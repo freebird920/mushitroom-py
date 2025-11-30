@@ -18,7 +18,7 @@ class MushitroomButton(MushitroomInterfaceObject):
 
     def __init__(
         self,
-        index: int,
+        index: int | None,
         x: int,
         y: int,
         width: int,

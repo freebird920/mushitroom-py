@@ -156,7 +156,10 @@ def handle_game_logic():
 def draw_frame() -> Image.Image:
     canvas = Image.new(
         "RGBA",
-        (mushitroom_config.DISPLAY_WIDTH, mushitroom_config.DISPLAY_HEIGHT),
+        (
+            mushitroom_config.DISPLAY_WIDTH,
+            mushitroom_config.DISPLAY_HEIGHT,
+        ),
         BG_COLOR,
     )
     draw_tool = ImageDraw.Draw(canvas)
@@ -172,7 +175,10 @@ def main_loop_windows():
     pil_image = draw_frame()
     if device is not None and root is not None:
         device.display(pil_image)
-        root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
+        root.after(
+            int(FRAME_TIME_SEC * 1000),
+            main_loop_windows,
+        )
 
 
 def main_loop_rpi():

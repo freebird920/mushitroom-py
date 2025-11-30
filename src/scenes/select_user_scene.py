@@ -1,4 +1,7 @@
 from typing import TYPE_CHECKING
+from classes.render_coordinate import RenderCoordinate
+from classes.render_size import RenderSize
+from components.render_button import RenderButton
 from src.settings import mushitroom_config
 from src.components.mushitroom_button import MushitroomButton
 from src.classes.mushitroom_interface_object import (
@@ -45,7 +48,7 @@ class SelectUserScene(BaseScene):
 
         # 1. 고정 타이틀 (스크롤 영향을 받지 않음)
         title = MushitroomButton(
-            index=-1,  # 선택 불가능하도록 -1
+            index=None,
             x=100,
             y=25,
             width=200,
@@ -150,8 +153,14 @@ class SelectUserScene(BaseScene):
             self.cursor.update()
 
     def draw(self, draw_tool):
-        self.ui_manager.draw(draw_tool)
-        self.cursor.draw(draw_tool)
+        render_button = RenderButton(
+            coordinate=RenderCoordinate(x=40, y=40),
+            size=RenderSize(width=80, height=80),
+            text="shit",
+        )
+        render_button.draw(draw_tool)
+        # self.ui_manager.draw(draw_tool)
+        # self.cursor.draw(draw_tool)
 
     def on_exit(self):
         print("=== 사용자 선택 화면 퇴장 ===")
