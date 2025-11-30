@@ -9,7 +9,7 @@ DISPLAY_WIDTH: int = 320
 DISPLAY_HEIGHT: int = 240
 DISPLAY_ROTATE: int = 2
 BG_COLOR = "white"
-FPS: int = 60
+FPS: int = 24
 SPI_SPEED = 48 * 1_000 * 1_000
 
 

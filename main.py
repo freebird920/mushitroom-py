@@ -37,20 +37,22 @@ IS_WINDOWS = platform.system() == "Windows"
 # ============
 try:
     db = SqService()
-    # assholes 변수는 user select scene에서 로드하므로 여기선 제거하거나 유지
-    assholes = db.get_all_users()
 except:
     print("DB_ERROR")
     sys.exit(1)
 
 # ============
-# 1. 디바이스(화면) 설정 - OS별 분기
+# 1. 디바이스(화면) 설정
 # ============
 if TYPE_CHECKING:
     import tkinter as tk
 root: "tk.Tk | None" = None
 device: "TkinterEmulator | st7789 |None" = None
 
+
+# ============
+# WINDOWS 설정
+# ============
 if IS_WINDOWS:
     import tkinter as tk
     from PIL import ImageTk
@@ -122,13 +124,12 @@ else:
         sys.exit(1)
 
 
+# ============
+# manager 호출
+# ============
 scene_manager = SceneManager(db)
-scene_manager.switch_scene(SceneType.SELECT_USER)
-
 input_manager = InputManager(IS_WINDOWS, root)
-
-# 초기 씬 설정
-# scene_manager.switch_scene(SelectUserScene(scene_manager, db))
+scene_manager.switch_scene(SceneType.SELECT_USER)
 
 
 # ============
@@ -140,16 +141,8 @@ input_manager = InputManager(IS_WINDOWS, root)
 # 메인 루프
 # ============
 def handle_game_logic():
-    # 1. 입력 상태 업데이트 (RPi 폴링 등)
-    # input_manager.update()
-
-    # 2. 씬에 입력 전달
     scene_manager.handle_input(input_manager.state)
-
-    # 3. 게임 로직 업데이트
     scene_manager.update()
-
-    # 4. 프레임 종료 전 Just Pressed 상태 초기화
     input_manager.clear_just_pressed()
 
 
