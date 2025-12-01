@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, Any, Unpack
+from typing import TYPE_CHECKING, Any
 
 
-from src.managers.scene_manager import SceneManager
+from managers.scene_manager import SceneManager
 
 if TYPE_CHECKING:
-    from src.managers.input_manager import InputState
     from PIL.ImageDraw import ImageDraw
 
 
@@ -16,7 +15,9 @@ class BaseScene:
     ):
         self.manager = SceneManager()
 
-    def handle_input(self, input_state: "InputState"):
+    def handle_input(
+        self,
+    ):
         """키 입력 처리"""
         pass
 

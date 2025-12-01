@@ -1,39 +1,40 @@
 from typing import TYPE_CHECKING
 
 # import classes
+from managers.input_manager import InputManager
 from managers.sq_manager import SqService
 from schemas.user_schema import User
-from src.components.cursor_component import CursorComponent
-from src.classes.render_coordinate import RenderCoordinate
-from src.classes.render_size import RenderSize
-from src.classes.scene_base import BaseScene
+from components.cursor_component import CursorComponent
+from classes.render_coordinate import RenderCoordinate
+from classes.render_size import RenderSize
+from classes.scene_base import BaseScene
 
 # import settings
-from src.settings import mushitroom_config
-from src.settings.mushitroom_enums import InputActions
+from settings import mushitroom_config
+from settings.mushitroom_enums import InputActions
 
 # import utils
-from src.utils.name_generator import NameGenerator
+from utils.name_generator import NameGenerator
 
 # import components
-from src.components.render_image import RenderImage
-from src.components.render_ui_component import RenderUiComponent
-from src.components.render_button import RenderButton
+from components.render_ui_component import RenderUiComponent
+from components.render_button import RenderButton
 
 # import managers
-from src.managers.scene_manager import SceneType
-from src.managers.ui_component_manager import UiComponentManager
-from src.managers.sound_manager import SoundManager
+from managers.scene_manager import SceneType
+from managers.ui_component_manager import UiComponentManager
+from managers.sound_manager import SoundManager
 
 
 if TYPE_CHECKING:
-    from src.managers.input_manager import InputState
+    from managers.input_manager import InputState
     from PIL.ImageDraw import ImageDraw
 
 
 class SelectUserScene(BaseScene):
     ui_component_manager: UiComponentManager
     sound_fx_manager: SoundManager
+    _input_manager: InputManager
 
     def __init__(
         self,
@@ -42,6 +43,7 @@ class SelectUserScene(BaseScene):
         self.db = SqService()
         self.sound_fx_manager = SoundManager()
         self.users = []
+        self._input_manager = InputManager()
         # --- 스크롤 설정을 위한 변수들 ---
         self.scroll_y = 0  # 현재 스크롤된 양
         self.list_stt_y = 60  # 리스트가 시작되는 Y 위치
@@ -121,17 +123,21 @@ class SelectUserScene(BaseScene):
         self.db.create_user(f"{NameGenerator().get_random_name()}")
         self.on_enter()
 
-    def handle_input(self, input_state: "InputState"):
-        actions = input_state.just_pressed_actions
+    def handle_input(self):
 
-        if InputActions.UP in actions or InputActions.PREV in actions:
+        if self._input_manager.state.is_just_pressed(InputActions.UP):
             self.ui_component_manager.select_prev()
-
-        if InputActions.DOWN in actions or InputActions.NEXT in actions:
+        if self._input_manager.state.is_just_pressed(InputActions.DOWN):
             self.ui_component_manager.select_next()
-
-        if InputActions.ENTER in actions:
+        if self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self.ui_component_manager.activate_current()
+        # if InputActions.UP in actions or InputActions.PREV in actions:
+
+        # if InputActions.DOWN in actions or InputActions.NEXT in actions:
+        #     self.ui_component_manager.select_next()
+
+        # if InputActions.ENTER in actions:
+        #     self.ui_component_manager.activate_current()
 
     def update(self):
         pass

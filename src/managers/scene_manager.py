@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING, Dict, Type, Optional
 
 # 순환 참조(Circular Import) 방지를 위한 타입 힌팅용 임포트
-from src.settings.mushitroom_enums import SceneType
-from src.managers.sq_manager import SqService
+from settings.mushitroom_enums import SceneType
+from managers.sq_manager import SqService
 
 if TYPE_CHECKING:
-    from src.managers.input_manager import InputState
-    from src.classes.scene_base import BaseScene
+    from classes.scene_base import BaseScene
 
 
 class SceneManager:
@@ -86,9 +85,9 @@ class SceneManager:
         # 5. 새 씬 진입 및 데이터 주입 (Enter + Data)
         self.current_scene.on_enter(**kwargs)
 
-    def handle_input(self, input_state: "InputState"):
+    def handle_input(self):
         if self.current_scene:
-            self.current_scene.handle_input(input_state)
+            self.current_scene.handle_input()
 
     def update(self):
         if self.current_scene:

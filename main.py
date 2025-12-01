@@ -28,8 +28,8 @@ from settings.mushitroom_config import GPIO_PINS
 
 # import managers
 from managers import sound_manager
-from src.managers.scene_manager import SceneManager, SceneType
-from src.managers.input_manager import InputManager
+from managers.scene_manager import SceneManager, SceneType
+from managers.input_manager import InputManager
 
 
 # ============
@@ -37,8 +37,8 @@ from src.managers.input_manager import InputManager
 # ============
 
 try:
-    import src.settings.mushitroom_config as mushitroom_config
-    from src.managers.sq_manager import SqService
+    import settings.mushitroom_config as mushitroom_config
+    from managers.sq_manager import SqService
 except ImportError as e:
     print(f"필수 모듈을 불러올 수 없습니다: {e}")
     sys.exit(1)
@@ -153,7 +153,10 @@ else:
 db = SqService()
 sound_manager = sound_manager.SoundManager()
 scene_manager = SceneManager()
-input_manager = InputManager(IS_WINDOWS, root)
+input_manager = InputManager(
+    is_windows=IS_WINDOWS,
+    root=root,
+)
 scene_manager.switch_scene(SceneType.SELECT_USER)
 
 
@@ -166,7 +169,7 @@ scene_manager.switch_scene(SceneType.SELECT_USER)
 # 메인 루프
 # ============
 def handle_game_logic():
-    scene_manager.handle_input(input_manager.state)
+    scene_manager.handle_input()
     scene_manager.update()
     input_manager.clear_just_pressed()
 
@@ -200,7 +203,7 @@ def main_loop_windows():
 
 
 def main_loop_rpi():
-
+ 
     while True:
         start_time = time.time()
 

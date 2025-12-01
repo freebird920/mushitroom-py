@@ -1,13 +1,12 @@
 import sqlite3
 import os
 import uuid
-import json
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 # 설정 파일 및 스키마 임포트 (경로는 프로젝트에 맞게 확인해주세요)
 from schemas.mushitroom_schema import MushitroomSchema
-import src.settings.mushitroom_config as mushitroom_config
-import src.schemas.user_schema as schemas
+import settings.mushitroom_config as mushitroom_config
+import schemas.user_schema as schemas
 
 
 class SqService:
@@ -83,6 +82,7 @@ class SqService:
                     id TEXT PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     name TEXT NOT NULL,
+                    type TEXT NOT NULL,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     age INTEGER DEFAULT 0,
                     exp INTEGER DEFAULT 0,
@@ -174,17 +174,29 @@ class SqService:
     def save_mushitroom(self, user_id: str, mush_data: MushitroomSchema):
         """
         개별 버섯 정보를 저장하거나 업데이트합니다 (UPSERT 개념).
-        mush_data는 Mushitroom Dataclass 객체여야 합니다.
         """
+        # 1. 스키마에 type 정보가 없으면 중단
+        if mush_data.type is None:
+            print("❌ 버섯 저장 실패: type 정보가 없습니다.")
+            return
+
         conn = self._get_connection()
+        
+        # 2. Enum -> 문자열 변환 로직
+        type_str = ""
+        if hasattr(mush_data.type, "name"):
+            type_str = mush_data.type.name  # Enum 객체인 경우 (예: "GOMBO")
+        elif isinstance(mush_data.type, str):
+            type_str = mush_data.type       # 문자열인 경우
+
         try:
             cursor = conn.cursor()
 
-            # 먼저 업데이트 시도
+            # 3. UPDATE 시도 (이미 존재하는 버섯 정보 갱신)
             cursor.execute(
                 f"""
                 UPDATE {mushitroom_config.TABLE_MUSHITROOM}
-                SET name=?, age=?, exp=?, level=?, health=?, talent=?, cute=?
+                SET name=?, age=?, exp=?, level=?, health=?, talent=?, cute=?, type=?
                 WHERE id=? AND user_id=?
                 """,
                 (
@@ -195,23 +207,26 @@ class SqService:
                     mush_data.health,
                     mush_data.talent,
                     mush_data.cute,
+                    type_str, # [중요] 여기는 잘 들어가 있었음
                     mush_data.id,
                     user_id,
                 ),
             )
 
-            # 없으면 생성 (Insert)
+            # 4. INSERT 시도 (새 버섯 추가)
+            # [수정] 여기가 문제였습니다. type 컬럼과 type_str 값을 추가했습니다.
             if cursor.rowcount == 0:
                 cursor.execute(
                     f"""
                     INSERT INTO {mushitroom_config.TABLE_MUSHITROOM}
-                    (id, user_id, name, created, age, exp, level, health, talent, cute)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (id, user_id, name, type, created, age, exp, level, health, talent, cute)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         mush_data.id,
                         user_id,
                         mush_data.name,
+                        type_str, # [수정] type_str 추가됨 (4번째 인자)
                         mush_data.created,
                         mush_data.age,
                         mush_data.exp,
@@ -221,14 +236,13 @@ class SqService:
                         mush_data.cute,
                     ),
                 )
-                print(f"🍄 새 버섯 등록: {mush_data.name}")
+                print(f"🍄 새 버섯 등록: {mush_data.name} ({type_str})")
 
             conn.commit()
         except Exception as e:
             print(f"❌ 버섯 저장 실패: {e}")
         finally:
             conn.close()
-
     def get_full_game_state(self, user_id: str) -> Optional[schemas.GameState]:
         """
         [핵심] DB에서 데이터를 긁어모아 GameState Dataclass 형태로 반환합니다.
@@ -273,6 +287,26 @@ class SqService:
         except Exception as e:
             print(f"❌ 게임 데이터 로드 실패: {e}")
             return None
+        finally:
+            conn.close()
+
+    def get_user_mushrooms(self, user_id: str) -> List[MushitroomSchema]:
+        """특정 유저가 보유한 모든 버섯의 상세 정보를 리스트로 반환"""
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"SELECT * FROM {mushitroom_config.TABLE_MUSHITROOM} WHERE user_id = ?",
+                (user_id,),
+            )
+            rows = cursor.fetchall()
+
+            # DB Row -> MushitroomSchema 변환
+            # (__post_init__ 덕분에 문자열 name이 자동으로 Enum으로 변환됨)
+            return [MushitroomSchema(**dict(row)) for row in rows]
+        except Exception as e:
+            print(f"❌ 버섯 목록 조회 실패: {e}")
+            return []
         finally:
             conn.close()
 
