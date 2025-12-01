@@ -1,16 +1,33 @@
+# =======================
+# src 경로 인식을 위한 코드
+# =======================
 import sys
-import platform
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, "src")
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
+# =========
+# 외부 라이브러리 import
+# =========
 import time
+import platform
 from typing import TYPE_CHECKING
 
 # import pillow
 from PIL import Image, ImageDraw
 
+# ===================
+# 프로젝트 모듈 import
+# ===================
+
 # import settings
-from src.settings.mushitroom_config import GPIO_PINS
+from settings.mushitroom_config import GPIO_PINS
 
 # import managers
-from src.managers import sound_manager
+from managers import sound_manager
 from src.managers.scene_manager import SceneManager, SceneType
 from src.managers.input_manager import InputManager
 

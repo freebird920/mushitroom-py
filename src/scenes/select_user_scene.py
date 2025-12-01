@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 # import classes
-from src.managers.sq_manager import SqService
+from managers.sq_manager import SqService
 from src.components.cursor_component import CursorComponent
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
