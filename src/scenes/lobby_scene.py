@@ -21,6 +21,7 @@ from schemas.mushitroom_schema import MushitroomSchema
 from schemas.user_schema import GameState
 from settings.mushitroom_config import DISPLAY_WIDTH
 from settings.mushitroom_enums import FontStyle, InputActions
+from utils.name_after_mushitroom import MushroomNameGenerator
 
 
 class LobbySceneArgs(TypedDict):
@@ -62,7 +63,9 @@ class LobbyScene(BaseScene):
             created=now_str,
             # [중요] 저장할 때는 문자열(.name)로 변환해서 저장
             type=MushroomType.GOMBO,
-            name=MushroomType.GOMBO.name,
+            name=MushroomNameGenerator().get_random_name(
+                name=MushroomType.GOMBO.name_kr
+            ),
             age=0,
             exp=0,
             level=1,
@@ -143,9 +146,8 @@ class LobbyScene(BaseScene):
                 # 버섯 있을 때 리스트 출력
                 for i, mush in enumerate(my_mushrooms):
                     # Enum 객체 처리 (Enum이면 .name_kr, 문자열이면 그냥 출력)
-                    mush_name = mush.type.name_kr if mush.type else str(mush.name)
 
-                    display_text = f"{i+1}. {mush_name} (Lv.{mush.level})"
+                    display_text = f"{i+1}. {mush.name} (Lv.{mush.level})"
 
                     self._ui_component_manager.add_component(
                         RenderUiComponent(
