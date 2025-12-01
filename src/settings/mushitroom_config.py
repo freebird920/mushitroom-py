@@ -36,4 +36,5 @@ BUTTON_BOUNCE_TIME = 0.015
 # ===
 TABLE_USER: str = "USER_INFO"
 TABLE_GAME_STATE: str = "GAME_STATE"
+TABLE_MUSHITROOM = "mushitrooms"
 # ===

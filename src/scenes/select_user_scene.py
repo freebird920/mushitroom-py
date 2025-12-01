@@ -27,7 +27,6 @@ from src.managers.sound_manager import SoundManager
 
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
-    from src.managers.scene_manager import SceneManager
     from PIL.ImageDraw import ImageDraw
 
 
