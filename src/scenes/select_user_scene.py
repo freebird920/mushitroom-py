@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
 
 # import classes
-from src.services.sq_service import SqService
-from src.managers.sound_manager import AudioList, SoundManager
+from src.managers.sq_manager import SqService
 from src.components.cursor_component import CursorComponent
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
@@ -23,6 +22,7 @@ from src.components.render_button import RenderButton
 # import managers
 from src.managers.scene_manager import SceneType
 from src.managers.ui_component_manager import UiComponentManager
+from src.managers.sound_manager import SoundManager
 
 
 if TYPE_CHECKING:

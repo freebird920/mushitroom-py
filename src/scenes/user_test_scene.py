@@ -12,12 +12,12 @@ from src.classes.scene_base import BaseScene
 from src.classes.mushitroom_png_object import PngObject
 from src.settings.mushitroom_enums import InputActions, ObjectType, SceneType
 
+from src.managers.sq_manager import SqService
 
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
     from src.managers.scene_manager import SceneManager
     from src.schemas.user_schema import User
-    from src.services.sq_service import SqService
 
 
 class UserSceneArgs(TypedDict):

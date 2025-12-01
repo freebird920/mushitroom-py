@@ -21,7 +21,7 @@ from src.managers.input_manager import InputManager
 
 try:
     import src.settings.mushitroom_config as mushitroom_config
-    from src.services.sq_service import SqService
+    from src.managers.sq_manager import SqService
 except ImportError as e:
     print(f"필수 모듈을 불러올 수 없습니다: {e}")
     sys.exit(1)

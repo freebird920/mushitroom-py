@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Dict, Type, Optional
 
 # 순환 참조(Circular Import) 방지를 위한 타입 힌팅용 임포트
 from src.settings.mushitroom_enums import SceneType
-from src.services.sq_service import SqService
+from src.managers.sq_manager import SqService
 
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
