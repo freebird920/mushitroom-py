@@ -133,8 +133,9 @@ else:
 # manager 호출
 # ============
 
+db = SqService()
 sound_manager = sound_manager.SoundManager()
-scene_manager = SceneManager(db)
+scene_manager = SceneManager()
 input_manager = InputManager(IS_WINDOWS, root)
 scene_manager.switch_scene(SceneType.SELECT_USER)
 

@@ -7,9 +7,28 @@ from typing import List, Optional
 
 
 class SqService:
+    # [Singleton 1] 인스턴스를 저장할 클래스 변수
+    _instance: Optional["SqService"] = None
+
+    # [Singleton 2] 인스턴스 생성 제어
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self, db_name="mushitroom.db"):
+        # [Singleton 3] 초기화 중복 방지 (최초 1회만 실행)
+        if hasattr(self, "initialized"):
+            return
+
+        print(f"[System] DB 서비스 초기화 (Singleton) - {db_name}")
         self.db_path = os.path.join(os.getcwd(), db_name)
+
+        # 테이블 생성도 딱 한 번만 수행됨
         self._initialize_db()
+
+        # 초기화 완료 플래그
+        self.initialized = True
 
     def _get_connection(self):
         conn = sqlite3.connect(self.db_path)
@@ -31,7 +50,6 @@ class SqService:
         conn = self._get_connection()
         cursor = conn.cursor()
         try:
-            # 콤마(,) 제거 및 세미콜론(;) 추가, user_id 컬럼 추가 등 문법 오류 수정됨
             cursor.executescript(
                 f"""
                 -- 1. 유저 정보 (변하지 않는 값)
@@ -43,31 +61,30 @@ class SqService:
 
                 -- 2. 게임 상태 (돈, 레벨 등 변하는 값)
                 CREATE TABLE IF NOT EXISTS {mushitroom_config.TABLE_GAME_STATE} (
-                    id TEXT PRIMARY KEY,  -- 보통 user_id와 동일하게 사용하거나 별도 관리
+                    id TEXT PRIMARY KEY,
                     money INTEGER DEFAULT 0,
                     updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     -- user_id(외래키)
                     user_id TEXT NOT NULL, 
                     FOREIGN KEY(user_id) REFERENCES {mushitroom_config.TABLE_USER}(id) ON DELETE CASCADE
                 );
-                
-
             """
             )
             conn.commit()
+            print("✅ DB 테이블 초기화 완료")
+        except Exception as e:
+            print(f"❌ DB 초기화 실패: {e}")
         finally:
             conn.close()
 
-    # --- 👇 랭킹 및 점수 관련 메서드 수정됨 ---
+    # --- 👇 랭킹 및 점수 관련 메서드 ---
 
     def add_score(self, user_id: str, score: int):
-        """
-        점수 저장하기
-        - 변경점: username 대신 user_id를 받습니다. (데이터 무결성)
-        """
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
+            # 참고: scores 테이블이 _initialize_db에 없어서 에러가 날 수 있음.
+            # 필요하다면 _initialize_db에 scores 테이블 생성 구문도 추가해야 함.
             cursor.execute(
                 "INSERT INTO scores (user_id, score) VALUES (?, ?)", (user_id, score)
             )
@@ -79,15 +96,9 @@ class SqService:
             conn.close()
 
     def get_top_rankings(self, limit=10):
-        """
-        상위 n개 랭킹 가져오기
-        - 변경점: scores 테이블에는 user_id만 있으므로,
-          USER_INFO 테이블과 JOIN하여 username을 함께 가져옵니다.
-        """
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
-            # ★ SQL JOIN 쿼리: 점수 테이블(s)과 유저 테이블(u)을 합침
             query = f"""
                 SELECT u.username, s.score, s.reg_date
                 FROM scores s
@@ -112,7 +123,8 @@ class SqService:
         finally:
             conn.close()
 
-    # --- 👇 편의를 위한 유저 생성 헬퍼 (테스트용) ---
+    # --- 👇 유저 생성 및 상태 관리 ---
+
     def create_user(self, username: str):
         conn = self._get_connection()
         user_id = str(uuid.uuid4())
@@ -127,11 +139,6 @@ class SqService:
             conn.close()
 
     def save_user_state(self, user_id: str, money: int):
-        """
-        유저의 게임 상태(돈)를 저장합니다.
-        - 데이터가 있으면 UPDATE(수정)
-        - 데이터가 없으면 INSERT(삽입)
-        """
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -146,10 +153,9 @@ class SqService:
                 (money, user_id),
             )
 
-            # 2. 만약 업데이트된 줄(row)이 0개라면? (신규 유저라 상태 데이터가 없음)
-            # -> 새로 INSERT 합니다.
+            # 2. 만약 업데이트된 줄(row)이 0개라면? (신규 유저라 상태 데이터가 없음) -> INSERT
             if cursor.rowcount == 0:
-                state_id = str(uuid.uuid4())  # 상태값의 고유 ID 생성
+                state_id = str(uuid.uuid4())
                 cursor.execute(
                     f"""
                     INSERT INTO {mushitroom_config.TABLE_GAME_STATE} 
@@ -168,7 +174,6 @@ class SqService:
             conn.close()
 
     def get_user_state(self, user_id: str):
-        """유저의 현재 상태(돈)를 가져옵니다."""
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -187,11 +192,6 @@ class SqService:
             conn.close()
 
     def get_all_users(self, limit=50) -> List[schemas.User]:
-        """
-        [핵심 변경 사항]
-        - 반환 타입: List[schemas.UserWithMoney]
-        - 순수 User가 아닌 Money가 포함된 확장 모델을 반환합니다.
-        """
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -207,8 +207,6 @@ class SqService:
             cursor.execute(query, (limit,))
             rows = cursor.fetchall()
 
-            # **dict(row)로 unpacking 할 때,
-            # UserWithMoney 클래스는 id, username, updated, money 모두를 받습니다.
             return [schemas.User(**dict(row)) for row in rows]
 
         except Exception as e:

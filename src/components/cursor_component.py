@@ -55,11 +55,9 @@ class CursorComponent(RenderObject):
         rh = self.size.height
         hh = self._cursor_hat.size.height
 
-        # [Ring] 위치 업데이트 (고정)
         self._cursor_ring.coordinate.x = cx
         self._cursor_ring.coordinate.y = cy
 
-        # [Hat] 애니메이션 계산
         current_time = time.time()
 
         bounce_ratio = abs(math.sin(current_time * math.pi))

@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 # import classes
+from src.services.sq_service import SqService
 from src.managers.sound_manager import AudioList, SoundManager
 from src.components.cursor_component import CursorComponent
 from src.classes.render_coordinate import RenderCoordinate
@@ -34,9 +35,11 @@ class SelectUserScene(BaseScene):
     ui_component_manager: UiComponentManager
     sound_fx_manager: SoundManager
 
-    def __init__(self, manager: "SceneManager", db):
-        super().__init__(manager, db)
-        self.db = db
+    def __init__(
+        self,
+    ):
+        super().__init__()
+        self.db = SqService()
         self.sound_fx_manager = SoundManager()
         self.users = []
         # --- 스크롤 설정을 위한 변수들 ---

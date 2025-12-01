@@ -35,9 +35,11 @@ class UserTestScene(BaseScene):
     INITIAL_VELOCITY = 2
     user: "User | None"
 
-    def __init__(self, manager: "SceneManager", db: "SqService"):
+    def __init__(
+        self,
+    ):
 
-        super().__init__(manager, db)
+        super().__init__()
         self.score = 0
         # 1. 플레이어 설정
         self.ui_group = MushitroomInterfaceGroup()

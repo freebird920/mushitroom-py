@@ -12,7 +12,6 @@ class UiComponentManager:
     ui_components: List[RenderUiComponent]
     selected_index: int
     cursor: Optional[RenderObject]
-    # cursor_offset_x 변수 제거함
 
     def __init__(
         self,
