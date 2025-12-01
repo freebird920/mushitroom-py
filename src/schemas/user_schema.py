@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+from typing import List
 
 
 # 1. 유저 정보 모델
@@ -18,11 +17,5 @@ class GameState:
     user_id: str
     money: int
     updated: str
-
-
-# 3. 랭킹 정보 모델 (UI 표시용)
-@dataclass
-class RankingEntry:
-    username: str
-    score: int
-    reg_date: str
+    days: int
+    mushitrooms: List[str]

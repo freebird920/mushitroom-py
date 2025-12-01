@@ -23,7 +23,7 @@ class MushitroomInterfaceObject(mushitroom_object.MushitroomObject):
 
     def __init__(
         self,
-        index: int,
+        index: int | None,
         x: int,
         y: int,
         width: int,

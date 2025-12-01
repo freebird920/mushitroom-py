@@ -12,12 +12,12 @@ from src.classes.scene_base import BaseScene
 from src.classes.mushitroom_png_object import PngObject
 from src.settings.mushitroom_enums import InputActions, ObjectType, SceneType
 
+from src.managers.sq_manager import SqService
 
 if TYPE_CHECKING:
     from src.managers.input_manager import InputState
     from src.managers.scene_manager import SceneManager
     from src.schemas.user_schema import User
-    from src.services.sq_service import SqService
 
 
 class UserSceneArgs(TypedDict):
@@ -35,9 +35,11 @@ class UserTestScene(BaseScene):
     INITIAL_VELOCITY = 2
     user: "User | None"
 
-    def __init__(self, manager: "SceneManager", db: "SqService"):
+    def __init__(
+        self,
+    ):
 
-        super().__init__(manager, db)
+        super().__init__()
         self.score = 0
         # 1. 플레이어 설정
         self.ui_group = MushitroomInterfaceGroup()

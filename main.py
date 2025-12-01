@@ -1,13 +1,35 @@
-uvimport sys
-import platform
+# =======================
+# src 경로 인식을 위한 코드
+# =======================
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, "src")
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
+# =========
+# 외부 라이브러리 import
+# =========
 import time
-from PIL import Image, ImageDraw
+import platform
 from typing import TYPE_CHECKING
 
-# 파일명: src/scenes/select_user_scene.py -> 모듈명: src.scenes.select_user_scene
-from src.settings.mushitroom_config import BACKLIGHT_PWM
-from src.managers.scene_manager import SceneManager, SceneType
-from src.managers.input_manager import InputManager
+# import pillow
+from PIL import Image, ImageDraw
+
+# ===================
+# 프로젝트 모듈 import
+# ===================
+
+# import settings
+from settings.mushitroom_config import GPIO_PINS
+
+# import managers
+from managers import sound_manager
+from managers.scene_manager import SceneManager, SceneType
+from managers.input_manager import InputManager
 
 
 # ============
@@ -15,8 +37,8 @@ from src.managers.input_manager import InputManager
 # ============
 
 try:
-    import src.settings.mushitroom_config as mushitroom_config
-    from src.services.sq_service import SqService
+    import settings.mushitroom_config as mushitroom_config
+    from managers.sq_manager import SqService
 except ImportError as e:
     print(f"필수 모듈을 불러올 수 없습니다: {e}")
     sys.exit(1)
@@ -37,20 +59,22 @@ IS_WINDOWS = platform.system() == "Windows"
 # ============
 try:
     db = SqService()
-    # assholes 변수는 user select scene에서 로드하므로 여기선 제거하거나 유지
-    assholes = db.get_all_users()
 except:
     print("DB_ERROR")
     sys.exit(1)
 
 # ============
-# 1. 디바이스(화면) 설정 - OS별 분기
+# 1. 디바이스(화면) 설정
 # ============
 if TYPE_CHECKING:
     import tkinter as tk
 root: "tk.Tk | None" = None
 device: "TkinterEmulator | st7789 |None" = None
 
+
+# ============
+# WINDOWS 설정
+# ============
 if IS_WINDOWS:
     import tkinter as tk
     from PIL import ImageTk
@@ -96,7 +120,7 @@ else:
         from luma.lcd.device import st7789  # 정확한 모델명 사용
         from gpiozero import PWMLED
 
-        backlight = PWMLED(BACKLIGHT_PWM)
+        backlight = PWMLED(GPIO_PINS.BACKLIGHT_PWM.value)
         backlight.value = 0.8
 
         # 1. SPI 설정 (아까 성공한 핀맵)
@@ -105,8 +129,8 @@ else:
         serial = spi(
             port=0,
             device=0,
-            gpio_DC=mushitroom_config.DISPLAY_DC,
-            gpio_RST=mushitroom_config.DISPLAY_RST,
+            gpio_DC=mushitroom_config.GPIO_PINS.DISPLAY_DC.value,
+            gpio_RST=mushitroom_config.GPIO_PINS.DISPLAY_RST.value,
             bus_speed_hz=mushitroom_config.SPI_SPEED,
         )
 
@@ -122,13 +146,18 @@ else:
         sys.exit(1)
 
 
-scene_manager = SceneManager(db)
+# ============
+# manager 호출
+# ============
+
+db = SqService()
+sound_manager = sound_manager.SoundManager()
+scene_manager = SceneManager()
+input_manager = InputManager(
+    is_windows=IS_WINDOWS,
+    root=root,
+)
 scene_manager.switch_scene(SceneType.SELECT_USER)
-
-input_manager = InputManager(IS_WINDOWS, root)
-
-# 초기 씬 설정
-# scene_manager.switch_scene(SelectUserScene(scene_manager, db))
 
 
 # ============
@@ -140,23 +169,18 @@ input_manager = InputManager(IS_WINDOWS, root)
 # 메인 루프
 # ============
 def handle_game_logic():
-    # 1. 입력 상태 업데이트 (RPi 폴링 등)
-    # input_manager.update()
-
-    # 2. 씬에 입력 전달
-    scene_manager.handle_input(input_manager.state)
-
-    # 3. 게임 로직 업데이트
+    scene_manager.handle_input()
     scene_manager.update()
-
-    # 4. 프레임 종료 전 Just Pressed 상태 초기화
     input_manager.clear_just_pressed()
 
 
 def draw_frame() -> Image.Image:
     canvas = Image.new(
         "RGBA",
-        (mushitroom_config.DISPLAY_WIDTH, mushitroom_config.DISPLAY_HEIGHT),
+        (
+            mushitroom_config.DISPLAY_WIDTH,
+            mushitroom_config.DISPLAY_HEIGHT,
+        ),
         BG_COLOR,
     )
     draw_tool = ImageDraw.Draw(canvas)
@@ -172,11 +196,14 @@ def main_loop_windows():
     pil_image = draw_frame()
     if device is not None and root is not None:
         device.display(pil_image)
-        root.after(int(FRAME_TIME_SEC * 1000), main_loop_windows)
+        root.after(
+            int(FRAME_TIME_SEC * 1000),
+            main_loop_windows,
+        )
 
 
 def main_loop_rpi():
-
+ 
     while True:
         start_time = time.time()
 

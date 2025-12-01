@@ -2,6 +2,7 @@ from enum import Enum, auto
 
 
 class SceneType(Enum):
+    LOBBY_SCENE = auto()
     SELECT_USER = auto()
     USER_TEST = auto()
     GAME_PLAY = auto()
