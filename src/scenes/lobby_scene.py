@@ -194,6 +194,21 @@ class LobbyScene(BaseScene):
                 render_object=dance_button,
             )
         )
+        
+        supply_button = RenderImage(
+            coordinate=RenderCoordinate(220, btn_y_pos),
+            size=RenderSize(320 // 4, 100 // 4),
+            src="./src/assets/images/btn_supply.png",
+        )
+        self._ui_component_manager.add_component(
+            RenderUiComponent(
+                is_selectable=True,
+                on_activate=self._on_adopt_click,  # adopt 부분 복붙한 줄
+                render_object=supply_button,
+            )
+        )
+        
+    
 
     def handle_input(self, input_state=None):  # 인자 없어도 됨 (싱글톤 사용)
         super().handle_input()
