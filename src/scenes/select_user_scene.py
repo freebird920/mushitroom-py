@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 # import classes
 from managers.sq_manager import SqService
+from schemas.user_schema import User
 from src.components.cursor_component import CursorComponent
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
@@ -43,7 +44,7 @@ class SelectUserScene(BaseScene):
         self.users = []
         # --- 스크롤 설정을 위한 변수들 ---
         self.scroll_y = 0  # 현재 스크롤된 양
-        self.list_start_y = 60  # 리스트가 시작되는 Y 위치
+        self.list_stt_y = 60  # 리스트가 시작되는 Y 위치
         self.item_height = 50  # 각 버튼의 높이 + 간격
         # 화면의 높이 (manager에 screen_height가 있다고 가정하거나 상수로 지정)
         # 예: 전체 600px 중 하단 여백 등을 뺀 리스트가 보일 수 있는 최대 높이 설정
@@ -57,7 +58,7 @@ class SelectUserScene(BaseScene):
 
         # render_button.draw(draw_tool)
 
-    def on_enter(self):
+    def on_enter(self, **args):
         print("=== 사용자 선택 화면 진입 ===")
         self.scroll_y = 0  # 스크롤 초기화
 
@@ -107,11 +108,11 @@ class SelectUserScene(BaseScene):
             current_height = current_height + 50
         # 3. 새 유저 생성 버튼
 
-    def select_user(self, user):
+    def select_user(self, user: User):
         print(f"유저 선택됨: {user.username}")
         self.manager.switch_scene(
-            scene_type=SceneType.USER_TEST,
-            user=user,
+            scene_type=SceneType.LOBBY_SCENE,
+            user_id=user.id,
         )
         pass
 

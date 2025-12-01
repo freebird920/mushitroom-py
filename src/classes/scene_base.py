@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Unpack
 
 
 from src.managers.scene_manager import SceneManager
@@ -28,7 +28,7 @@ class BaseScene:
         """화면 그리기"""
         pass
 
-    def on_enter(self):
+    def on_enter(self, **kwargs: Any):
         """씬에 진입할 때 실행 (초기화)"""
         pass
 

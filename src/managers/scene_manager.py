@@ -43,10 +43,12 @@ class SceneManager:
         # 순환 참조 방지를 위한 내부 import 유지
         from src.scenes.select_user_scene import SelectUserScene
         from src.scenes.user_test_scene import UserTestScene
+        from scenes.lobby_scene import LobbyScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
             SceneType.USER_TEST: UserTestScene,
+            SceneType.LOBBY_SCENE: LobbyScene,
         }
 
         # 초기화 완료 도장 쾅!
