@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, List, Optional
+from src.managers.sound_manager import AudioList, SoundManager
 from src.components.render_ui_component import RenderUiComponent
 from src.classes.render_object import RenderObject
 
@@ -7,6 +8,7 @@ if TYPE_CHECKING:
 
 
 class UiComponentManager:
+    sound_manager: SoundManager
     ui_components: List[RenderUiComponent]
     selected_index: int
     cursor: Optional[RenderObject]
@@ -20,6 +22,7 @@ class UiComponentManager:
         self.ui_components = []
         self.selected_index = -1
         self.cursor = cursor
+        self.sound_manager = SoundManager()
 
     def goto_index(self, index: int):
         self.selected_index = index
@@ -91,6 +94,7 @@ class UiComponentManager:
         for i, component in enumerate(self.ui_components):
             if not component.is_selectable:
                 continue
+        self.sound_manager.play_sound(AudioList.CLICK)
         pass
 
     def _update_cursor_position(self) -> None:

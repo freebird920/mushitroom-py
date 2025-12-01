@@ -1,3 +1,5 @@
+import time
+import math
 from typing import TYPE_CHECKING
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_object import RenderObject
@@ -11,6 +13,9 @@ if TYPE_CHECKING:
 class CursorComponent(RenderObject):
     _cursor_hat: RenderImage
     _cursor_ring: RenderImage
+
+    # 애니메이션 설정
+    _bounce_amplitude: int = 5  # 위아래로 움직이는 범위 (픽셀)
 
     def __init__(self, coordinate: RenderCoordinate, size: RenderSize) -> None:
         super().__init__(coordinate, size)
@@ -40,6 +45,7 @@ class CursorComponent(RenderObject):
         )
 
     def draw(self, canvas: "ImageDraw"):
+        # 그리기 직전에 위치 업데이트 (애니메이션 적용)
         self._update_children_positions()
         self._cursor_ring.draw(canvas)
         self._cursor_hat.draw(canvas)
@@ -49,8 +55,18 @@ class CursorComponent(RenderObject):
         rh = self.size.height
         hh = self._cursor_hat.size.height
 
+        # [Ring] 위치 업데이트 (고정)
         self._cursor_ring.coordinate.x = cx
         self._cursor_ring.coordinate.y = cy
 
+        # [Hat] 애니메이션 계산
+        current_time = time.time()
+
+        bounce_ratio = abs(math.sin(current_time * math.pi))
+
+        bounce_offset = -bounce_ratio * self._bounce_amplitude
+
+        base_hat_y = cy - (rh // 2) - (hh // 2)
+
         self._cursor_hat.coordinate.x = cx
-        self._cursor_hat.coordinate.y = cy - (rh // 2) - (hh // 2)
+        self._cursor_hat.coordinate.y = int(base_hat_y + bounce_offset)

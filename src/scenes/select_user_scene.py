@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 # import classes
+from src.managers.sound_manager import AudioList, SoundManager
 from src.components.cursor_component import CursorComponent
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
@@ -31,10 +32,12 @@ if TYPE_CHECKING:
 
 class SelectUserScene(BaseScene):
     ui_component_manager: UiComponentManager
+    sound_fx_manager: SoundManager
 
     def __init__(self, manager: "SceneManager", db):
         super().__init__(manager, db)
         self.db = db
+        self.sound_fx_manager = SoundManager()
         self.users = []
         # --- 스크롤 설정을 위한 변수들 ---
         self.scroll_y = 0  # 현재 스크롤된 양
@@ -123,6 +126,7 @@ class SelectUserScene(BaseScene):
 
         if InputActions.DOWN in actions or InputActions.NEXT in actions:
             self.ui_component_manager.select_next()
+
         if InputActions.ENTER in actions:
             self.ui_component_manager.activate_current()
 

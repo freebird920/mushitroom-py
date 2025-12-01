@@ -34,12 +34,10 @@ class SceneManager:
         # (SceneManager가 실행될 때 비로소 Scene 클래스들을 불러옵니다)
         from src.scenes.select_user_scene import SelectUserScene
         from src.scenes.user_test_scene import UserTestScene
-        from src.scenes.phishing_test_scene import PhishingTestScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
             SceneType.USER_TEST: UserTestScene,
-            SceneType.PHISHING: PhishingTestScene,
         }
 
     def switch_scene(self, scene_type: SceneType, **kwargs):

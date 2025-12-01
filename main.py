@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 from src.settings.mushitroom_config import GPIO_PINS
 
 # import managers
+from src.managers import sound_manager
 from src.managers.scene_manager import SceneManager, SceneType
 from src.managers.input_manager import InputManager
 
@@ -131,6 +132,8 @@ else:
 # ============
 # manager 호출
 # ============
+
+sound_manager = sound_manager.SoundManager()
 scene_manager = SceneManager(db)
 input_manager = InputManager(IS_WINDOWS, root)
 scene_manager.switch_scene(SceneType.SELECT_USER)
