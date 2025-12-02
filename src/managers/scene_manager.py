@@ -18,7 +18,6 @@ class SceneManager:
     scene_cache: Dict[SceneType, "BaseScene"]
     scene_registry: Dict[SceneType, Type["BaseScene"]]
 
-    # [Singleton 2] 인스턴스 생성 제어
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
