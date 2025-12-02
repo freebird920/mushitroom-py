@@ -16,7 +16,7 @@ from components.render_ui_component import RenderUiComponent
 
 from managers.input_manager import InputManager
 from managers.scene_manager import SceneManager
-from managers.sound_manager import SoundManager
+from managers.sound_manager import AudioList, SoundManager
 from managers.sq_manager import SqService
 from managers.ui_component_manager import UiComponentManager
 
@@ -95,7 +95,7 @@ class LobbyScene(BaseScene):
 
     def on_enter(self, **kwargs: Unpack[LobbySceneArgs]):
         super().on_enter(**kwargs)
-
+        self._sound_manager.play_sound(audio=AudioList.BGM_01, loop=True)
         self._user_id = kwargs.get("user_id")
         if not self._user_id:
             print("[Error] LobbyScene: user_id가 전달되지 않았습니다!")
