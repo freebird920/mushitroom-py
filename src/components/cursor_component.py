@@ -1,10 +1,10 @@
 import time
 import math
 from typing import TYPE_CHECKING
-from src.classes.render_coordinate import RenderCoordinate
-from src.classes.render_object import RenderObject
-from src.classes.render_size import RenderSize
-from src.components.render_image import RenderImage
+from classes.render_coordinate import RenderCoordinate
+from classes.render_object import RenderObject
+from classes.render_size import RenderSize
+from components.render_image import RenderImage
 
 if TYPE_CHECKING:
     from PIL.ImageDraw import ImageDraw

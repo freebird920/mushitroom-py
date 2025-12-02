@@ -3,12 +3,11 @@ from PIL.ImageDraw import ImageDraw
 from PIL import Image
 
 # import utils
-from src.utils.resource_loader import load_resized_image
-
+from utils.resource_loader import load_resized_image
 # import classes
-from src.classes.render_coordinate import RenderCoordinate
-from src.classes.render_size import RenderSize
-from src.classes.render_object import RenderObject
+from classes.render_coordinate import RenderCoordinate
+from classes.render_size import RenderSize
+from classes.render_object import RenderObject
 
 
 class RenderImage(RenderObject):
@@ -33,8 +32,8 @@ class RenderImage(RenderObject):
     def draw(self, canvas: ImageDraw):
         half_width = self.size.width // 2
         half_height = self.size.height // 2
-        top_left_x = self.coordinate.x - half_width
-        top_left_y = self.coordinate.y - half_height
+        top_left_x = (self.coordinate.x - half_width) * ZOOM_IN
+        top_left_y = self.coordinate.y - half_height * ZOOM_IN
 
         image_drawn = False
         if self._image_cache:
