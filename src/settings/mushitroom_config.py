@@ -4,9 +4,9 @@
 
 from enum import IntEnum
 
-
-DISPLAY_WIDTH: int = 320
-DISPLAY_HEIGHT: int = 240
+ZOOM_IN : int = 1
+DISPLAY_WIDTH: int = 320 * ZOOM_IN 
+DISPLAY_HEIGHT: int = 240 * ZOOM_IN
 DISPLAY_ROTATE: int = 2
 BG_COLOR = "white"
 FPS: int = 24
