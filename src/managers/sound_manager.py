@@ -16,6 +16,7 @@ class SoundManager:
     _system_os: str
     _bgm_process = None
     _bgm_alias = "bgm_alias"
+    _volume: int = 100  # 기본 볼륨 (0~100)
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -25,25 +26,48 @@ class SoundManager:
     def __init__(self):
         if not hasattr(self, "initialized"):
             self._system_os = platform.system()
+            self._volume = 100  # 초기화
             self.initialized = True
 
     def _send_mci_command(self, command: str):
-        """
-        [Windows 전용] MCI 명령어를 전송하고 에러가 있으면 출력하는 헬퍼 함수
-        """
-        # 에러 메시지를 담을 버퍼 생성
+        """[Windows] MCI 명령어 전송 헬퍼"""
         error_buffer = ctypes.create_unicode_buffer(256)
-
-        # 명령어 실행 (성공 시 0 반환)
         return_code = ctypes.windll.winmm.mciSendStringW(command, None, 0, None)
 
         if return_code != 0:
-            # 에러 코드를 사람이 읽을 수 있는 문자로 변환
             ctypes.windll.winmm.mciGetErrorStringW(return_code, error_buffer, 255)
-            print(f"❌ MCI Error [{return_code}]: {error_buffer.value}")
-            print(f"   └ Command: {command}")
+            # 볼륨 조절 실패 등은 로그가 너무 시끄러울 수 있으므로 주석 처리하거나 필요시 사용
+            # print(f"❌ MCI Error [{return_code}]: {error_buffer.value} | Cmd: {command}")
             return False
         return True
+
+    def set_volume(self, volume: int):
+        """
+        볼륨 조절 (0 ~ 100)
+        Windows: 현재 재생 중인 BGM의 볼륨만 조절 (MCI)
+        Linux: 시스템 PCM 볼륨 조절 (amixer)
+        """
+        # 0 ~ 100 사이 값으로 제한
+        self._volume = max(0, min(100, volume))
+
+        if self._system_os == "Windows":
+            # MCI volume 범위: 0 ~ 1000
+            mci_vol = self._volume * 10
+            # 현재 BGM이 열려있다면 즉시 적용
+            self._send_mci_command(f"setaudio {self._bgm_alias} volume to {mci_vol}")
+
+        elif self._system_os == "Linux":
+            # 라즈베리파이/리눅스는 amixer로 시스템 볼륨 조절
+            # 'PCM' 혹은 'Master' (오디오 장치 설정에 따라 다름, 보통 Pi는 PCM)
+            try:
+                subprocess.run(
+                    f"amixer set PCM {self._volume}%",
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except Exception as e:
+                print(f"⚠️ 리눅스 볼륨 조절 실패: {e}")
 
     def play_bgm(self, audio: AudioList):
         if not os.path.exists(audio.value):
@@ -54,27 +78,28 @@ class SoundManager:
             if self._system_os == "Windows":
                 abs_path = os.path.abspath(audio.value).replace("/", "\\")
 
-                ctypes.windll.winmm.mciSendStringW(
-                    f"close {self._bgm_alias}", None, 0, None
-                )
+                # 기존 BGM 닫기
+                self._send_mci_command(f"close {self._bgm_alias}")
 
+                # 파일 열기
                 cmd_open = f'open "{abs_path}" type mpegvideo alias {self._bgm_alias}'
-
                 if not self._send_mci_command(cmd_open):
                     return
 
-                # 재생 시도
-                cmd_play = f"play {self._bgm_alias} repeat"
+                # ★ 중요: 열자마자 현재 설정된 볼륨 적용
+                self.set_volume(self._volume)
 
+                # 재생
+                cmd_play = f"play {self._bgm_alias} repeat"
                 if not self._send_mci_command(cmd_play):
-                    print("⚠️ type mpegvideo로도 repeat 실패. 1회 재생합니다.")
                     self._send_mci_command(f"play {self._bgm_alias}")
-                else:
-                    # 성공
-                    pass
 
             elif self._system_os == "Linux":
                 self.stop_bgm()
+
+                # ★ 리눅스는 재생 전 볼륨 세팅
+                self.set_volume(self._volume)
+
                 setsid_func = getattr(os, "setsid", None)
                 cmd = f"while true; do aplay -q {audio.value}; done"
                 self._bgm_process = subprocess.Popen(
@@ -95,12 +120,13 @@ class SoundManager:
             if self._system_os == "Windows":
                 import winsound
 
-                # SND_NOSTOP을 추가하여 다른 소리를 끊지 않도록 시도 (MCI와는 별개 채널이라 괜찮음)
+                # Windows winsound는 볼륨 조절 기능이 없음 (시스템 볼륨 따름)
                 winsound.PlaySound(
                     audio.value, winsound.SND_FILENAME | winsound.SND_ASYNC
                 )
 
             elif self._system_os == "Linux":
+                # aplay 실행 (시스템 볼륨의 영향을 받음)
                 subprocess.Popen(["aplay", "-q", audio.value])
 
         except Exception as e:

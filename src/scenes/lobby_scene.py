@@ -22,7 +22,7 @@ from managers.ui_component_manager import UiComponentManager
 
 from schemas.mushitroom_schema import MushitroomSchema
 from schemas.user_schema import GameState
-from settings.mushitroom_config import DISPLAY_WIDTH, ZOOM_IN
+from settings.mushitroom_config import CENTER_X, DISPLAY_WIDTH, ZOOM_IN
 from settings.mushitroom_enums import FontStyle, InputActions, SceneType
 from utils.name_after_mushitroom import MushroomNameGenerator
 
@@ -118,7 +118,6 @@ class LobbyScene(BaseScene):
         # 앞서 수정한 대로 clear_components(reset_index=False) 사용 권장
         self._ui_component_manager.clear_components(reset_index=False)
 
-        # [수정] 버섯 컴포넌트를 self 변수에 저장 (update에서 쓰기 위해)
         self._bussot_component = MushroomComponent(
             mushroom_type=MushroomType.MAGUI,
             coordinate=RenderCoordinate(50, 50),
@@ -136,7 +135,7 @@ class LobbyScene(BaseScene):
         self._ui_component_manager.add_component(self._bussot_ui_component)
 
         user_id_text = RenderText(
-            coordinate=RenderCoordinate(DISPLAY_WIDTH // 2, 10),
+            coordinate=RenderCoordinate(CENTER_X, 10),
             color="black",
             text=f"{self._user_id}",
             size=RenderSize(0, 0),
@@ -154,8 +153,8 @@ class LobbyScene(BaseScene):
         if self._user_id is not None:
             my_mushrooms = self.db.get_user_mushrooms(self._user_id)
 
-            start_y = 60
-            gap_y = 30
+            start_y = 60 * ZOOM_IN
+            gap_y = 30 * ZOOM_IN
 
             if not my_mushrooms:
                 self._ui_component_manager.add_component(
@@ -167,7 +166,7 @@ class LobbyScene(BaseScene):
                             color="black",
                             text="ㅄ 없음니다.",
                             size=RenderSize(0, 0),
-                            coordinate=RenderCoordinate(DISPLAY_WIDTH // 2, 100),
+                            coordinate=RenderCoordinate(CENTER_X, 100),
                         ),
                     )
                 )
@@ -212,7 +211,7 @@ class LobbyScene(BaseScene):
 
         dance_button = RenderImage(
             coordinate=RenderCoordinate(140, btn_y_pos),
-            size=RenderSize((320 // 4) * ZOOM_IN, (100 // 4) * ZOOM_IN),
+            size=RenderSize((320 // 4), (100 // 4)),
             src="./src/assets/images/btn_dance.png",
         )
         self._ui_component_manager.add_component(

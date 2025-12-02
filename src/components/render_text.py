@@ -26,7 +26,7 @@ class RenderText(RenderObject):
         super().__init__(coordinate, size)
         self._font = load_custom_font(
             path=f"./src/assets/fonts/{font_style.value}",
-            size=font_size,
+            size=font_size * ZOOM_IN,
         )
         self.text = text
         self.color = color
@@ -39,8 +39,8 @@ class RenderText(RenderObject):
         canvas.text(
             font=self._font,
             xy=(
-                self.coordinate.x * ZOOM_IN,
-                self.coordinate.y * ZOOM_IN,
+                self.coordinate.x,
+                self.coordinate.y,
             ),
             text=self.text,
             fill=self.color,

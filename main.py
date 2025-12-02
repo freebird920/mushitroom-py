@@ -27,7 +27,7 @@ from PIL import Image, ImageDraw
 from settings.mushitroom_config import GPIO_PINS
 
 # import managers
-from managers import sound_manager
+from managers.sound_manager import SoundManager
 from managers.scene_manager import SceneManager, SceneType
 from managers.input_manager import InputManager
 
@@ -151,18 +151,14 @@ else:
 # ============
 
 db = SqService()
-sound_manager = sound_manager.SoundManager()
+sound_manager = SoundManager()
+sound_manager.set_volume(50)
 scene_manager = SceneManager()
 input_manager = InputManager(
     is_windows=IS_WINDOWS,
     root=root,
 )
 scene_manager.switch_scene(SceneType.SELECT_USER)
-
-
-# ============
-# 5. 메인 루프 (OS별 방식 다름)
-# ============
 
 
 # ============
@@ -203,7 +199,7 @@ def main_loop_windows():
 
 
 def main_loop_rpi():
- 
+
     while True:
         start_time = time.time()
 

@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
 
 
+from classes.render_size import RenderSize
+from settings.mushitroom_config import ZOOM_IN
+from classes.render_coordinate import RenderCoordinate
+
 if TYPE_CHECKING:
     from PIL.ImageDraw import ImageDraw
-    from src.classes.render_size import RenderSize
-    from src.classes.render_coordinate import RenderCoordinate
 
 
 class RenderObject:
@@ -13,10 +15,12 @@ class RenderObject:
     hidden: bool
 
     def __init__(
-        self, coordinate: "RenderCoordinate", size: "RenderSize", hidden: bool = False
+        self, coordinate: RenderCoordinate, size: RenderSize, hidden: bool = False
     ) -> None:
-        self.coordinate = coordinate
-        self.size = size
+        self.coordinate = RenderCoordinate(
+            coordinate.x * ZOOM_IN, coordinate.y * ZOOM_IN
+        )
+        self.size = RenderSize(size.width * ZOOM_IN, size.height * ZOOM_IN)
         self.hidden = hidden
         pass
 

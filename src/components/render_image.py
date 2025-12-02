@@ -3,8 +3,8 @@ from PIL.ImageDraw import ImageDraw
 from PIL import Image
 
 # import utils
-from settings.mushitroom_config import ZOOM_IN
 from utils.resource_loader import load_resized_image
+
 # import classes
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
@@ -19,8 +19,6 @@ class RenderImage(RenderObject):
         self, coordinate: RenderCoordinate, size: RenderSize, src: str
     ) -> None:
         super().__init__(coordinate, size)
-        # 1. 이미지 로드
-        # img_path = os.path.join(current_dir, "../", "assets", "images", "button.png")
         self._image_cache = load_resized_image(
             path=src,
             width=self.size.width,
@@ -33,8 +31,8 @@ class RenderImage(RenderObject):
     def draw(self, canvas: ImageDraw):
         half_width = self.size.width // 2
         half_height = self.size.height // 2
-        top_left_x = (self.coordinate.x - half_width) * ZOOM_IN
-        top_left_y = self.coordinate.y - half_height * ZOOM_IN
+        top_left_x = self.coordinate.x - half_width
+        top_left_y = self.coordinate.y - half_height
 
         image_drawn = False
         if self._image_cache:
