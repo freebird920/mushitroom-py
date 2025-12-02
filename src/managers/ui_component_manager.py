@@ -81,7 +81,7 @@ class UiComponentManager:
         if self.cursor and self.cursor.hidden:
             self.cursor.hidden = False
             self._update_cursor_position()
-            self.sound_manager.play_sound(AudioList.CLICK)
+            self.sound_manager.play_sfx(AudioList.CLICK)
             return True
         return False
 
@@ -134,7 +134,7 @@ class UiComponentManager:
             self._on_selection_changed()
 
     def _on_selection_changed(self) -> None:
-        self.sound_manager.play_sound(AudioList.CLICK)
+        self.sound_manager.play_sfx(AudioList.CLICK)
         self._update_cursor_position()
 
     def _update_cursor_position(self) -> None:

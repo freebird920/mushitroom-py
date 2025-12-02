@@ -95,7 +95,7 @@ class LobbyScene(BaseScene):
 
     def on_enter(self, **kwargs: Unpack[LobbySceneArgs]):
         super().on_enter(**kwargs)
-        self._sound_manager.play_sound(audio=AudioList.BGM_01, loop=True)
+        self._sound_manager.play_bgm(audio=AudioList.BGM_01)
         self._user_id = kwargs.get("user_id")
         if not self._user_id:
             print("[Error] LobbyScene: user_id가 전달되지 않았습니다!")
@@ -277,6 +277,6 @@ class LobbyScene(BaseScene):
     def on_exit(self):
         super().on_exit()
         self._ui_component_manager.clear_components()
-        # 참조 제거
         self._bussot_component = None
         self._bussot_ui_component = None
+        self._sound_manager.stop_bgm()
