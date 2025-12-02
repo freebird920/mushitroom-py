@@ -10,18 +10,20 @@ if TYPE_CHECKING:
 class RenderObject:
     coordinate: "RenderCoordinate"
     size: "RenderSize"
+    hidden: bool
 
     def __init__(
-        self,
-        coordinate: "RenderCoordinate",
-        size: "RenderSize",
+        self, coordinate: "RenderCoordinate", size: "RenderSize", hidden: bool = False
     ) -> None:
         self.coordinate = coordinate
         self.size = size
+        self.hidden = hidden
         pass
 
     def update(self):
         pass
 
     def draw(self, canvas: "ImageDraw"):
+        if self.hidden == True:
+            return
         pass

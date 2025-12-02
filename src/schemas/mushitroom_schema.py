@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from optparse import Option
 from typing import Optional
 
 # [중요] MushroomType이 정의된 위치에서 import 해야 합니다.
@@ -20,8 +21,11 @@ class MushitroomSchema:
     health: int = 100
     talent: int = 0
     cute: int = 0
+    is_alive: Optional[bool] = True
 
     def __post_init__(self):
+        if isinstance(self.is_alive, int):
+            self.is_alive = bool(self.is_alive)
         # 1. [핵심 수정] DB에서 문자열("GOMBO")로 들어왔다면 -> Enum으로 변환
         if isinstance(self.type, str):
             # from_str 메서드가 없다면 MushroomType[self.type] 사용
@@ -31,8 +35,6 @@ class MushitroomSchema:
             else:
                 print(f"⚠ 알 수 없는 타입 문자열: {self.type}")
                 self.type = None  # 혹은 기본값
-
-        # 2. type이 아예 없다면 name을 보고 추측 (구버전 호환)
         if self.type is None:
             found = MushroomType.from_str(self.name)
             if found:
@@ -40,8 +42,6 @@ class MushitroomSchema:
             else:
                 self.type = MushroomType.GOMBO
 
-        # 3. 데이터 정합성 맞추기 (선택사항)
-        # 이제 self.type은 무조건 Enum 객체이거나 None임이 보장됨
         if self.type and hasattr(self.type, "name"):
             # 필요하다면 여기서 추가 로직 수행
             pass

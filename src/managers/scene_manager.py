@@ -40,13 +40,11 @@ class SceneManager:
 
         # [핵심 2] Enum과 실제 클래스를 연결하는 등록부
         # 순환 참조 방지를 위한 내부 import 유지
-        from src.scenes.select_user_scene import SelectUserScene
-        from src.scenes.user_test_scene import UserTestScene
+        from scenes.select_user_scene import SelectUserScene
         from scenes.lobby_scene import LobbyScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
-            SceneType.USER_TEST: UserTestScene,
             SceneType.LOBBY_SCENE: LobbyScene,
         }
 

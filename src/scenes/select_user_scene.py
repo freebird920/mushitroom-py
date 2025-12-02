@@ -58,12 +58,10 @@ class SelectUserScene(BaseScene):
             )
         )
 
-        # render_button.draw(draw_tool)
-
     def on_enter(self, **args):
         print("=== 사용자 선택 화면 진입 ===")
         self.scroll_y = 0  # 스크롤 초기화
-
+        self.ui_component_manager.clear_components()
         # DB에서 유저 조회
         self.users = self.db.get_all_users()
         render_button = RenderButton(
@@ -148,5 +146,5 @@ class SelectUserScene(BaseScene):
 
     def on_exit(self):
         print("=== 사용자 선택 화면 퇴장 ===")
-        self.ui_component_manager.goto_index(-1)
+        self.ui_component_manager.selected_index = -1
         self.scroll_y = 0

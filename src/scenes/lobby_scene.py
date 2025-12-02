@@ -1,3 +1,4 @@
+import time  # [추가] 시간 체크를 위해 필요
 from datetime import datetime
 from typing import Any, TypedDict, Unpack
 import uuid
@@ -8,11 +9,13 @@ from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
 from classes.scene_base import BaseScene
 from components.cursor_component import CursorComponent
+from components.mushroom_component import MushroomComponent
 from components.render_image import RenderImage
 from components.render_text import RenderText
 from components.render_ui_component import RenderUiComponent
 
 from managers.input_manager import InputManager
+from managers.scene_manager import SceneManager
 from managers.sound_manager import SoundManager
 from managers.sq_manager import SqService
 from managers.ui_component_manager import UiComponentManager
@@ -20,7 +23,7 @@ from managers.ui_component_manager import UiComponentManager
 from schemas.mushitroom_schema import MushitroomSchema
 from schemas.user_schema import GameState
 from settings.mushitroom_config import DISPLAY_WIDTH
-from settings.mushitroom_enums import FontStyle, InputActions
+from settings.mushitroom_enums import FontStyle, InputActions, SceneType
 from utils.name_after_mushitroom import MushroomNameGenerator
 
 
@@ -34,6 +37,11 @@ class LobbyScene(BaseScene):
     _game_state: GameState | None
     _user_id: str | None
 
+    _bussot_component: MushroomComponent | None  # 버섯 데이터 컴포넌트
+    _bussot_ui_component: RenderUiComponent | None  # 화면에 그려지는 UI 껍데기
+    _anim_last_time: float
+    _anim_index: int
+
     def __init__(self):
         super().__init__()
         self.db = SqService()
@@ -45,6 +53,12 @@ class LobbyScene(BaseScene):
             )
         )
         self._sound_manager = SoundManager()
+
+        # [추가] 애니메이션 변수 초기화
+        self._bussot_component = None
+        self._bussot_ui_component = None
+        self._anim_last_time = time.time()
+        self._anim_index = 0
 
     def _on_adopt_click(self):
         print("🍄 버섯 입양 버튼 클릭됨!")
@@ -61,7 +75,6 @@ class LobbyScene(BaseScene):
             user_id=self._user_id,
             id=new_mush_id,
             created=now_str,
-            # [중요] 저장할 때는 문자열(.name)로 변환해서 저장
             type=MushroomType.GOMBO,
             name=MushroomNameGenerator().get_random_name(
                 name=MushroomType.GOMBO.name_kr
@@ -72,13 +85,12 @@ class LobbyScene(BaseScene):
             health=100,
             talent=5,
             cute=10,
+            is_alive=True,
         )
 
         self.db.save_mushitroom(user_id=self._user_id, mush_data=new_mushroom)
         print("✅ DB 저장 완료!")
 
-        # 2. [핵심] 화면 갱신 (UI 다시 그리기)
-        # 이 함수가 없으면 DB엔 들어갔는데 화면엔 안 나옵니다.
         self._setup_ui()
 
     def on_enter(self, **kwargs: Unpack[LobbySceneArgs]):
@@ -103,10 +115,26 @@ class LobbyScene(BaseScene):
 
     def _setup_ui(self):
         """화면의 모든 요소를 지우고 다시 배치하는 함수"""
-        # 1. 기존 컴포넌트 싹 비우기
-        self._ui_component_manager.ui_components.clear()
+        # 앞서 수정한 대로 clear_components(reset_index=False) 사용 권장
+        self._ui_component_manager.clear_components(reset_index=False)
 
-        # 2. 유저 ID 텍스트
+        # [수정] 버섯 컴포넌트를 self 변수에 저장 (update에서 쓰기 위해)
+        self._bussot_component = MushroomComponent(
+            mushroom_type=MushroomType.MAGUI,
+            coordinate=RenderCoordinate(50, 50),
+            size=RenderSize(50, 50),
+        )
+
+        # [수정] UI 컴포넌트도 self 변수에 저장하고, 초기 이미지는 0번으로 설정
+        self._anim_index = 0
+        self._bussot_ui_component = RenderUiComponent(
+            is_selectable=False,
+            on_activate=None,
+            render_object=self._bussot_component.mushroom_images[self._anim_index],
+        )
+
+        self._ui_component_manager.add_component(self._bussot_ui_component)
+
         user_id_text = RenderText(
             coordinate=RenderCoordinate(DISPLAY_WIDTH // 2, 10),
             color="black",
@@ -116,19 +144,20 @@ class LobbyScene(BaseScene):
             font_style=FontStyle.COOKIE_BOLD,
         )
         self._ui_component_manager.add_component(
-            RenderUiComponent(is_selectable=False, render_object=user_id_text)
+            RenderUiComponent(
+                is_selectable=False,
+                render_object=user_id_text,
+            )
         )
 
         # 3. 버섯 목록 가져오기 & 그리기
-
         if self._user_id is not None:
             my_mushrooms = self.db.get_user_mushrooms(self._user_id)
 
             start_y = 60
-            gap_y = 30  # 간격 조정
+            gap_y = 30
 
             if not my_mushrooms:
-                # 버섯 없을 때
                 self._ui_component_manager.add_component(
                     RenderUiComponent(
                         is_selectable=False,
@@ -136,19 +165,15 @@ class LobbyScene(BaseScene):
                             font_size=12,
                             font_style=FontStyle.COOKIE_BOLD,
                             color="black",
-                            text="보유한 버섯이 없습니다.",
+                            text="ㅄ 없음니다.",
                             size=RenderSize(0, 0),
                             coordinate=RenderCoordinate(DISPLAY_WIDTH // 2, 100),
                         ),
                     )
                 )
             else:
-                # 버섯 있을 때 리스트 출력
                 for i, mush in enumerate(my_mushrooms):
-                    # Enum 객체 처리 (Enum이면 .name_kr, 문자열이면 그냥 출력)
-
                     display_text = f"{i+1}. {mush.name} (Lv.{mush.level})"
-
                     self._ui_component_manager.add_component(
                         RenderUiComponent(
                             is_selectable=False,
@@ -166,18 +191,21 @@ class LobbyScene(BaseScene):
                         )
                     )
 
-        # 4. 버튼들 다시 배치 (좌표가 겹치지 않게 Y값 조정 필요할 수 있음)
-        btn_y_pos = 200  # 버튼 위치
+        btn_y_pos = 200
 
         adopt_button = RenderImage(
             coordinate=RenderCoordinate(60, btn_y_pos),
             size=RenderSize(320 // 4, 100 // 4),
             src="./src/assets/images/btn_adopt.png",
         )
+
+        is_adoptable: bool = False
+        if self._user_id and self.db.count_alive_mushrooms(self._user_id) < 3:
+            is_adoptable = True
         self._ui_component_manager.add_component(
             RenderUiComponent(
-                is_selectable=True,
-                on_activate=self._on_adopt_click,  # 재연결
+                is_selectable=is_adoptable,
+                on_activate=self._on_adopt_click,
                 render_object=adopt_button,
             )
         )
@@ -194,7 +222,7 @@ class LobbyScene(BaseScene):
                 render_object=dance_button,
             )
         )
-        
+
         supply_button = RenderImage(
             coordinate=RenderCoordinate(220, btn_y_pos),
             size=RenderSize(320 // 4, 100 // 4),
@@ -203,14 +231,12 @@ class LobbyScene(BaseScene):
         self._ui_component_manager.add_component(
             RenderUiComponent(
                 is_selectable=True,
-                on_activate=self._on_adopt_click,  # adopt 부분 복붙한 줄
+                on_activate=None,
                 render_object=supply_button,
             )
         )
-        
-    
 
-    def handle_input(self, input_state=None):  # 인자 없어도 됨 (싱글톤 사용)
+    def handle_input(self):
         super().handle_input()
         im = InputManager()
 
@@ -220,10 +246,37 @@ class LobbyScene(BaseScene):
             self._ui_component_manager.select_next()
         if im.state.is_just_pressed(InputActions.ENTER):
             self._ui_component_manager.activate_current()
+        if im.state.is_just_pressed(InputActions.ESCAPE):
+            scene_manager = SceneManager()
+            scene_manager.switch_scene(SceneType.SELECT_USER)
+
+    def update(self):
+        super().update()
+
+        if self._bussot_component and self._bussot_ui_component:
+            current_time = time.time()
+
+            # 0.5초가 지났는지 확인
+            if current_time - self._anim_last_time >= 0.5:
+                # 시간 갱신
+                self._anim_last_time = current_time
+
+                # 인덱스 증가 (0 ~ 4 순환)
+                # mushroom_images 리스트 길이에 맞춰 모듈러 연산
+                total_frames = len(self._bussot_component.mushroom_images)
+                if total_frames > 0:
+                    self._anim_index = (self._anim_index + 1) % total_frames
+                    new_image = self._bussot_component.mushroom_images[self._anim_index]
+                    self._bussot_ui_component.render_object = new_image
 
     def draw(self, draw_tool: ImageDraw):
         super().draw(draw_tool)
+        # update()는 보통 메인 루프에서 호출되므로, draw에서는 그리기만 함
         self._ui_component_manager.draw(draw_tool)
 
     def on_exit(self):
         super().on_exit()
+        self._ui_component_manager.clear_components()
+        # 참조 제거
+        self._bussot_component = None
+        self._bussot_ui_component = None

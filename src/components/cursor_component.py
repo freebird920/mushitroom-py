@@ -46,6 +46,8 @@ class CursorComponent(RenderObject):
 
     def draw(self, canvas: "ImageDraw"):
         # 그리기 직전에 위치 업데이트 (애니메이션 적용)
+        if self.hidden == True:
+            return
         self._update_children_positions()
         self._cursor_ring.draw(canvas)
         self._cursor_hat.draw(canvas)

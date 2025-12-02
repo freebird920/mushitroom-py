@@ -8,13 +8,14 @@ if TYPE_CHECKING:
 # 1. Enum 정의
 class MushroomType(Enum):
     # (영문명, 한글명, 이미지 경로)
-    GOMBO = ("Morel", "곰보버섯", "assets/images/gombo.png")
-    MAGUI = ("Devil's Bolete", "마귀버섯", "assets/images/magui.png")
+    GOMBO = ("Morel", "곰보버섯", "assets/images/gombo.png", "gombo")
+    MAGUI = ("Devil's Bolete", "마귀버섯", "assets/images/magui.png", "magui")
 
-    def __init__(self, name_en: str, name_kr: str, image_path: str):
+    def __init__(self, name_en: str, name_kr: str, image_path: str, image_name: str):
         self.name_en = name_en
         self.name_kr = name_kr
         self.image_path = image_path
+        self.image_name = image_name
 
     @classmethod
     def from_str(cls, value: str):

@@ -33,3 +33,4 @@ class InputActions(Enum):
     PREV = "prev"
     NEXT = "next"
     ENTER = "enter"
+    ESCAPE = "escape"

@@ -25,24 +25,19 @@ class InputState:
 
 
 class InputManager:
-    # [Singleton 1] 인스턴스 저장
     _instance: Optional["InputManager"] = None
     state: InputState
+    initialized: bool
 
-    # [Singleton 2] 인스턴스 생성 제어
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self, is_windows: bool = True, root: "tk.Tk | None" = None):
-        # [Singleton 3] 이미 초기화가 '성공적으로' 완료되었다면 즉시 종료
         if hasattr(self, "initialized") and self.initialized:
             return
 
-        # --- 아래는 아직 초기화가 안 된 경우에만 실행됩니다 ---
-
-        # 상태 객체나 기본 변수가 없으면 생성 (재진입 시 데이터 덮어쓰기 방지)
         if not hasattr(self, "state"):
             self.state = InputState()
             self.is_windows = is_windows
@@ -75,6 +70,7 @@ class InputManager:
             InputActions.ENTER: ["Return", "space", "z"],
             InputActions.PREV: ["bracketleft", "q"],
             InputActions.NEXT: ["bracketright", "e"],
+            InputActions.ESCAPE: ["Escape"],
         }
         self._key_to_action: Dict[str, InputActions] = {}
         for action, keys in self.key_map.items():

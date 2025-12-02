@@ -8,6 +8,7 @@ from enum import Enum
 
 class AudioList(Enum):
     CLICK = "src/assets/audio/click_001.wav"
+    BGM_01 = "src/assets/audio/bgm_01"
 
 
 class SoundManager:

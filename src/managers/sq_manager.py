@@ -90,6 +90,7 @@ class SqService:
                     health INTEGER DEFAULT 100,
                     talent INTEGER DEFAULT 0,
                     cute INTEGER DEFAULT 0,
+                    is_alive BOOLEAN DEFAULT 1,
                     FOREIGN KEY(user_id) REFERENCES {mushitroom_config.TABLE_USER}(id) ON DELETE CASCADE
                 );
                 
@@ -109,8 +110,6 @@ class SqService:
             print(f"❌ DB 초기화 실패: {e}")
         finally:
             conn.close()
-
-    # --- 👇 유저 및 상태 관리 메서드 ---
 
     def create_user(self, username: str) -> str | None:
         """새 유저를 생성하고 user_id를 반환합니다."""
@@ -171,9 +170,68 @@ class SqService:
         finally:
             conn.close()
 
+    def count_mushrooms(self, user_id: str, conn=None) -> int:
+        """
+        해당 유저가 보유한 '모든' 버섯(사망 포함)의 개수를 반환합니다.
+        conn이 전달되면 그 연결을 사용하고(닫지 않음),
+        없으면 새로 만들어서 사용하고 닫습니다.
+        """
+        should_close = False
+
+        # 1. 외부에서 커넥션을 안 줬으면 -> 새로 만듦 (나중에 닫아야 함)
+        if conn is None:
+            conn = self._get_connection()
+            should_close = True
+
+        try:
+            cursor = conn.cursor()
+            query = f"SELECT count(*) FROM {mushitroom_config.TABLE_MUSHITROOM} WHERE user_id = ?"
+            cursor.execute(query, (user_id,))
+            result = cursor.fetchone()
+            return result[0] if result else 0
+
+        except Exception as e:
+            print(f"❌ 전체 버섯 카운트 실패: {e}")
+            return 0
+
+        finally:
+            # 2. 내가 새로 만든 커넥션일 때만 닫는다. (빌려온 거면 닫으면 안 됨!)
+            if should_close:
+                conn.close()
+
+    def count_alive_mushrooms(self, user_id: str, conn=None) -> int:
+        """
+        살아있는 버섯 개수 반환.
+        conn이 전달되면 그 연결을 사용하고(닫지 않음),
+        없으면 새로 만들어서 사용하고 닫습니다.
+        """
+        should_close = False
+
+        # 1. 외부에서 커넥션을 안 줬으면 -> 새로 만듦 (나중에 닫아야 함)
+        if conn is None:
+            conn = self._get_connection()
+            should_close = True
+
+        try:
+            cursor = conn.cursor()
+            query = f"SELECT count(*) FROM {mushitroom_config.TABLE_MUSHITROOM} WHERE user_id = ? AND is_alive = 1"
+            cursor.execute(query, (user_id,))
+            result = cursor.fetchone()
+            return result[0] if result else 0
+
+        except Exception as e:
+            print(f"❌ 생존 버섯 카운트 실패: {e}")
+            return 0
+
+        finally:
+            # 2. 내가 새로 만든 커넥션일 때만 닫는다. (빌려온 거면 닫으면 안 됨!)
+            if should_close:
+                conn.close()
+
     def save_mushitroom(self, user_id: str, mush_data: MushitroomSchema):
         """
         개별 버섯 정보를 저장하거나 업데이트합니다 (UPSERT 개념).
+        살아있는 버섯이 3개 이상이면 생성을 막습니다.
         """
         # 1. 스키마에 type 정보가 없으면 중단
         if mush_data.type is None:
@@ -181,22 +239,23 @@ class SqService:
             return
 
         conn = self._get_connection()
-        
-        # 2. Enum -> 문자열 변환 로직
+
         type_str = ""
         if hasattr(mush_data.type, "name"):
-            type_str = mush_data.type.name  # Enum 객체인 경우 (예: "GOMBO")
+            type_str = mush_data.type.name
         elif isinstance(mush_data.type, str):
-            type_str = mush_data.type       # 문자열인 경우
+            type_str = mush_data.type
+
+        # SQLite 저장을 위해 bool -> int 변환 (True=1, False=0)
+        is_alive_int = 1 if mush_data.is_alive else 0
 
         try:
             cursor = conn.cursor()
 
-            # 3. UPDATE 시도 (이미 존재하는 버섯 정보 갱신)
             cursor.execute(
                 f"""
                 UPDATE {mushitroom_config.TABLE_MUSHITROOM}
-                SET name=?, age=?, exp=?, level=?, health=?, talent=?, cute=?, type=?
+                SET name=?, age=?, exp=?, level=?, health=?, talent=?, cute=?, type=?, is_alive=?
                 WHERE id=? AND user_id=?
                 """,
                 (
@@ -207,26 +266,36 @@ class SqService:
                     mush_data.health,
                     mush_data.talent,
                     mush_data.cute,
-                    type_str, # [중요] 여기는 잘 들어가 있었음
+                    type_str,
+                    is_alive_int,
                     mush_data.id,
                     user_id,
                 ),
             )
 
             # 4. INSERT 시도 (새 버섯 추가)
-            # [수정] 여기가 문제였습니다. type 컬럼과 type_str 값을 추가했습니다.
             if cursor.rowcount == 0:
+                current_alive_count = self.count_alive_mushrooms(user_id, conn=conn)
+
+                if current_alive_count >= 3:
+                    print(
+                        f"🚫 버섯 입양 실패: 이미 {current_alive_count}마리의 버섯이 있습니다. (최대 3마리)"
+                    )
+                    return  # 저장하지 않고 함수 종료 (conn은 finally에서 닫힘)
+                # ==========================================================
+
+                # 개수 제한 통과 시 INSERT 실행
                 cursor.execute(
                     f"""
                     INSERT INTO {mushitroom_config.TABLE_MUSHITROOM}
-                    (id, user_id, name, type, created, age, exp, level, health, talent, cute)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (id, user_id, name, type, created, age, exp, level, health, talent, cute, is_alive)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         mush_data.id,
                         user_id,
                         mush_data.name,
-                        type_str, # [수정] type_str 추가됨 (4번째 인자)
+                        type_str,
                         mush_data.created,
                         mush_data.age,
                         mush_data.exp,
@@ -234,6 +303,7 @@ class SqService:
                         mush_data.health,
                         mush_data.talent,
                         mush_data.cute,
+                        is_alive_int,  # 초기 생존 여부 저장
                     ),
                 )
                 print(f"🍄 새 버섯 등록: {mush_data.name} ({type_str})")
@@ -243,6 +313,7 @@ class SqService:
             print(f"❌ 버섯 저장 실패: {e}")
         finally:
             conn.close()
+
     def get_full_game_state(self, user_id: str) -> Optional[schemas.GameState]:
         """
         [핵심] DB에서 데이터를 긁어모아 GameState Dataclass 형태로 반환합니다.
