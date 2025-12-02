@@ -23,7 +23,7 @@ from components.render_button import RenderButton
 # import managers
 from managers.scene_manager import SceneType
 from managers.ui_component_manager import UiComponentManager
-from managers.sound_manager import SoundManager
+from managers.sound_manager import AudioList, SoundManager
 
 
 if TYPE_CHECKING:
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
 
 
 class SelectUserScene(BaseScene):
-    ui_component_manager: UiComponentManager
-    sound_fx_manager: SoundManager
+    _ui_component_manager: UiComponentManager
+    _sound_fx_manager: SoundManager
     _input_manager: InputManager
 
     def __init__(
@@ -41,7 +41,7 @@ class SelectUserScene(BaseScene):
     ):
         super().__init__()
         self.db = SqService()
-        self.sound_fx_manager = SoundManager()
+        self._sound_fx_manager = SoundManager()
         self.users = []
         self._input_manager = InputManager()
         # --- 스크롤 설정을 위한 변수들 ---
@@ -51,7 +51,7 @@ class SelectUserScene(BaseScene):
         # 화면의 높이 (manager에 screen_height가 있다고 가정하거나 상수로 지정)
         # 예: 전체 600px 중 하단 여백 등을 뺀 리스트가 보일 수 있는 최대 높이 설정
         self.visible_height = mushitroom_config.DISPLAY_HEIGHT
-        self.ui_component_manager = UiComponentManager(
+        self._ui_component_manager = UiComponentManager(
             cursor=CursorComponent(
                 coordinate=RenderCoordinate(0, 0),
                 size=RenderSize(102, 36),
@@ -60,8 +60,9 @@ class SelectUserScene(BaseScene):
 
     def on_enter(self, **args):
         print("=== 사용자 선택 화면 진입 ===")
+        self._sound_fx_manager.play_bgm(AudioList.BGM_02)
         self.scroll_y = 0  # 스크롤 초기화
-        self.ui_component_manager.clear_components()
+        self._ui_component_manager.clear_components()
         # DB에서 유저 조회
         self.users = self.db.get_all_users()
         render_button = RenderButton(
@@ -76,7 +77,7 @@ class SelectUserScene(BaseScene):
             font_size=10,
             text="user_select",
         )
-        self.ui_component_manager.add_component(
+        self._ui_component_manager.add_component(
             RenderUiComponent(
                 is_selectable=True,
                 render_object=render_button,
@@ -104,7 +105,7 @@ class SelectUserScene(BaseScene):
                 on_activate=lambda u=user: self.select_user(u),
             )
 
-            self.ui_component_manager.add_component(render_button_shit)
+            self._ui_component_manager.add_component(render_button_shit)
             current_height = current_height + 50
         # 3. 새 유저 생성 버튼
 
@@ -124,11 +125,11 @@ class SelectUserScene(BaseScene):
     def handle_input(self):
 
         if self._input_manager.state.is_just_pressed(InputActions.UP):
-            self.ui_component_manager.select_prev()
+            self._ui_component_manager.select_prev()
         if self._input_manager.state.is_just_pressed(InputActions.DOWN):
-            self.ui_component_manager.select_next()
+            self._ui_component_manager.select_next()
         if self._input_manager.state.is_just_pressed(InputActions.ENTER):
-            self.ui_component_manager.activate_current()
+            self._ui_component_manager.activate_current()
         # if InputActions.UP in actions or InputActions.PREV in actions:
 
         # if InputActions.DOWN in actions or InputActions.NEXT in actions:
@@ -141,10 +142,11 @@ class SelectUserScene(BaseScene):
         pass
 
     def draw(self, draw_tool: "ImageDraw"):
-        self.ui_component_manager.draw(draw_tool)
+        self._ui_component_manager.draw(draw_tool)
         pass
 
     def on_exit(self):
         print("=== 사용자 선택 화면 퇴장 ===")
-        self.ui_component_manager.selected_index = -1
+        self._ui_component_manager.selected_index = -1
         self.scroll_y = 0
+        self._sound_fx_manager.stop_bgm()

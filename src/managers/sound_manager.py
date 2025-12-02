@@ -10,6 +10,7 @@ class AudioList(Enum):
     # 테스트를 위해 경로가 정확한지 확인해주세요
     CLICK = "src/assets/audio/click_001.wav"
     BGM_01 = "src/assets/audio/bgm_01.wav"
+    BGM_02 = "src/assets/audio/bgm_02.wav"
 
 
 class SoundManager:
