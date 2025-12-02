@@ -1,9 +1,9 @@
 import time
 from datetime import datetime
-from typing import Any, TypedDict, Unpack
+from typing import TypedDict, Unpack
 import uuid
-
 from PIL.ImageDraw import ImageDraw
+
 from classes.mushroom_class import MushroomType
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize

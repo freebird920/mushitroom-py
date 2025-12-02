@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING, Any
 
 
-from managers.scene_manager import SceneManager
-
 if TYPE_CHECKING:
     from PIL.ImageDraw import ImageDraw
+    from managers.scene_manager import SceneManager
 
 
 class BaseScene:
@@ -13,6 +12,8 @@ class BaseScene:
     def __init__(
         self,
     ):
+        from managers.scene_manager import SceneManager
+
         self.manager = SceneManager()
 
     def handle_input(
