@@ -1,4 +1,5 @@
 from PIL.ImageDraw import ImageDraw
+from settings.mushitroom_config import ZOOM_IN
 from src.settings.mushitroom_enums import FontStyle
 from src.classes.render_coordinate import RenderCoordinate
 from src.classes.render_size import RenderSize
@@ -38,8 +39,8 @@ class RenderText(RenderObject):
         canvas.text(
             font=self._font,
             xy=(
-                self.coordinate.x,
-                self.coordinate.y,
+                self.coordinate.x * ZOOM_IN,
+                self.coordinate.y * ZOOM_IN,
             ),
             text=self.text,
             fill=self.color,

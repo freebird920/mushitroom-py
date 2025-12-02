@@ -3,6 +3,7 @@ from PIL.ImageDraw import ImageDraw
 from PIL import Image
 
 # import utils
+from settings.mushitroom_config import ZOOM_IN
 from utils.resource_loader import load_resized_image
 # import classes
 from classes.render_coordinate import RenderCoordinate
