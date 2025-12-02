@@ -22,7 +22,7 @@ from managers.ui_component_manager import UiComponentManager
 
 from schemas.mushitroom_schema import MushitroomSchema
 from schemas.user_schema import GameState
-from settings.mushitroom_config import DISPLAY_WIDTH
+from settings.mushitroom_config import DISPLAY_WIDTH, ZOOM_IN
 from settings.mushitroom_enums import FontStyle, InputActions, SceneType
 from utils.name_after_mushitroom import MushroomNameGenerator
 
@@ -212,7 +212,7 @@ class LobbyScene(BaseScene):
 
         dance_button = RenderImage(
             coordinate=RenderCoordinate(140, btn_y_pos),
-            size=RenderSize(320 // 4, 100 // 4),
+            size=RenderSize((320 // 4) * ZOOM_IN, (100 // 4) * ZOOM_IN),
             src="./src/assets/images/btn_dance.png",
         )
         self._ui_component_manager.add_component(
