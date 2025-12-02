@@ -1,4 +1,4 @@
-import time  # [추가] 시간 체크를 위해 필요
+import time
 from datetime import datetime
 from typing import Any, TypedDict, Unpack
 import uuid
@@ -22,7 +22,9 @@ from managers.ui_component_manager import UiComponentManager
 
 from schemas.mushitroom_schema import MushitroomSchema
 from schemas.user_schema import GameState
-from settings.mushitroom_config import CENTER_X, DISPLAY_WIDTH, ZOOM_IN
+
+# [수정] CENTER_X만 있으면 됩니다. DISPLAY_WIDTH는 이제 안 씁니다.
+from settings.mushitroom_config import CENTER_X, ZOOM_IN
 from settings.mushitroom_enums import FontStyle, InputActions, SceneType
 from utils.name_after_mushitroom import MushroomNameGenerator
 
@@ -37,8 +39,8 @@ class LobbyScene(BaseScene):
     _game_state: GameState | None
     _user_id: str | None
 
-    _bussot_component: MushroomComponent | None  # 버섯 데이터 컴포넌트
-    _bussot_ui_component: RenderUiComponent | None  # 화면에 그려지는 UI 껍데기
+    _bussot_component: MushroomComponent | None
+    _bussot_ui_component: RenderUiComponent | None
     _anim_last_time: float
     _anim_index: int
 
@@ -54,7 +56,6 @@ class LobbyScene(BaseScene):
         )
         self._sound_manager = SoundManager()
 
-        # [추가] 애니메이션 변수 초기화
         self._bussot_component = None
         self._bussot_ui_component = None
         self._anim_last_time = time.time()
@@ -67,7 +68,6 @@ class LobbyScene(BaseScene):
             print("[Error] 유저 ID가 없어 입양할 수 없습니다.")
             return
 
-        # 1. DB 저장 로직
         new_mush_id = str(uuid.uuid4())
         now_str = datetime.now().isoformat()
 
@@ -101,7 +101,6 @@ class LobbyScene(BaseScene):
             print("[Error] LobbyScene: user_id가 전달되지 않았습니다!")
             return
 
-        # DB 로직
         game_state = self.db.get_full_game_state(self._user_id)
         if game_state is None:
             self.db.save_game_state(user_id=self._user_id, money=20, days=0)
@@ -109,13 +108,10 @@ class LobbyScene(BaseScene):
 
         self._game_state = game_state
         print(f"[System] 로비 입장 완료: {self._user_id}")
-
-        # UI 초기화
         self._setup_ui()
 
     def _setup_ui(self):
         """화면의 모든 요소를 지우고 다시 배치하는 함수"""
-        # 앞서 수정한 대로 clear_components(reset_index=False) 사용 권장
         self._ui_component_manager.clear_components(reset_index=False)
 
         self._bussot_component = MushroomComponent(
@@ -124,7 +120,6 @@ class LobbyScene(BaseScene):
             size=RenderSize(50, 50),
         )
 
-        # [수정] UI 컴포넌트도 self 변수에 저장하고, 초기 이미지는 0번으로 설정
         self._anim_index = 0
         self._bussot_ui_component = RenderUiComponent(
             is_selectable=False,
@@ -153,8 +148,10 @@ class LobbyScene(BaseScene):
         if self._user_id is not None:
             my_mushrooms = self.db.get_user_mushrooms(self._user_id)
 
-            start_y = 60 * ZOOM_IN
-            gap_y = 30 * ZOOM_IN
+            # [핵심 수정] 여기서 ZOOM_IN 곱하기를 제거해야 합니다!
+            # RenderObject가 내부적으로 곱해주기 때문입니다.
+            start_y = 60
+            gap_y = 30
 
             if not my_mushrooms:
                 self._ui_component_manager.add_component(
@@ -164,7 +161,7 @@ class LobbyScene(BaseScene):
                             font_size=12,
                             font_style=FontStyle.COOKIE_BOLD,
                             color="black",
-                            text="ㅄ 없음니다.",
+                            text="버섯이 없습니다.",
                             size=RenderSize(0, 0),
                             coordinate=RenderCoordinate(CENTER_X, 100),
                         ),
@@ -183,17 +180,20 @@ class LobbyScene(BaseScene):
                                 text=display_text,
                                 size=RenderSize(0, 0),
                                 coordinate=RenderCoordinate(
-                                    x=DISPLAY_WIDTH // 2,
+                                    x=CENTER_X,  # [수정] DISPLAY_WIDTH // 2 대신 CENTER_X 사용
                                     y=start_y + (i * gap_y),
                                 ),
                             ),
                         )
                     )
 
+        # [수정] 버튼 위치들도 논리적 좌표로 변경 (ZOOM_IN 제거, 오프셋 제거)
         btn_y_pos = 200
+        btn_x_start = 60
+        btn_gap = 80  # 버튼 간격
 
         adopt_button = RenderImage(
-            coordinate=RenderCoordinate(60, btn_y_pos),
+            coordinate=RenderCoordinate(btn_x_start, btn_y_pos),
             size=RenderSize(320 // 4, 100 // 4),
             src="./src/assets/images/btn_adopt.png",
         )
@@ -210,7 +210,7 @@ class LobbyScene(BaseScene):
         )
 
         dance_button = RenderImage(
-            coordinate=RenderCoordinate(140, btn_y_pos),
+            coordinate=RenderCoordinate(btn_x_start + btn_gap, btn_y_pos),
             size=RenderSize((320 // 4), (100 // 4)),
             src="./src/assets/images/btn_dance.png",
         )
@@ -223,7 +223,7 @@ class LobbyScene(BaseScene):
         )
 
         supply_button = RenderImage(
-            coordinate=RenderCoordinate(220, btn_y_pos),
+            coordinate=RenderCoordinate(btn_x_start + (btn_gap * 2), btn_y_pos),
             size=RenderSize(320 // 4, 100 // 4),
             src="./src/assets/images/btn_supply.png",
         )
@@ -255,13 +255,8 @@ class LobbyScene(BaseScene):
         if self._bussot_component and self._bussot_ui_component:
             current_time = time.time()
 
-            # 0.5초가 지났는지 확인
             if current_time - self._anim_last_time >= 0.5:
-                # 시간 갱신
                 self._anim_last_time = current_time
-
-                # 인덱스 증가 (0 ~ 4 순환)
-                # mushroom_images 리스트 길이에 맞춰 모듈러 연산
                 total_frames = len(self._bussot_component.mushroom_images)
                 if total_frames > 0:
                     self._anim_index = (self._anim_index + 1) % total_frames
@@ -270,7 +265,6 @@ class LobbyScene(BaseScene):
 
     def draw(self, draw_tool: ImageDraw):
         super().draw(draw_tool)
-        # update()는 보통 메인 루프에서 호출되므로, draw에서는 그리기만 함
         self._ui_component_manager.draw(draw_tool)
 
     def on_exit(self):
