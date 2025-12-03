@@ -1,36 +1,45 @@
-# =======================
-# src 경로 인식을 위한 코드
-# =======================
-import sys
-import os
-import traceback
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-src_path = os.path.join(current_dir, "src")
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-# =========
-# 외부 라이브러리 import
-# =========
-import time
-import platform
-from PIL import Image, ImageDraw
-
-# ===================
-# 프로젝트 모듈 import
-# ===================
-from settings.mushitroom_config import GPIO_PINS
-from managers.audio_manager import AudioManager
-from managers.scene_manager import SceneManager, SceneType
-from managers.input_manager import InputManager
-from managers.timer_manager import TimerManager
-
 try:
+    # ===============================================
+    # src 경로 인식을 위한 코드
+    # ===============================================
+
+    import sys
+    import os
+    import traceback
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    src_path = os.path.join(current_dir, "src")
+    if src_path not in sys.path:
+        sys.path.append(src_path)
+
+    # 프로젝트 모듈은 이 아래에서 부터 import
+    # ===============================================
+
+    # =========
+    # 외부 라이브러리 import
+    # =========
+    import time
+    import platform
+    from PIL import Image, ImageDraw
+
+    # ===================
+    # 프로젝트 모듈 import
+    # ===================
+    from settings.mushitroom_config import GPIO_PINS
+    from managers.audio_manager import AudioManager
+    from managers.scene_manager import SceneManager, SceneType
+    from managers.input_manager import InputManager
+    from managers.timer_manager import TimerManager
     import settings.mushitroom_config as mushitroom_config
     from managers.sq_manager import SqService
+
 except ImportError as e:
-    print(f"필수 모듈 로드 실패: {e}")
+
+    print(f"필수 모듈 로드 실패: {e} 3초 후 종료됩니다.")
+
+    import time
+
+    time.sleep(3)
     sys.exit(1)
 
 # ============

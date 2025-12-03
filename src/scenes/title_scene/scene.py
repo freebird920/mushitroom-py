@@ -68,7 +68,6 @@ class TitleScene(SceneBase):
         self._ui_manager.clear_components()
         self._animated_components.clear()
 
-
         # 1. 타이틀 텍스트 추가
         self._ui_manager.add_component(self._ui_builder._title_text_component)
 
