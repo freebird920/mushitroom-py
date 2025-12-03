@@ -97,7 +97,9 @@ class TitleSceneUiBuilder:
             initial_image = bs.mushroom_images[bs.mushroom_direction - 1]
 
             ui_comp = RenderUiComponent(
-                render_object=initial_image, is_selectable=False, on_activate=None
+                render_object=initial_image,
+                is_selectable=False,
+                on_activate=None,
             )
 
             result.append(ui_comp)
