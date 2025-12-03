@@ -6,6 +6,7 @@ try:
     import sys
     import os
     import traceback
+    from typing import TYPE_CHECKING
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     src_path = os.path.join(current_dir, "src")
@@ -41,6 +42,10 @@ try:
         SPI_SPEED,
     )
 
+    if TYPE_CHECKING:
+        from tkinter import Tk
+
+
 except ImportError as e:
 
     print(f"필수 모듈 로드 실패: {e} 3초 후 종료됩니다.")
@@ -55,18 +60,17 @@ except ImportError as e:
 # ============
 
 FRAME_TIME_SEC = 1.0 / FPS
-# win32도 포함해야 안전함
 IS_WINDOWS = platform.system() == "Windows" or platform.system() == "Win32"
 
 # ============
 # 전역 변수 (초기화는 main에서)
 # ============
-db = None
-timer_manager = None
-sound_manager = None
-scene_manager = None
-input_manager = None
-root = None
+db: SqService | None = None
+timer_manager: TimerManager | None = None
+audio_manager: AudioManager | None = None
+scene_manager: SceneManager | None = None
+input_manager: InputManager | None = None
+root: "Tk | None" = None
 device = None
 
 
@@ -121,10 +125,10 @@ def main_loop_rpi():
 
 
 # ============
-# 메인 함수 (모든 import와 초기화를 여기로 이동)
+# 메인 함수
 # ============
 def main():
-    global db, timer_manager, sound_manager, scene_manager, input_manager, root, device
+    global db, timer_manager, audio_manager, scene_manager, input_manager, root, device
 
     try:
         print(">>> 프로그램 초기화 시작...")
@@ -135,7 +139,6 @@ def main():
         # 2. 화면(Device) 설정
         if IS_WINDOWS:
             print("Mode: Windows (Emulator)")
-            # ★★★ 여기서 import 하면 빨간 줄 사라짐 ★★★
             import tkinter as tk
             from PIL import ImageTk
             import ctypes
@@ -179,7 +182,6 @@ def main():
 
         else:
             print("Mode: Raspberry Pi (Luma LCD)")
-            # ★★★ 라즈베리파이용 import도 여기로 이동 ★★★
             from luma.core.interface.serial import spi
             from luma.lcd.device import st7789
             from gpiozero import PWMLED
@@ -201,22 +203,23 @@ def main():
                 rotate=DISPLAY_ROTATE,
             )
 
-        # 3. 매니저 초기화
+        # set timer_manager
         timer_manager = TimerManager()
         timer_manager.start()
 
-        sound_manager = AudioManager()
-        sound_manager.set_bgm_volume(25)
-        sound_manager.set_sfx_volume(100)
-        sound_manager.set_main_volume(50)
+        # set audio_manager
+        audio_manager = AudioManager()
+        audio_manager.set_bgm_volume(25)
+        audio_manager.set_sfx_volume(100)
+        audio_manager.set_main_volume(50)
 
-        scene_manager = SceneManager()
+        # set input_manager
         input_manager = InputManager(is_windows=IS_WINDOWS, root=root)
 
+        # set scene_manager
+        scene_manager = SceneManager()
         scene_manager.switch_scene(SceneType.TITLE_SCENE)
 
-        # 4. 루프 시작
-        print(">>> 메인 루프 진입")
         if IS_WINDOWS:
             main_loop_windows()
             if root is not None:
