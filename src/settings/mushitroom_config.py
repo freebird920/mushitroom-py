@@ -16,7 +16,7 @@ CENTER_Y = ACTUAL_DISPLAY_HEIGHT // 2
 
 DISPLAY_ROTATE: int = 2
 BG_COLOR = "white"
-FPS: int = 24
+FPS: int = 144
 SPI_SPEED = 48 * 1_000 * 1_000
 
 
