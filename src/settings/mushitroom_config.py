@@ -3,8 +3,13 @@
 # ===
 
 from enum import IntEnum
+import platform
 
-ZOOM_IN: int = 1
+ZOOM_IN: int = 3
+
+if platform.system().lower() == "linux":
+    ZOOM_IN = 1
+
 ACTUAL_DISPLAY_WIDTH: int = 320
 ACTUAL_DISPLAY_HEIGHT: int = 240
 
