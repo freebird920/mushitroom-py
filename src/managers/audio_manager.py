@@ -18,7 +18,9 @@ class AudioManager:
     _bgm_process = None
     _bgm_alias = "bgm_alias"
 
-    # [수정] 볼륨 변수 분리
+    # 오디오 기능 활성화 여부 플래그
+    is_audio_enabled: bool = True
+
     _main_volume: int = 100
     _bgm_volume: int = 100
     _sfx_volume: int = 100
@@ -34,41 +36,56 @@ class AudioManager:
             self._bgm_volume = 100
             self._sfx_volume = 100
             self._main_volume = 100
+
+            # [안전장치] 초기화 시 오디오 장치 점검
+            self.is_audio_enabled = self._check_audio_availability()
             self.initialized = True
 
+    def _check_audio_availability(self) -> bool:
+        """오디오 장치가 실제로 사용 가능한지 확인"""
+        if self._system_os == "Linux":
+            try:
+                # aplay -l 명령어로 재생 가능한 카드가 있는지 확인
+                result = subprocess.run(
+                    ["aplay", "-l"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                )
+                # 'card'라는 단어가 출력에 없으면 장치가 없는 것으로 간주
+                if "card" not in result.stdout:
+                    print("🚫 오디오 장치 없음: 오디오 기능을 비활성화합니다.")
+                    return False
+            except Exception:
+                print("🚫 오디오 점검 실패: 오디오 기능을 비활성화합니다.")
+                return False
+        return True
+
     def _send_mci_command(self, command: str):
-        """[Windows] MCI 명령어 전송 헬퍼"""
+        if not self.is_audio_enabled:
+            return False
+
         error_buffer = ctypes.create_unicode_buffer(256)
         return_code = ctypes.windll.winmm.mciSendStringW(command, None, 0, None)
-
         if return_code != 0:
-            ctypes.windll.winmm.mciGetErrorStringW(return_code, error_buffer, 255)
-            # 디버깅 필요 시 주석 해제
-            # print(f"❌ MCI Error [{return_code}]: {error_buffer.value} | Cmd: {command}")
             return False
         return True
 
     def set_main_volume(self, volume: int):
         self._main_volume = max(0, min(100, volume))
         self.set_bgm_volume(round(self._bgm_volume * (self._main_volume / 100)))
-        # self.set_sfx_volume(round(self._bgm_volume * (self._main_volume / 100)))
 
     def set_bgm_volume(self, volume: int):
-        """
-        BGM 볼륨 조절 (0 ~ 100)
-        Windows: MCI 명령어로 BGM만 개별 조절 가능
-        Linux: 시스템 PCM 볼륨 조절 (전체 볼륨이 변함)
-        """
+        if not self.is_audio_enabled:
+            return
+
         self._bgm_volume = max(0, min(100, volume))
 
         if self._system_os == "Windows":
-            # MCI volume 범위: 0 ~ 1000
             mci_vol = self._bgm_volume * 10
-            # 현재 BGM이 재생 중이라면 즉시 적용
             self._send_mci_command(f"setaudio {self._bgm_alias} volume to {mci_vol}")
 
         elif self._system_os == "Linux":
-            # 주의: 리눅스 aplay는 개별 볼륨 조절 불가. 시스템 볼륨(PCM)을 변경함.
             try:
                 subprocess.run(
                     f"amixer set PCM {self._bgm_volume}%",
@@ -76,79 +93,65 @@ class AudioManager:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-            except Exception as e:
-                print(f"⚠️ 리눅스 볼륨 조절 실패: {e}")
+            except:
+                pass
 
     def set_sfx_volume(self, volume: int):
-        """
-        효과음 볼륨 조절 (0 ~ 100)
-        주의: 현재 사용 중인 winsound(Win)와 aplay(Linux)는
-        재생 시 볼륨을 지정하는 기능을 지원하지 않습니다.
-        이 메서드는 값만 저장해두며, 실제 소리 크기에는 영향을 주지 못할 수 있습니다.
-        """
         self._sfx_volume = max(0, min(100, volume))
-        # winsound나 aplay는 play 시점에 볼륨을 조절하는 옵션이 없음.
-        # 추후 pygame이나 miniaudio 같은 라이브러리로 교체 시 여기서 적용 가능.
-        pass
 
     def play_bgm(self, audio: AudioList):
-        # [수정 1] 파일 경로 절대 경로로 변환 (Windows/Linux 공통 적용)
-        abs_path = os.path.abspath(audio.value)
+        # [안전장치] 오디오 비활성화 상태면 즉시 리턴
+        if not self.is_audio_enabled:
+            return
 
+        # 경로 절대경로로 변환
+        abs_path = os.path.abspath(audio.value)
         if not os.path.exists(abs_path):
-            print(f"❌ 파일 없음: {abs_path}")
             return
 
         try:
             if self._system_os == "Windows":
-                # ... (윈도우 코드는 기존 유지) ...
-                # 다만 Windows 경로 문제 방지를 위해 replace 추가
                 abs_path_win = abs_path.replace("/", "\\")
-
                 self._send_mci_command(f"close {self._bgm_alias}")
                 cmd_open = (
                     f'open "{abs_path_win}" type mpegvideo alias {self._bgm_alias}'
                 )
-                # ... (이하 동일) ...
-                pass
+                if self._send_mci_command(cmd_open):
+                    self.set_bgm_volume(self._bgm_volume)
+                    cmd_play = f"play {self._bgm_alias} repeat"
+                    if not self._send_mci_command(cmd_play):
+                        self._send_mci_command(f"play {self._bgm_alias}")
 
             elif self._system_os == "Linux":
                 self.stop_bgm()
 
-                # [수정 2] 볼륨 조절
-                self.set_bgm_volume(self._bgm_volume)
-
+                # [핵심 수정]
+                # 무한 루프(while true) 제거 -> 한 번 재생 후 끝나게 하거나
+                # 에러 발생 시( || break ) 루프를 탈출하도록 수정하여 도배 방지
                 setsid_func = getattr(os, "setsid", None)
 
-                # [핵심 수정 3]
-                # 1. 절대 경로(abs_path) 사용
-                # 2. -D sysdefault 로 장치 호환성 확보 (또는 -D plughw:0,0)
-                # 3. || sleep 1 추가 (실패 시 1초 대기하여 무한 도배 방지)
-                cmd = f"while true; do aplay -D sysdefault -q '{abs_path}' || sleep 1; done"
+                # "aplay 실행하다 실패하면(||) 즉시 루프 탈출(break)"
+                cmd = f"while true; do aplay -q '{abs_path}' || break; done"
 
                 self._bgm_process = subprocess.Popen(
                     cmd,
                     shell=True,
                     preexec_fn=setsid_func,
                     executable="/bin/bash",
+                    stderr=subprocess.DEVNULL,  # 에러 메시지도 화면에 안 뜨게 숨김
                 )
 
         except Exception as e:
-            print(f"⚠️ BGM 재생 오류: {e}")
+            print(f"⚠️ BGM 오류(무시함): {e}")
+            self.is_audio_enabled = False  # 에러 나면 그냥 꺼버림
 
     def play_sfx(self, audio: AudioList):
+        if not self.is_audio_enabled:
+            return
+
         if not os.path.exists(audio.value):
             return
 
-        # SFX 재생 시점의 유효 볼륨 계산
-        effective_vol = int(self._sfx_volume * (self._main_volume / 100))
-
-        # 볼륨이 0이면 재생 안 함 (최적화)
-        if effective_vol == 0:
-            return
-
-        # (참고) winsound/aplay는 재생 시 볼륨 조절 불가하지만,
-        # 추후 라이브러리 교체를 대비해 로직은 유지
         try:
             if self._system_os == "Windows":
                 import winsound
@@ -157,11 +160,17 @@ class AudioManager:
                     audio.value, winsound.SND_FILENAME | winsound.SND_ASYNC
                 )
             elif self._system_os == "Linux":
-                subprocess.Popen(["aplay", "-q", audio.value])
-        except Exception as e:
-            print(f"⚠️ 효과음 재생 오류: {e}")
+                # 에러 메시지 숨김 (stderr=subprocess.DEVNULL)
+                subprocess.Popen(
+                    ["aplay", "-q", audio.value], stderr=subprocess.DEVNULL
+                )
+        except:
+            pass
 
     def stop_bgm(self):
+        if not self.is_audio_enabled:
+            return
+
         if self._system_os == "Windows":
             self._send_mci_command(f"stop {self._bgm_alias}")
             self._send_mci_command(f"close {self._bgm_alias}")
@@ -175,8 +184,11 @@ class AudioManager:
                 if killpg_func and getpgid_func:
                     try:
                         killpg_func(getpgid_func(self._bgm_process.pid), signal.SIGTERM)
-                    except ProcessLookupError:
+                    except:
                         pass
                 else:
-                    self._bgm_process.terminate()
+                    try:
+                        self._bgm_process.terminate()
+                    except:
+                        pass
                 self._bgm_process = None
