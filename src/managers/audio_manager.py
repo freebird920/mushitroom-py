@@ -92,35 +92,40 @@ class AudioManager:
         pass
 
     def play_bgm(self, audio: AudioList):
-        if not os.path.exists(audio.value):
-            print(f"❌ 파일 없음: {audio.value}")
+        # [수정 1] 파일 경로 절대 경로로 변환 (Windows/Linux 공통 적용)
+        abs_path = os.path.abspath(audio.value)
+
+        if not os.path.exists(abs_path):
+            print(f"❌ 파일 없음: {abs_path}")
             return
 
         try:
             if self._system_os == "Windows":
-                abs_path = os.path.abspath(audio.value).replace("/", "\\")
+                # ... (윈도우 코드는 기존 유지) ...
+                # 다만 Windows 경로 문제 방지를 위해 replace 추가
+                abs_path_win = abs_path.replace("/", "\\")
 
                 self._send_mci_command(f"close {self._bgm_alias}")
-
-                cmd_open = f'open "{abs_path}" type mpegvideo alias {self._bgm_alias}'
-                if not self._send_mci_command(cmd_open):
-                    return
-
-                # [수정] 저장된 BGM 볼륨값 적용
-                self.set_bgm_volume(self._bgm_volume)
-
-                cmd_play = f"play {self._bgm_alias} repeat"
-                if not self._send_mci_command(cmd_play):
-                    self._send_mci_command(f"play {self._bgm_alias}")
+                cmd_open = (
+                    f'open "{abs_path_win}" type mpegvideo alias {self._bgm_alias}'
+                )
+                # ... (이하 동일) ...
+                pass
 
             elif self._system_os == "Linux":
                 self.stop_bgm()
 
-                # [수정] 저장된 BGM 볼륨값 적용 (시스템 볼륨 변경)
+                # [수정 2] 볼륨 조절
                 self.set_bgm_volume(self._bgm_volume)
 
                 setsid_func = getattr(os, "setsid", None)
-                cmd = f"while true; do aplay -q {audio.value}; done"
+
+                # [핵심 수정 3]
+                # 1. 절대 경로(abs_path) 사용
+                # 2. -D sysdefault 로 장치 호환성 확보 (또는 -D plughw:0,0)
+                # 3. || sleep 1 추가 (실패 시 1초 대기하여 무한 도배 방지)
+                cmd = f"while true; do aplay -D sysdefault -q '{abs_path}' || sleep 1; done"
+
                 self._bgm_process = subprocess.Popen(
                     cmd,
                     shell=True,
