@@ -25,13 +25,21 @@ try:
     # ===================
     # 프로젝트 모듈 import
     # ===================
-    from settings.mushitroom_config import GPIO_PINS
     from managers.audio_manager import AudioManager
     from managers.scene_manager import SceneManager, SceneType
     from managers.input_manager import InputManager
     from managers.timer_manager import TimerManager
-    import settings.mushitroom_config as mushitroom_config
+
     from managers.sq_manager import SqService
+    from settings.mushitroom_config import (
+        GPIO_PINS,
+        BG_COLOR,
+        DISPLAY_WIDTH,
+        DISPLAY_HEIGHT,
+        DISPLAY_ROTATE,
+        FPS,
+        SPI_SPEED,
+    )
 
 except ImportError as e:
 
@@ -45,10 +53,7 @@ except ImportError as e:
 # ============
 # 전역 설정
 # ============
-HEIGHT = mushitroom_config.DISPLAY_HEIGHT
-ROTATE = mushitroom_config.DISPLAY_ROTATE
-BG_COLOR = mushitroom_config.BG_COLOR
-FPS = mushitroom_config.FPS
+
 FRAME_TIME_SEC = 1.0 / FPS
 # win32도 포함해야 안전함
 IS_WINDOWS = platform.system() == "Windows" or platform.system() == "Win32"
@@ -82,7 +87,7 @@ def draw_frame() -> Image.Image:
     global scene_manager
     canvas = Image.new(
         "RGBA",
-        (mushitroom_config.DISPLAY_WIDTH, mushitroom_config.DISPLAY_HEIGHT),
+        (DISPLAY_WIDTH, DISPLAY_HEIGHT),
         BG_COLOR,
     )
     draw_tool = ImageDraw.Draw(canvas)
@@ -158,8 +163,8 @@ def main():
 
             # 디바이스 생성
             device = TkinterEmulator(
-                width=mushitroom_config.DISPLAY_WIDTH,
-                height=mushitroom_config.DISPLAY_HEIGHT,
+                width=DISPLAY_WIDTH,
+                height=DISPLAY_HEIGHT,
             )
             root = device.root
 
@@ -185,15 +190,15 @@ def main():
             serial = spi(
                 port=0,
                 device=0,
-                gpio_DC=mushitroom_config.GPIO_PINS.DISPLAY_DC.value,
-                gpio_RST=mushitroom_config.GPIO_PINS.DISPLAY_RST.value,
-                bus_speed_hz=mushitroom_config.SPI_SPEED,
+                gpio_DC=GPIO_PINS.DISPLAY_DC.value,
+                gpio_RST=GPIO_PINS.DISPLAY_RST.value,
+                bus_speed_hz=SPI_SPEED,
             )
             device = st7789(
                 serial,
-                width=mushitroom_config.DISPLAY_WIDTH,
-                height=HEIGHT,
-                rotate=ROTATE,
+                width=DISPLAY_WIDTH,
+                height=DISPLAY_HEIGHT,
+                rotate=DISPLAY_ROTATE,
             )
 
         # 3. 매니저 초기화
