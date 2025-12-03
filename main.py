@@ -154,6 +154,7 @@ db = SqService()
 sound_manager = SoundManager()
 sound_manager.set_bgm_volume(25)
 sound_manager.set_sfx_volume(100)
+sound_manager.set_main_volume(50)
 scene_manager = SceneManager()
 input_manager = InputManager(
     is_windows=IS_WINDOWS,

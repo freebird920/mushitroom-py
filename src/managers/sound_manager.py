@@ -18,6 +18,7 @@ class SoundManager:
     _bgm_alias = "bgm_alias"
 
     # [수정] 볼륨 변수 분리
+    _main_volume: int = 100
     _bgm_volume: int = 100
     _sfx_volume: int = 100
 
@@ -31,6 +32,7 @@ class SoundManager:
             self._system_os = platform.system()
             self._bgm_volume = 100
             self._sfx_volume = 100
+            self._main_volume = 100
             self.initialized = True
 
     def _send_mci_command(self, command: str):
@@ -44,6 +46,11 @@ class SoundManager:
             # print(f"❌ MCI Error [{return_code}]: {error_buffer.value} | Cmd: {command}")
             return False
         return True
+
+    def set_main_volume(self, volume: int):
+        self._main_volume = max(0, min(100, volume))
+        self.set_bgm_volume(round(self._bgm_volume * (self._main_volume / 100)))
+        # self.set_sfx_volume(round(self._bgm_volume * (self._main_volume / 100)))
 
     def set_bgm_volume(self, volume: int):
         """
@@ -127,22 +134,24 @@ class SoundManager:
         if not os.path.exists(audio.value):
             return
 
-        # [참고] 효과음 볼륨을 0으로 설정했다면 재생하지 않음 (간이 음소거 구현)
-        if self._sfx_volume == 0:
+        # SFX 재생 시점의 유효 볼륨 계산
+        effective_vol = int(self._sfx_volume * (self._main_volume / 100))
+
+        # 볼륨이 0이면 재생 안 함 (최적화)
+        if effective_vol == 0:
             return
 
+        # (참고) winsound/aplay는 재생 시 볼륨 조절 불가하지만,
+        # 추후 라이브러리 교체를 대비해 로직은 유지
         try:
             if self._system_os == "Windows":
                 import winsound
 
-                # winsound는 볼륨 조절 불가 (시스템 볼륨 따름)
                 winsound.PlaySound(
                     audio.value, winsound.SND_FILENAME | winsound.SND_ASYNC
                 )
-
             elif self._system_os == "Linux":
                 subprocess.Popen(["aplay", "-q", audio.value])
-
         except Exception as e:
             print(f"⚠️ 효과음 재생 오류: {e}")
 
