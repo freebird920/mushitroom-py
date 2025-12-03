@@ -4,7 +4,7 @@
 
 from enum import IntEnum
 
-ZOOM_IN: int = 3
+ZOOM_IN: int = 1
 ACTUAL_DISPLAY_WIDTH: int = 320
 ACTUAL_DISPLAY_HEIGHT: int = 240
 
