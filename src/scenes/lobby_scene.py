@@ -180,7 +180,7 @@ class LobbyScene(SceneBase):
                                 text=display_text,
                                 size=RenderSize(0, 0),
                                 coordinate=RenderCoordinate(
-                                    x=CENTER_X,  # [수정] DISPLAY_WIDTH // 2 대신 CENTER_X 사용
+                                    x=CENTER_X,
                                     y=start_y + (i * gap_y),
                                 ),
                             ),

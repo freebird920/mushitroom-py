@@ -45,12 +45,15 @@ class TitleScene(SceneBase):
 
     def handle_input(self):
         super().handle_input()
-        if self._input_manager.state.is_just_pressed(InputActions.RIGHT):
+        if self._input_manager.state.is_just_pressed(
+            InputActions.RIGHT
+        ) or self._input_manager.state.is_just_pressed(InputActions.DOWN):
             self._ui_manager.select_next()
-        if self._input_manager.state.is_just_pressed(InputActions.LEFT):
+        if self._input_manager.state.is_just_pressed(
+            InputActions.LEFT
+        ) or self._input_manager.state.is_just_pressed(InputActions.UP):
             self._ui_manager.select_prev()
 
-        # 엔터 키 입력 시 현재 선택된 버튼(RenderUiComponent)의 on_activate 실행
         if self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self._ui_manager.activate_current()
 
