@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, List, Optional
-from managers.sound_manager import AudioList, SoundManager
+from managers.audio_manager import AudioList, AudioManager
 from components.render_ui_component import RenderUiComponent
 from classes.render_object import RenderObject
 
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class UiComponentManager:
-    sound_manager: SoundManager
+    sound_manager: AudioManager
     render_components: List[RenderUiComponent]
     selectable_components: List[RenderUiComponent]
     selected_index: int
@@ -22,7 +22,7 @@ class UiComponentManager:
         self.selectable_components = []
         self.selected_index = -1
         self.cursor = cursor
-        self.sound_manager = SoundManager()
+        self.sound_manager = AudioManager()
 
         if self.cursor:
             self.cursor.hidden = True

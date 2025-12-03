@@ -7,7 +7,7 @@ from PIL.ImageDraw import ImageDraw
 from classes.mushroom_class import MushroomType
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
-from classes.scene_base import BaseScene
+from classes.scene_base import SceneBase
 from components.cursor_component import CursorComponent
 from components.mushroom_component import MushroomComponent
 from components.render_image import RenderImage
@@ -16,7 +16,7 @@ from components.render_ui_component import RenderUiComponent
 
 from managers.input_manager import InputManager
 from managers.scene_manager import SceneManager
-from managers.sound_manager import AudioList, SoundManager
+from managers.audio_manager import AudioList, AudioManager
 from managers.sq_manager import SqService
 from managers.ui_component_manager import UiComponentManager
 
@@ -33,9 +33,9 @@ class LobbySceneArgs(TypedDict):
     user_id: str
 
 
-class LobbyScene(BaseScene):
+class LobbyScene(SceneBase):
     _ui_component_manager: UiComponentManager
-    _sound_manager: SoundManager
+    _sound_manager: AudioManager
     _game_state: GameState | None
     _user_id: str | None
 
@@ -54,7 +54,7 @@ class LobbyScene(BaseScene):
                 size=RenderSize(82, 30),
             )
         )
-        self._sound_manager = SoundManager()
+        self._sound_manager = AudioManager()
 
         self._bussot_component = None
         self._bussot_ui_component = None

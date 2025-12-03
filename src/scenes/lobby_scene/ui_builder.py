@@ -8,16 +8,11 @@ from components.render_image import RenderImage
 from settings.mushitroom_config import CENTER_X
 from settings.mushitroom_enums import FontStyle
 
-# 순환 참조 방지를 위해 함수 내부에서 logic을 임포트하거나,
-# scene.py에서 람다로 연결된 메서드를 호출하는 방식을 씁니다.
-# 여기서는 scene 객체의 메서드를 호출한다고 가정합니다.
-
 
 def build_lobby_ui(scene):
     """로비 씬의 모든 UI 컴포넌트를 생성하고 배치합니다."""
     scene.ui_component_manager.clear_components(reset_index=False)
 
-    # 1. 메인 캐릭터(마귀) 설정
     scene.bussot_component = MushroomComponent(
         mushroom_type=MushroomType.MAGUI,
         coordinate=RenderCoordinate(50, 50),

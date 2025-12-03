@@ -5,7 +5,7 @@ from settings.mushitroom_enums import SceneType
 from managers.sq_manager import SqService
 
 if TYPE_CHECKING:
-    from classes.scene_base import BaseScene
+    from classes.scene_base import SceneBase
 
 
 class SceneManager:
@@ -14,9 +14,9 @@ class SceneManager:
 
     # 타입 힌트
     db: "SqService"
-    current_scene: Optional["BaseScene"]
-    scene_cache: Dict[SceneType, "BaseScene"]
-    scene_registry: Dict[SceneType, Type["BaseScene"]]
+    current_scene: Optional["SceneBase"]
+    scene_cache: Dict[SceneType, "SceneBase"]
+    scene_registry: Dict[SceneType, Type["SceneBase"]]
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -41,13 +41,14 @@ class SceneManager:
         # 순환 참조 방지를 위한 내부 import 유지
         from scenes.select_user_scene import SelectUserScene
         from scenes.lobby_scene.scene import LobbyScene
+        from scenes.title_scene.scene import TitleScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
             SceneType.LOBBY_SCENE: LobbyScene,
+            SceneType.TITLE_SCENE: TitleScene,
         }
 
-        # 초기화 완료 도장 쾅!
         self.initialized = True
 
     def switch_scene(self, scene_type: SceneType, **kwargs):

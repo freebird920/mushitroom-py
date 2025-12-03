@@ -7,7 +7,7 @@ from schemas.user_schema import User
 from components.cursor_component import CursorComponent
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
-from classes.scene_base import BaseScene
+from classes.scene_base import SceneBase
 
 # import settings
 from settings import mushitroom_config
@@ -23,7 +23,7 @@ from components.render_button import RenderButton
 # import managers
 from managers.scene_manager import SceneType
 from managers.ui_component_manager import UiComponentManager
-from managers.sound_manager import AudioList, SoundManager
+from managers.audio_manager import AudioList, AudioManager
 
 
 if TYPE_CHECKING:
@@ -35,15 +35,15 @@ if TYPE_CHECKING:
 LAYOUT_OFFSET_X = 0
 
 
-class SelectUserScene(BaseScene):
+class SelectUserScene(SceneBase):
     _ui_component_manager: UiComponentManager
-    _sound_fx_manager: SoundManager
+    _sound_fx_manager: AudioManager
     _input_manager: InputManager
 
     def __init__(self):
         super().__init__()
         self.db = SqService()
-        self._sound_fx_manager = SoundManager()
+        self._sound_fx_manager = AudioManager()
         self.users = []
         self._input_manager = InputManager()
 
@@ -77,29 +77,10 @@ class SelectUserScene(BaseScene):
         # DB에서 유저 조회
         self.users = self.db.get_all_users()
 
-        # [중앙 정렬 로직]
-        try:
-            # mushitroom_config.CENTER_X 사용 (없으면 기본값 160)
-            center_x = getattr(mushitroom_config, "CENTER_X", 160)
-        except AttributeError:
-            center_x = 160
-
-        # 기본 계산: 중앙 - (버튼너비 / 2)
-        base_align_x = center_x - (self.btn_width // 2)
-
-        # [수정] 오프셋 적용 (강제 보정)
-        # 렌더링 단계의 좌표 왜곡을 상쇄하기 위해 오프셋을 더합니다.
-        final_align_x = base_align_x + LAYOUT_OFFSET_X
-
-        # [디버그] 최종 적용 좌표 확인
-        print(
-            f"[DEBUG] Center: {center_x}, BaseAlign: {base_align_x}, FinalAlign: {final_align_x} (Offset: {LAYOUT_OFFSET_X})"
-        )
-
         # 1. 상단 [NEW USER] 버튼 생성
         new_user_y = 20  # 상단 여백
         render_button = RenderButton(
-            coordinate=RenderCoordinate(x=final_align_x, y=new_user_y),
+            coordinate=RenderCoordinate(x=mushitroom_config.CENTER_X, y=new_user_y),
             size=RenderSize(width=self.btn_width, height=self.btn_height),
             font_size=10,
             text="[ NEW USER ]",
@@ -117,7 +98,7 @@ class SelectUserScene(BaseScene):
 
         for i, user in enumerate(self.users):
             user_btn = RenderButton(
-                coordinate=RenderCoordinate(x=final_align_x, y=current_y),
+                coordinate=RenderCoordinate(x=mushitroom_config.CENTER_X, y=current_y),
                 size=RenderSize(width=self.btn_width, height=self.btn_height),
                 text=f"{user.username}",
             )
@@ -135,7 +116,7 @@ class SelectUserScene(BaseScene):
 
     def select_user(self, user: User):
         print(f"유저 선택됨: {user.username}")
-        self.manager.switch_scene(
+        self._scene_manager.switch_scene(
             scene_type=SceneType.LOBBY_SCENE,
             user_id=user.id,
         )
@@ -153,6 +134,8 @@ class SelectUserScene(BaseScene):
             self._ui_component_manager.select_next()
         elif self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self._ui_component_manager.activate_current()
+        elif self._input_manager.state.is_just_pressed(InputActions.ESCAPE):
+            self._scene_manager.switch_scene(SceneType.TITLE_SCENE)
 
     def update(self):
         pass

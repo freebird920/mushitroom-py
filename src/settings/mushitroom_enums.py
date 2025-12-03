@@ -8,6 +8,7 @@ class SceneType(Enum):
     GAME_PLAY = auto()
     ENDING = auto()
     PHISHING = auto()
+    TITLE_SCENE = auto()
 
 
 class ObjectType(Enum):

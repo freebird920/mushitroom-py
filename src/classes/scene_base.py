@@ -1,20 +1,28 @@
 from typing import TYPE_CHECKING, Any
 
+from managers.audio_manager import AudioManager
+from managers.input_manager import InputManager
+from managers.ui_component_manager import UiComponentManager
+
 
 if TYPE_CHECKING:
     from PIL.ImageDraw import ImageDraw
     from managers.scene_manager import SceneManager
 
 
-class BaseScene:
-    manager: "SceneManager"
+class SceneBase:
+    _scene_manager: "SceneManager"
+    _audio_manager: AudioManager
+    _input_manager: InputManager
 
     def __init__(
         self,
     ):
         from managers.scene_manager import SceneManager
 
-        self.manager = SceneManager()
+        self._scene_manager = SceneManager()
+        self._audio_manager = AudioManager()
+        self._input_manager = InputManager()
 
     def handle_input(
         self,

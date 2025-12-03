@@ -44,7 +44,7 @@ class RenderButton(RenderObject):
         # 자식 생성 (논리적 중앙 좌표 전달 -> 자식이 알아서 2배 확대 -> 물리적 중앙에 배치됨)
         # 더블 줌 문제 해결됨
         self._render_text = RenderText(
-            coordinate=logical_center,
+            coordinate=coordinate,
             text=text,
             font_size=font_size,
             size=size,
@@ -52,7 +52,7 @@ class RenderButton(RenderObject):
             color=text_color,
         )
         self._render_button_image = RenderImage(
-            coordinate=logical_center,
+            coordinate=coordinate,
             size=size,
             src="./src/assets/images/button.png",
         )

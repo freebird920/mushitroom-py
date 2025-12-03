@@ -27,7 +27,7 @@ from PIL import Image, ImageDraw
 from settings.mushitroom_config import GPIO_PINS
 
 # import managers
-from managers.sound_manager import SoundManager
+from managers.audio_manager import AudioManager
 from managers.scene_manager import SceneManager, SceneType
 from managers.input_manager import InputManager
 
@@ -151,7 +151,7 @@ else:
 # ============
 
 db = SqService()
-sound_manager = SoundManager()
+sound_manager = AudioManager()
 sound_manager.set_bgm_volume(25)
 sound_manager.set_sfx_volume(100)
 sound_manager.set_main_volume(50)
@@ -160,7 +160,9 @@ input_manager = InputManager(
     is_windows=IS_WINDOWS,
     root=root,
 )
-scene_manager.switch_scene(SceneType.SELECT_USER)
+# scene_manager.switch_scene(SceneType.SELECT_USER)
+
+scene_manager.switch_scene(SceneType.TITLE_SCENE)
 
 
 # ============

@@ -1,14 +1,14 @@
 import time
 from typing import TypedDict, Unpack, TYPE_CHECKING
 
-from classes.scene_base import BaseScene
+from classes.scene_base import SceneBase
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
 from components.cursor_component import CursorComponent
 from managers.input_manager import InputManager
 
 # [수정 1] SceneManager 상단 import 제거 (순환 참조 방지)
-from managers.sound_manager import AudioList, SoundManager
+from managers.audio_manager import AudioList, AudioManager
 from managers.sq_manager import SqService
 from managers.ui_component_manager import UiComponentManager
 from settings.mushitroom_enums import InputActions, SceneType
@@ -31,10 +31,9 @@ class LobbySceneArgs(TypedDict):
     user_id: str
 
 
-class LobbyScene(BaseScene):
+class LobbyScene(SceneBase):
     # 공용 변수들은 public(또는 @property)으로 열어두어 모듈들이 접근 가능하게 함
     ui_component_manager: UiComponentManager
-    sound_manager: SoundManager
     db: SqService
 
     user_id: str | None
@@ -49,7 +48,6 @@ class LobbyScene(BaseScene):
     def __init__(self):
         super().__init__()
         self.db = SqService()
-        self.sound_manager = SoundManager()
         self.user_id = None
 
         # UI 매니저 초기화
@@ -67,7 +65,7 @@ class LobbyScene(BaseScene):
 
     def on_enter(self, **kwargs: Unpack[LobbySceneArgs]):
         super().on_enter(**kwargs)
-        self.sound_manager.play_bgm(audio=AudioList.BGM_01)
+        self._audio_manager.play_bgm(audio=AudioList.BGM_01)
 
         self.user_id = kwargs.get("user_id")
 
@@ -119,4 +117,4 @@ class LobbyScene(BaseScene):
         self.ui_component_manager.clear_components()
         self.bussot_component = None
         self.bussot_ui_component = None
-        self.sound_manager.stop_bgm()
+        self._audio_manager.stop_bgm()
