@@ -10,6 +10,7 @@ from classes.render_size import RenderSize
 from classes.scene_base import SceneBase
 from components.cursor_component import CursorComponent
 from components.mushroom_component import MushroomComponent
+from components.render_button import RenderButton
 from components.render_image import RenderImage
 from components.render_text import RenderText
 from components.render_ui_component import RenderUiComponent
@@ -222,11 +223,17 @@ class LobbyScene(SceneBase):
             )
         )
 
-        supply_button = RenderImage(
+        supply_button = RenderButton(
             coordinate=RenderCoordinate(btn_x_start + (btn_gap * 2), btn_y_pos),
-            size=RenderSize(320 // 4, 100 // 4),
-            src="./src/assets/images/btn_supply.png",
+            font_size=0,
+            size=RenderSize(80, 25),
+            img_src="./src/assets/images/btn_supply.png",
         )
+        # supply_button = RenderImage(
+        #     coordinate=RenderCoordinate(btn_x_start + (btn_gap * 2), btn_y_pos),
+        #     size=RenderSize(320 // 4, 100 // 4),
+        #     src="./src/assets/images/btn_supply.png",
+        # )
         self._ui_component_manager.add_component(
             RenderUiComponent(
                 is_selectable=True,

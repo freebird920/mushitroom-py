@@ -110,41 +110,29 @@ class UiComponentManager:
     def _on_selection_changed(self) -> None:
         self.sound_manager.play_sfx(AudioList.CLICK)
         self._update_cursor_position()
+
     def _update_cursor_position(self) -> None:
-            """커서 위치를 선택된 컴포넌트의 '중앙' 좌표로 이동시킵니다."""
-            if not self.cursor or not self.selectable_components:
-                return
+        """커서 위치를 선택된 컴포넌트의 '중앙' 좌표로 이동시킵니다."""
+        if not self.cursor or not self.selectable_components:
+            return
 
-            if self.selected_index >= len(self.selectable_components):
-                self.selected_index = len(self.selectable_components) - 1
+        if self.selected_index >= len(self.selectable_components):
+            self.selected_index = len(self.selectable_components) - 1
 
-            if self.selected_index < 0:
-                self.selected_index = 0
+        if self.selected_index < 0:
+            self.selected_index = 0
 
-            target_component = self.selectable_components[self.selected_index]
-            target_obj = target_component.render_object
+        target_component = self.selectable_components[self.selected_index]
+        target_obj = target_component.render_object
 
-            if target_obj:
-                # 1. 기본 좌표 가져오기
-                center_x = target_obj.coordinate.x
-                center_y = target_obj.coordinate.y
+        if target_obj:
+            # 1. 기본 좌표 가져오기
+            center_x = target_obj.coordinate.x
+            center_y = target_obj.coordinate.y
 
-                # 2. [수정 핵심] 객체 타입에 따라 중앙 계산 방식 분기
-                
-                # Case A: RenderButton
-                # RenderButton은 보통 Top-Left 기준으로 생성되거나, 
-                # 내부적으로 텍스트/이미지 배치를 위해 Top-Left를 사용하는 경우가 많습니다.
-                # (사용자 피드백: "RenderButton은 잘 맞음" -> 보정 유지)
-                if target_obj.__class__.__name__ == "RenderButton":
-                    center_x += target_obj.size.width // 2
-                    center_y += target_obj.size.height // 2
+            center_x += target_obj.size.width // 2
+            center_y += target_obj.size.height // 2
 
-                # Case B: RenderImage
-                # RenderImage의 draw() 코드를 보면 coordinate가 이미 Center입니다.
-                # 따라서 보정값을 더하면 안 됩니다. (그대로 둠)
-                elif target_obj.__class__.__name__ == "RenderImage":
-                    pass 
-                
-                # 3. 커서에게 최종 중앙 좌표 전달
-                self.cursor.coordinate.x = center_x
-                self.cursor.coordinate.y = center_y
+            # 3. 커서에게 최종 중앙 좌표 전달
+            self.cursor.coordinate.x = center_x
+            self.cursor.coordinate.y = center_y
