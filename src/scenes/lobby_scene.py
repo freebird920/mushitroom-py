@@ -35,15 +35,13 @@ class LobbySceneArgs(TypedDict):
 
 
 class LobbyScene(SceneBase):
+
     _ui_component_manager: UiComponentManager
     _sound_manager: AudioManager
     _game_state: GameState | None
     _user_id: str | None
-
     _bussot_component: MushroomComponent | None
     _bussot_ui_component: RenderUiComponent | None
-    _anim_last_time: float
-    _anim_index: int
 
     def __init__(self):
         super().__init__()
@@ -59,8 +57,6 @@ class LobbyScene(SceneBase):
 
         self._bussot_component = None
         self._bussot_ui_component = None
-        self._anim_last_time = time.time()
-        self._anim_index = 0
 
     def _on_adopt_click(self):
         print("🍄 버섯 입양 버튼 클릭됨!")
@@ -88,10 +84,7 @@ class LobbyScene(SceneBase):
             cute=10,
             is_alive=True,
         )
-
         self.db.save_mushitroom(user_id=self._user_id, mush_data=new_mushroom)
-        print("✅ DB 저장 완료!")
-
         self._setup_ui()
 
     def on_enter(self, **kwargs: Unpack[LobbySceneArgs]):
@@ -149,8 +142,6 @@ class LobbyScene(SceneBase):
         if self._user_id is not None:
             my_mushrooms = self.db.get_user_mushrooms(self._user_id)
 
-            # [핵심 수정] 여기서 ZOOM_IN 곱하기를 제거해야 합니다!
-            # RenderObject가 내부적으로 곱해주기 때문입니다.
             start_y = 60
             gap_y = 30
 
@@ -258,17 +249,8 @@ class LobbyScene(SceneBase):
 
     def update(self):
         super().update()
-
         if self._bussot_component and self._bussot_ui_component:
-            current_time = time.time()
-
-            if current_time - self._anim_last_time >= 0.5:
-                self._anim_last_time = current_time
-                total_frames = len(self._bussot_component.mushroom_images)
-                if total_frames > 0:
-                    self._anim_index = (self._anim_index + 1) % total_frames
-                    new_image = self._bussot_component.mushroom_images[self._anim_index]
-                    self._bussot_ui_component.render_object = new_image
+            self._bussot_component.rotate(True)
 
     def draw(self, draw_tool: ImageDraw):
         super().draw(draw_tool)

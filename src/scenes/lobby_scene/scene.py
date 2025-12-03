@@ -23,16 +23,12 @@ if TYPE_CHECKING:
     from components.render_ui_component import RenderUiComponent
     from schemas.user_schema import GameState
 
-    # [수정 2] 타입 힌팅용으로만 가져오기 (런타임 에러 방지)
-    from managers.scene_manager import SceneManager
-
 
 class LobbySceneArgs(TypedDict):
     user_id: str
 
 
 class LobbyScene(SceneBase):
-    # 공용 변수들은 public(또는 @property)으로 열어두어 모듈들이 접근 가능하게 함
     ui_component_manager: UiComponentManager
     db: SqService
 
@@ -81,16 +77,8 @@ class LobbyScene(SceneBase):
 
     def update(self):
         super().update()
-
         if self.bussot_component and self.bussot_ui_component:
-            current_time = time.time()
-            if current_time - self.anim_last_time >= 0.5:
-                self.anim_last_time = current_time
-                total_frames = len(self.bussot_component.mushroom_images)
-                if total_frames > 0:
-                    self.anim_index = (self.anim_index + 1) % total_frames
-                    new_image = self.bussot_component.mushroom_images[self.anim_index]
-                    self.bussot_ui_component.render_object = new_image
+            self.bussot_ui_component.render_object = self.bussot_component.rotate(True)
 
     def handle_input(self):
         super().handle_input()
