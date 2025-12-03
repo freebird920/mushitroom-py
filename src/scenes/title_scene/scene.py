@@ -19,7 +19,7 @@ from settings.mushitroom_enums import InputActions, SceneType
 class TitleScene(SceneBase):
     _ui_manager: UiComponentManager
     _ui_builder: TitleSceneUiBuilder
-    _animated_components: List[Tuple[MushroomComponent, RenderUiComponent]]
+    _animated_mushit: List[Tuple[MushroomComponent, RenderUiComponent]]
     _timer_manager: TimerManager
     _anim_timer_id: int = -1  # [수정] 타이머 ID 저장 변수 추가
 
@@ -33,7 +33,7 @@ class TitleScene(SceneBase):
             )
         )
         self._ui_builder = TitleSceneUiBuilder()
-        self._animated_components = []
+        self._animated_mushit = []
         self._timer_manager = TimerManager()
 
     # [기능 1] 게임 시작 콜백
@@ -66,7 +66,7 @@ class TitleScene(SceneBase):
 
         # 컴포넌트 리스트 초기화
         self._ui_manager.clear_components()
-        self._animated_components.clear()
+        self._animated_mushit.clear()
 
         # 1. 타이틀 텍스트 추가
         self._ui_manager.add_component(self._ui_builder._title_text_component)
@@ -85,7 +85,7 @@ class TitleScene(SceneBase):
                 render_object=current_img_comp, is_selectable=False, on_activate=None
             )
             self._ui_manager.add_component(ui_comp)
-            self._animated_components.append((busot, ui_comp))
+            self._animated_mushit.append((busot, ui_comp))
 
         # [수정] setInterval 등록 및 ID 저장 (0.1초마다 실행)
         self._anim_timer_id = self._timer_manager.set_interval(
@@ -101,7 +101,7 @@ class TitleScene(SceneBase):
 
     def rotate_mushroom(self):
         """타이머에 의해 주기적으로 호출될 콜백 함수"""
-        for busot, ui_comp in self._animated_components:
+        for busot, ui_comp in self._animated_mushit:
             next_image = busot.rotate(True)
             ui_comp.render_object = next_image
 
