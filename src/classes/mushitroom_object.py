@@ -11,7 +11,7 @@ class MushitroomObject:
         width: int,
         height: int,
         color: str,
-        id: str | None = None,
+        object_id: str | None = None,
         object_type: ObjectType = ObjectType.DEFAULT,
     ):
         self.x = x
@@ -20,11 +20,11 @@ class MushitroomObject:
         self.height = height
         self.object_type = object_type
         self.color = color
-        if id is None:
+        if object_id is None:
             self.uuid = str(uuid.uuid4())
         else:
             # 밖에서 넣어줬으면(DB 로딩 등) -> 그걸 그대로 씀
-            self.uuid = id
+            self.uuid = object_id
 
     def update(self):
         pass

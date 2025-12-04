@@ -16,12 +16,12 @@ class PngObject(MushitroomObject):
         width: int,
         height: int,
         color: str,
-        id: str | None = None,
+        object_id: str | None = None,
         object_type: ObjectType = ObjectType.DEFAULT,
         href: str = "",
         velocity_y: float = 0.00,
     ):
-        super().__init__(x, y, width, height, color, id, object_type)
+        super().__init__(x, y, width, height, color, object_id, object_type)
         self.href = href
         self._image_cache = None
         self._load_and_resize_image()
