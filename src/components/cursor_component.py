@@ -5,6 +5,8 @@ from classes.render_coordinate import RenderCoordinate
 from classes.render_object import RenderObject
 from classes.render_size import RenderSize
 from components.render_image import RenderImage
+# ZOOM_IN 변수가 이 파일 범위에서 사용 가능하도록 가정합니다.
+# Assuming ZOOM_IN variable is accessible in this file scope.
 from settings.mushitroom_config import ZOOM_IN
 
 if TYPE_CHECKING:
@@ -58,12 +60,24 @@ class CursorComponent(RenderObject):
         rw, rh = self._cursor_ring.size.width, self._cursor_ring.size.height
         hw, hh = self._cursor_hat.size.width, self._cursor_hat.size.height
 
-            # ---------------------------------------------------------
-            # [수정 포인트] 위치 보정값
-            # 침투하고 있다면 값을 '음수(-)'로 바꿔서 위로 올리세요.
-            # 예: -10, -15 등으로 숫자를 바꿔가며 딱 맞는 위치를 찾으세요.
-            y_adjustment = -23
-            # ---------------------------------------------------------
+        # ---------------------------------------------------------
+        # [수정 포인트] 위치 보정값
+        # 침투하고 있다면 값을 '음수(-)'로 바꿔서 위로 올리세요.
+        # 예: -10, -15 등으로 숫자를 바꿔가며 딱 맞는 위치를 찾으세요.
+        y_adjustment = -30
+        # ---------------------------------------------------------
+
+        # **[오류 수정] ZOOM_IN 변수의 타입 안정성 확보**
+        zoom_factor = 1.0
+        try:
+            # ZOOM_IN을 float으로 안전하게 변환하여 사용합니다.
+            # 변환에 실패하면 (예: None, 잘못된 문자열) 기본값 1.0을 사용합니다.
+            zoom_factor = float(ZOOM_IN)
+        except (ValueError, TypeError, NameError):
+            # 혹시 모를 임포트 실패(NameError)나 잘못된 타입(ValueError, TypeError)에 대비
+            print(f"Warning: ZOOM_IN value in config is invalid. Using default zoom factor of 1.0.")
+            zoom_factor = 1.0
+        # ---------------------------------------------------------
 
         # 1. 링 배치 (중앙 정렬)
         # 링의 Top-Left Y좌표
@@ -75,7 +89,9 @@ class CursorComponent(RenderObject):
         # 2. 애니메이션 (위로 통통)
         current_time = time.time()
         bounce_ratio = abs(math.sin(current_time * math.pi * 2))
-        bounce_offset = -bounce_ratio * self._bounce_amplitude * ZOOM_IN
+        
+        # 수정된 65번째 줄: zoom_factor를 사용하여 안전하게 계산합니다.
+        bounce_offset = -bounce_ratio * self._bounce_amplitude * zoom_factor
 
         # 3. 모자 배치
         self._cursor_hat.coordinate.x = int(cx - (hw // 2))

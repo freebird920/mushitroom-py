@@ -26,7 +26,7 @@ class TitleSceneUiBuilder:
                 font_size=42,
                 color="black",
                 font_style=FontStyle.COOKIE_BOLD,
-                text="버린세스메이크",
+                text="니얼굴윤겔라",
             ),
             is_selectable=False,
             on_activate=None,
