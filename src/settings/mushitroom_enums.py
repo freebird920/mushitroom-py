@@ -4,6 +4,7 @@ from enum import Enum, auto
 class SceneType(Enum):
     LOBBY_SCENE = auto()
     SELECT_USER = auto()
+    SELECT_MUSHROOM = auto()
     USER_TEST = auto()
     GAME_PLAY = auto()
     ENDING = auto()

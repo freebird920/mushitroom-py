@@ -30,7 +30,7 @@ class UiComponentManager:
     def clear_components(self, reset_index: bool = True) -> None:
         self.render_components.clear()
         self.selectable_components.clear()
-
+        print("ui_manager cleared")
         if reset_index:
             self.selected_index = -1
 

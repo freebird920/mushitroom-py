@@ -1,16 +1,17 @@
 from typing import Any
-from classes.scene_base import SceneBase
+from classes.scene_base import BaseScene
 from managers.audio_manager import AudioList
 from settings.mushitroom_enums import InputActions, SceneType
 
 
-class FeedScene(SceneBase):
+class FeedScene(BaseScene):
     def __init__(self):
         super().__init__()
 
     def on_enter(self, **kwargs: Any):
         super().on_enter(**kwargs)
         self._audio_manager.play_bgm(AudioList.BGM_00)
+        self.user_id = kwargs.get("user_id")
 
     def handle_input(self):
         super().handle_input()

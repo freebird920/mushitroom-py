@@ -7,7 +7,7 @@ from schemas.user_schema import User
 from components.cursor_component import CursorComponent
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
-from classes.scene_base import SceneBase
+from classes.scene_base import BaseScene
 
 # import settings
 from settings import mushitroom_config
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 LAYOUT_OFFSET_X = 0
 
 
-class SelectUserScene(SceneBase):
+class SelectUserScene(BaseScene):
     _ui_component_manager: UiComponentManager
     _sound_fx_manager: AudioManager
     _input_manager: InputManager
@@ -117,7 +117,7 @@ class SelectUserScene(SceneBase):
     def select_user(self, user: User):
         print(f"유저 선택됨: {user.username}")
         self._scene_manager.switch_scene(
-            scene_type=SceneType.LOBBY_SCENE,
+            scene_type=SceneType.SELECT_MUSHROOM,
             user_id=user.id,
         )
 

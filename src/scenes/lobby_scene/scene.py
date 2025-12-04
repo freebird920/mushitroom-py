@@ -1,7 +1,7 @@
 import time
 from typing import TypedDict, Unpack, TYPE_CHECKING
 
-from classes.scene_base import SceneBase
+from classes.scene_base import BaseScene
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
 from components.cursor_component import CursorComponent
@@ -28,7 +28,7 @@ class LobbySceneArgs(TypedDict):
     user_id: str
 
 
-class LobbyScene(SceneBase):
+class LobbyScene(BaseScene):
     ui_component_manager: UiComponentManager
     db: SqService
 

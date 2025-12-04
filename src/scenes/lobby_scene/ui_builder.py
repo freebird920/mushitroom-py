@@ -137,7 +137,7 @@ def _build_bottom_buttons(scene: "LobbyScene"):
     scene.ui_component_manager.add_component(
         RenderUiComponent(
             is_selectable=True,
-            on_activate=None,
+            on_activate=scene.handle_feed,
             render_object=supply_button,
         )
     )
