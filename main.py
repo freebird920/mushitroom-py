@@ -28,7 +28,7 @@ try:
     # ===================
     from managers.audio_manager import AudioManager
     from managers.scene_manager import SceneManager, SceneType
-    from managers.input_manager import InputManager
+    from managers.input_manager.input_manager import InputManager
     from managers.timer_manager import TimerManager
 
     from managers.sq_manager import SqService
@@ -214,8 +214,8 @@ def main():
         audio_manager.set_main_volume(50)
 
         # set input_manager
-        input_manager = InputManager(is_windows=IS_WINDOWS, root=root)
-
+        input_manager = InputManager(is_windows=IS_WINDOWS)
+        input_manager.initialize(root=root)
         # set scene_manager
         scene_manager = SceneManager()
         scene_manager.switch_scene(SceneType.TITLE_SCENE)

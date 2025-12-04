@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 # import classes
-from managers.input_manager import InputManager
+from managers.input_manager.input_manager import InputManager
 from managers.sq_manager import SqService
 from schemas.user_schema import User
 from components.cursor_component import CursorComponent

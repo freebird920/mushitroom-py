@@ -20,7 +20,6 @@ def clear_caches():
     """
     _IMAGE_CACHE.clear()
     _FONT_CACHE.clear()
-    print("🧹 리소스 캐시가 초기화되었습니다.")
 
 
 def _get_resource_stream(path: str) -> io.BytesIO | None:

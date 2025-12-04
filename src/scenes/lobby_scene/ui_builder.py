@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
 from components.mushroom_component import MushroomComponent
@@ -8,8 +9,12 @@ from components.render_image import RenderImage
 from settings.mushitroom_config import CENTER_X
 from settings.mushitroom_enums import FontStyle
 
+if TYPE_CHECKING:
 
-def build_lobby_ui(scene):
+    from scenes.lobby_scene.scene import LobbyScene
+
+
+def build_lobby_ui(scene: "LobbyScene"):
     """로비 씬의 모든 UI 컴포넌트를 생성하고 배치합니다."""
     scene.ui_component_manager.clear_components(reset_index=False)
 
@@ -45,7 +50,7 @@ def build_lobby_ui(scene):
     _build_bottom_buttons(scene)
 
 
-def _build_mushroom_list(scene):
+def _build_mushroom_list(scene: "LobbyScene"):
     if scene.user_id is None:
         return
 
@@ -83,7 +88,7 @@ def _build_mushroom_list(scene):
             )
 
 
-def _build_bottom_buttons(scene):
+def _build_bottom_buttons(scene: "LobbyScene"):
     btn_y_pos = 200
     btn_x_start = 60
     btn_gap = 80

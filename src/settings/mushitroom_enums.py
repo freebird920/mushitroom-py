@@ -9,6 +9,7 @@ class SceneType(Enum):
     ENDING = auto()
     PHISHING = auto()
     TITLE_SCENE = auto()
+    FEED_SCENE = auto()
 
 
 class ObjectType(Enum):

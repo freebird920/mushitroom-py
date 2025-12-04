@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from managers.audio_manager import AudioManager
-from managers.input_manager import InputManager
+from managers.input_manager.input_manager import InputManager
 from managers.ui_component_manager import UiComponentManager
 
 

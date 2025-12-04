@@ -1,12 +1,18 @@
+from typing import TYPE_CHECKING
 import uuid
 from datetime import datetime
 from classes.mushroom_class import MushroomType
 from schemas.mushitroom_schema import MushitroomSchema
+from settings.mushitroom_enums import SceneType
 from utils.name_after_mushitroom import MushroomNameGenerator
 
 
+if TYPE_CHECKING:
+    from scenes.lobby_scene.scene import LobbyScene
+
+
 # Scene 객체를 인자로 받아서 DB 작업을 수행합니다.
-def check_and_initialize_user(scene):
+def check_and_initialize_user(scene: "LobbyScene"):
     """유저 접속 시 게임 상태 확인 및 초기화"""
     if not scene.user_id:
         print("[Error] user_id가 없습니다.")
@@ -21,7 +27,7 @@ def check_and_initialize_user(scene):
     print(f"[System] 로비 데이터 로드 완료: {scene.user_id}")
 
 
-def adopt_mushroom(scene):
+def adopt_mushroom(scene: "LobbyScene"):
     """버섯 입양 로직"""
     print("🍄 버섯 입양 시도...")
 
@@ -58,3 +64,8 @@ def adopt_mushroom(scene):
     from .ui_builder import build_lobby_ui
 
     build_lobby_ui(scene)
+
+
+def feed_mushroom(scene: "LobbyScene"):
+    scene._scene_manager.switch_scene(SceneType.FEED_SCENE)
+    pass

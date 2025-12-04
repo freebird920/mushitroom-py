@@ -42,11 +42,13 @@ class SceneManager:
         from scenes.select_user_scene import SelectUserScene
         from scenes.lobby_scene.scene import LobbyScene
         from scenes.title_scene.scene import TitleScene
+        from scenes.feed_scene.scene import FeedScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
             SceneType.LOBBY_SCENE: LobbyScene,
             SceneType.TITLE_SCENE: TitleScene,
+            SceneType.FEED_SCENE: FeedScene,
         }
 
         self.initialized = True
