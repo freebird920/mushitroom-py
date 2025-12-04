@@ -52,11 +52,11 @@ class CursorComponent(RenderObject):
         self._cursor_hat.draw(canvas)
 
     def _update_children_positions(self):
-            cx, cy = self.coordinate.x, self.coordinate.y
+        cx, cy = self.coordinate.x, self.coordinate.y
 
-            # 사이즈 가져오기
-            rw, rh = self._cursor_ring.size.width, self._cursor_ring.size.height
-            hw, hh = self._cursor_hat.size.width, self._cursor_hat.size.height
+        # 사이즈 가져오기
+        rw, rh = self._cursor_ring.size.width, self._cursor_ring.size.height
+        hw, hh = self._cursor_hat.size.width, self._cursor_hat.size.height
 
             # ---------------------------------------------------------
             # [수정 포인트] 위치 보정값
@@ -65,24 +65,24 @@ class CursorComponent(RenderObject):
             y_adjustment = -23
             # ---------------------------------------------------------
 
-            # 1. 링 배치 (중앙 정렬)
-            # 링의 Top-Left Y좌표
-            ring_y = cy - (rh // 2) 
+        # 1. 링 배치 (중앙 정렬)
+        # 링의 Top-Left Y좌표
+        ring_y = cy - (rh // 2)
 
-            self._cursor_ring.coordinate.x = int(cx - (rw // 2))
-            self._cursor_ring.coordinate.y = int(ring_y)
+        self._cursor_ring.coordinate.x = int(cx - (rw // 2))
+        self._cursor_ring.coordinate.y = int(ring_y)
 
-            # 2. 애니메이션 (위로 통통)
-            current_time = time.time()
-            bounce_ratio = abs(math.sin(current_time * math.pi * 2))
-            bounce_offset = -bounce_ratio * self._bounce_amplitude * ZOOM_IN
+        # 2. 애니메이션 (위로 통통)
+        current_time = time.time()
+        bounce_ratio = abs(math.sin(current_time * math.pi * 2))
+        bounce_offset = -bounce_ratio * self._bounce_amplitude * ZOOM_IN
 
-            # 3. 모자 배치
-            self._cursor_hat.coordinate.x = int(cx - (hw // 2))
-            
-            # [계산 로직]
-            # 링의 윗변(ring_y) - 모자 높이(hh) -> 딱 붙음
-            # + y_adjustment (음수니까 위로 올라감)
-            base_hat_y = ring_y - hh + y_adjustment
+        # 3. 모자 배치
+        self._cursor_hat.coordinate.x = int(cx - (hw // 2))
 
-            self._cursor_hat.coordinate.y = int(base_hat_y + bounce_offset)
+        # [계산 로직]
+        # 링의 윗변(ring_y) - 모자 높이(hh) -> 딱 붙음
+        # + y_adjustment (음수니까 위로 올라감)
+        base_hat_y = ring_y - hh + y_adjustment
+
+        self._cursor_hat.coordinate.y = int(base_hat_y + bounce_offset)

@@ -1,11 +1,11 @@
 import time
 from typing import TypedDict, Unpack, TYPE_CHECKING
 
-from classes.scene_base import SceneBase
+from classes.scene_base import BaseScene
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
 from components.cursor_component import CursorComponent
-from managers.input_manager import InputManager
+from managers.input_manager.input_manager import InputManager
 
 # [수정 1] SceneManager 상단 import 제거 (순환 참조 방지)
 from managers.audio_manager import AudioList, AudioManager
@@ -28,7 +28,7 @@ class LobbySceneArgs(TypedDict):
     user_id: str
 
 
-class LobbyScene(SceneBase):
+class LobbyScene(BaseScene):
     ui_component_manager: UiComponentManager
     db: SqService
 
@@ -74,6 +74,9 @@ class LobbyScene(SceneBase):
     def handle_adopt(self):
         """UI 버튼에서 호출할 입양 메서드"""
         logic.adopt_mushroom(self)
+
+    def handle_feed(self):
+        logic.feed_mushroom(self)
 
     def update(self):
         super().update()

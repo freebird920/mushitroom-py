@@ -5,7 +5,7 @@ from settings.mushitroom_enums import SceneType
 from managers.sq_manager import SqService
 
 if TYPE_CHECKING:
-    from classes.scene_base import SceneBase
+    from classes.scene_base import BaseScene
 
 
 class SceneManager:
@@ -14,9 +14,9 @@ class SceneManager:
 
     # 타입 힌트
     db: "SqService"
-    current_scene: Optional["SceneBase"]
-    scene_cache: Dict[SceneType, "SceneBase"]
-    scene_registry: Dict[SceneType, Type["SceneBase"]]
+    current_scene: Optional["BaseScene"]
+    scene_cache: Dict[SceneType, "BaseScene"]
+    scene_registry: Dict[SceneType, Type["BaseScene"]]
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -42,11 +42,15 @@ class SceneManager:
         from scenes.select_user_scene import SelectUserScene
         from scenes.lobby_scene.scene import LobbyScene
         from scenes.title_scene.scene import TitleScene
+        from scenes.feed_scene.scene import FeedScene
+        from scenes.mushroom_select_scene import SelectMushroomScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
             SceneType.LOBBY_SCENE: LobbyScene,
             SceneType.TITLE_SCENE: TitleScene,
+            SceneType.FEED_SCENE: FeedScene,
+            SceneType.SELECT_MUSHROOM: SelectMushroomScene,
         }
 
         self.initialized = True

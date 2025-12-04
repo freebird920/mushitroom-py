@@ -4,7 +4,7 @@ from typing import Any, List, Tuple
 from PIL.ImageDraw import ImageDraw
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
-from classes.scene_base import SceneBase
+from classes.scene_base import BaseScene
 from components.cursor_component import CursorComponent
 from components.mushroom_component import MushroomComponent
 from components.render_ui_component import RenderUiComponent
@@ -16,7 +16,7 @@ from scenes.title_scene.ui_builder import TitleSceneUiBuilder
 from settings.mushitroom_enums import InputActions, SceneType
 
 
-class TitleScene(SceneBase):
+class TitleScene(BaseScene):
     _ui_manager: UiComponentManager
     _ui_builder: TitleSceneUiBuilder
     _animated_mushit: List[Tuple[MushroomComponent, RenderUiComponent]]

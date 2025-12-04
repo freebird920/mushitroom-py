@@ -11,6 +11,10 @@ class MushroomType(Enum):
     GOMBO = ("Morel", "곰보버섯", "assets/images/gombo.png", "gombo")
     MAGUI = ("Devil's Bolete", "마귀버섯", "assets/images/magui.png", "magui")
     DALGYAL = ("DALGYAL", "달걀버섯", "assets/images/dalgyal.png", "dalgyal")
+    GWANG = ("GWANG", "광대버섯", "assets/images/dalgyal.png", "gwang")
+    SASUM = ("SASUM", "사슴버섯", "assets/images/dalgyal.png", "sasum")
+    SALGU = ("SALGU", "SALGU", "", "salgu")
+    HWANGUM = ("HWANGUM", "HWANGUM", "HWANGUM", "hwangum")
 
     def __init__(self, name_en: str, name_kr: str, image_path: str, image_name: str):
         self.name_en = name_en

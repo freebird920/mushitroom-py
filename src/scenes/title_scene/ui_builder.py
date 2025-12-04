@@ -18,11 +18,12 @@ class TitleSceneUiBuilder:
 
     def __init__(self) -> None:
         self._scene_manager = SceneManager()
+        title_text_y = CENTER_Y - (CENTER_Y // 3)
         self._title_text_component = RenderUiComponent(
             render_object=RenderText(
-                coordinate=RenderCoordinate(x=CENTER_X, y=CENTER_Y // 2),
+                coordinate=RenderCoordinate(x=CENTER_X, y=title_text_y),
                 size=RenderSize(0, 0),
-                font_size=45,
+                font_size=42,
                 color="black",
                 font_style=FontStyle.COOKIE_BOLD,
                 text="버린세스메이크",
@@ -39,21 +40,43 @@ class TitleSceneUiBuilder:
                 ),
             )
         ]
+        mushroom_size = 30
+        mushroom_y = title_text_y - 30
         self._busots = [
             MushroomComponent(
-                coordinate=RenderCoordinate(CENTER_X // 2, CENTER_Y),
+                coordinate=RenderCoordinate(CENTER_X - (CENTER_X // 4 * 3), mushroom_y),
+                mushroom_type=MushroomType.SALGU,
+                size=RenderSize(mushroom_size, mushroom_size),
+            ),
+            MushroomComponent(
+                coordinate=RenderCoordinate(CENTER_X - (CENTER_X // 4 * 2), mushroom_y),
+                mushroom_type=MushroomType.GWANG,
+                size=RenderSize(mushroom_size, mushroom_size),
+            ),
+            MushroomComponent(
+                coordinate=RenderCoordinate(CENTER_X - (CENTER_X // 4 * 1), mushroom_y),
                 mushroom_type=MushroomType.DALGYAL,
-                size=RenderSize(50, 50),
+                size=RenderSize(mushroom_size, mushroom_size),
             ),
             MushroomComponent(
-                coordinate=RenderCoordinate(CENTER_X, CENTER_Y),
+                coordinate=RenderCoordinate(CENTER_X, mushroom_y),
                 mushroom_type=MushroomType.MAGUI,
-                size=RenderSize(50, 50),
+                size=RenderSize(mushroom_size, mushroom_size),
             ),
             MushroomComponent(
-                coordinate=RenderCoordinate(CENTER_X + CENTER_X // 2, CENTER_Y),
+                coordinate=RenderCoordinate(CENTER_X + (CENTER_X // 4 * 1), mushroom_y),
                 mushroom_type=MushroomType.GOMBO,
-                size=RenderSize(50, 50),
+                size=RenderSize(mushroom_size, mushroom_size),
+            ),
+            MushroomComponent(
+                coordinate=RenderCoordinate(CENTER_X + (CENTER_X // 4 * 2), mushroom_y),
+                mushroom_type=MushroomType.SASUM,
+                size=RenderSize(mushroom_size, mushroom_size),
+            ),
+            MushroomComponent(
+                coordinate=RenderCoordinate(CENTER_X + (CENTER_X // 4 * 3), mushroom_y),
+                mushroom_type=MushroomType.HWANGUM,
+                size=RenderSize(mushroom_size, mushroom_size),
             ),
         ]
 
