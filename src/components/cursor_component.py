@@ -61,9 +61,9 @@ class CursorComponent(RenderObject):
         hw, hh = self._cursor_hat.size.width, self._cursor_hat.size.height
 
         # ---------------------------------------------------------
-        # [수정 포인트] 위치 보정값
-        # 침투하고 있다면 값을 '음수(-)'로 바꿔서 위로 올리세요.
-        # 예: -10, -15 등으로 숫자를 바꿔가며 딱 맞는 위치를 찾으세요.
+        # [수정 포인트] 위치 보정값 (음수 값의 절대값을 키울수록 모자가 위로 더 많이 올라가 Ring과 분리됩니다.)
+        # 현재 -30으로 설정하여 Ring 침범을 방지하고 충분한 분리 공간을 확보했습니다.
+        # 모자가 Ring을 침범한다면 이 값의 음수 절대값을 더 키우세요. (예: -35, -40)
         y_adjustment = -30
         # ---------------------------------------------------------
 
@@ -98,7 +98,7 @@ class CursorComponent(RenderObject):
 
         # [계산 로직]
         # 링의 윗변(ring_y) - 모자 높이(hh) -> 딱 붙음
-        # + y_adjustment (음수니까 위로 올라감)
+        # + y_adjustment (음수 값의 절대값을 키우면 위로 올라감)
         base_hat_y = ring_y - hh + y_adjustment
 
         self._cursor_hat.coordinate.y = int(base_hat_y + bounce_offset)
