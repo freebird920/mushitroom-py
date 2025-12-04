@@ -44,6 +44,7 @@ class SceneManager:
         from scenes.title_scene.scene import TitleScene
         from scenes.feed_scene.scene import FeedScene
         from scenes.mushroom_select_scene import SelectMushroomScene
+        from scenes.goeha_scene import GoehaScene
 
         self.scene_registry = {
             SceneType.SELECT_USER: SelectUserScene,
@@ -51,6 +52,7 @@ class SceneManager:
             SceneType.TITLE_SCENE: TitleScene,
             SceneType.FEED_SCENE: FeedScene,
             SceneType.SELECT_MUSHROOM: SelectMushroomScene,
+            SceneType.GOEHA_TIME: GoehaScene,
         }
 
         self.initialized = True

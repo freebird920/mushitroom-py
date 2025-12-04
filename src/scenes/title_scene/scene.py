@@ -45,6 +45,10 @@ class TitleScene(BaseScene):
     def _on_exit_game(self):
         print("Game Exit!")
         sys.exit(0)
+        
+    def _on_goeha_game(self):
+        print("띠모기 야~~~르")
+        SceneManager().switch_scene(SceneType.GOEHA_TIME)
 
     def handle_input(self):
         super().handle_input()
@@ -73,7 +77,7 @@ class TitleScene(BaseScene):
 
         # 2. 버튼 생성 및 추가
         buttons = self._ui_builder.build_buttons(
-            on_start=self._on_start_game, on_exit=self._on_exit_game
+            on_start=self._on_start_game, on_exit=self._on_exit_game, on_goeha=self._on_goeha_game
         )
         for btn in buttons:
             self._ui_manager.add_component(btn)

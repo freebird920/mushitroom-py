@@ -11,6 +11,7 @@ class SceneType(Enum):
     PHISHING = auto()
     TITLE_SCENE = auto()
     FEED_SCENE = auto()
+    GOEHA_TIME = auto()
 
 
 class ObjectType(Enum):

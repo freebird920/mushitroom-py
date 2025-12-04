@@ -110,6 +110,18 @@ class TitleSceneUiBuilder:
                     text="EXIT",
                 ),
             ),
+             # 2. GOEHA 버튼
+            RenderUiComponent(
+                is_selectable=True,
+                on_activate=on_exit,
+                render_object=RenderButton(
+                    coordinate=RenderCoordinate(
+                        CENTER_X, CENTER_Y + 150
+                    ),  # START보다 아래로
+                    size=RenderSize(100, 30),
+                    text="GOEHA",
+                ),
+            ),
         ]
         return result
 
