@@ -5,7 +5,7 @@ from settings.mushitroom_enums import InputActions, SceneType
 
 
 class FeedScene(BaseScene):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def on_enter(self, **kwargs: Any):
