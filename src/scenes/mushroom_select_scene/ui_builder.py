@@ -67,12 +67,18 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
             render_object=mushit_name_text,
         )
 
+        def jump_mushit_room(u_comp: RenderUiComponent):
+            u_comp.render_object.coordinate = RenderCoordinate(
+                u_comp.render_object.coordinate.x,
+                u_comp.render_object.coordinate.y - 30,
+            )
+
         def create_focus_animator(m_comp: MushroomComponent, u_comp: RenderUiComponent):
             # 마지막으로 회전한 시간을 기억하는 변수
             last_rotate_time = 0.0
 
             def on_focus_logic():
-                '''
+                """
                 on_focus_logic의 Docstring
 
                 ## nonlocal
@@ -81,7 +87,7 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
                 * nonlocal이 없으면: on_focus_logic 안에서 last_rotate_time = current_time을 하는 순간, 바깥의 변수를 갱신하는 게 아니라 새로운 지역 변수를 만들어버립니다. (회전이 안 됨)
 
                 * nonlocal이 있으면: "새로 만드는 거 아니고, 바로 위 함수(공장장)가 가지고 있던 그 변수 고칠 거야!" 라고 알려주는 것입니다.
-                '''
+                """
                 nonlocal last_rotate_time
                 # TimerManager에게 "게임 시작하고 얼마나 지났어?"라고 물어봄 (안전함)
                 current_time = TimerManager().get_elapsed_time()
@@ -95,7 +101,7 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
         mushit_ui_comp.on_focus_callback = create_focus_animator(
             mushit_img, mushit_ui_comp
         )
-
+        mushit_ui_comp.on_activate = lambda u=mushit_ui_comp: jump_mushit_room(u)
         # ---------------------------------------------------------
         scene._mushroom_ui_manager.add_component(mushit_name_comp)
         scene._mushroom_ui_manager.add_component(mushit_ui_comp)
