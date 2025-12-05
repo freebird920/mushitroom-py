@@ -1,3 +1,4 @@
+import time
 from typing import TYPE_CHECKING
 from classes.render_coordinate import RenderCoordinate
 from classes.render_size import RenderSize
@@ -41,16 +42,45 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
             mushit_position_x,
             CENTER_Y - (CENTER_Y // 3),
         )
+        # 1. 버섯 컴포넌트(데이터/로직) 생성
         mushit_img = MushroomComponent(
             mushroom_type=mushit_info.type,
             coordinate=mushit_position,
             size=RenderSize(50, 50),
         )
+
+        # 2. UI 컴포넌트 생성 (일단 콜백 없이 생성)
         mushit_ui_comp = RenderUiComponent(
             render_object=mushit_img.mushroom_images[0],
             is_selectable=True,
             on_activate=None,
         )
+
+        # 3. [핵심] 회전 로직 생성 함수 (클로저 활용)
+        # 이 함수는 각 버섯마다 자신만의 '마지막 회전 시간'을 기억합니다.
+        def create_rotator(m_comp: MushroomComponent, u_comp: RenderUiComponent):
+            last_rotate_time = 0
+            
+            def rotate_on_focus():
+                nonlocal last_rotate_time
+                current_time = time.time()
+                
+                # 0.1초마다 프레임 변경 (숫자를 키우면 느리게, 줄이면 빠르게)
+                if current_time - last_rotate_time > 0.1:
+                    # 버섯 이미지를 다음 프레임으로 회전
+                    next_image = m_comp.rotate(True)
+                    # UI 컴포넌트가 그리는 대상을 교체
+                    u_comp.render_object = next_image
+                    # 시간 갱신
+                    last_rotate_time = current_time
+            
+            return rotate_on_focus
+
+        # 4. 생성된 로직을 UI 컴포넌트의 콜백으로 등록
+        # (RenderUiComponent에 on_focus_callback 속성이 있다고 가정)
+        mushit_ui_comp.on_focus_callback = create_rotator(mushit_img, mushit_ui_comp)
+
+        # ... 텍스트 컴포넌트 생성 및 매니저 등록 (기존 코드) ...
         mushit_name_text = RenderText(
             text=mushit_info.name,
             coordinate=RenderCoordinate(mushit_position.x, mushit_position.y + 50),
@@ -60,9 +90,10 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
         mushit_name_comp = RenderUiComponent(
             render_object=mushit_name_text,
         )
+        
         scene._mushroom_ui_manager.add_component(mushit_name_comp)
         scene._mushroom_ui_manager.add_component(mushit_ui_comp)
-        pass
+
     return scene.update()
 
 

@@ -68,3 +68,10 @@ class SelectMushroomScene(BaseScene):
         super().draw(draw_tool)
         self._mushroom_ui_manager.draw(draw_tool)
         self._ui_manager.draw(draw_tool)
+
+    def update(self):
+        self._mushroom_ui_manager.on_cursor()
+
+        # 만약 ADOPT 버튼 같은 다른 UI도 커서 반응이 필요하면 이것도 호출
+        self._ui_manager.on_cursor()
+        return super().update()
