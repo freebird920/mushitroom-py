@@ -5,6 +5,7 @@ from classes.render_coordinate import RenderCoordinate
 from classes.render_object import RenderObject
 from classes.render_size import RenderSize
 from components.render_image import RenderImage
+
 # ZOOM_IN 변수가 이 파일 범위에서 사용 가능하도록 가정합니다.
 # Assuming ZOOM_IN variable is accessible in this file scope.
 from settings.mushitroom_config import ZOOM_IN
@@ -16,13 +17,19 @@ if TYPE_CHECKING:
 class CursorComponent(RenderObject):
     _cursor_hat: RenderImage
     _cursor_ring: RenderImage
+    _ring_hidden: bool
 
     # 애니메이션 설정
     _bounce_amplitude: int = 5
 
-    def __init__(self, coordinate: RenderCoordinate, size: RenderSize) -> None:
+    def __init__(
+        self,
+        coordinate: RenderCoordinate,
+        size: RenderSize,
+        ring_hidden: bool = False,
+    ) -> None:
         super().__init__(coordinate, size)
-
+        self._ring_hidden = ring_hidden
         # 사용자가 만족한 사이즈(더블 줌) 유지
         ring_width = size.width
         ring_height = size.height
@@ -50,7 +57,8 @@ class CursorComponent(RenderObject):
         if self.hidden == True:
             return
         self._update_children_positions()
-        self._cursor_ring.draw(canvas)
+        if self._ring_hidden == False:
+            self._cursor_ring.draw(canvas)
         self._cursor_hat.draw(canvas)
 
     def _update_children_positions(self):
@@ -75,7 +83,9 @@ class CursorComponent(RenderObject):
             zoom_factor = float(ZOOM_IN)
         except (ValueError, TypeError, NameError):
             # 혹시 모를 임포트 실패(NameError)나 잘못된 타입(ValueError, TypeError)에 대비
-            print(f"Warning: ZOOM_IN value in config is invalid. Using default zoom factor of 1.0.")
+            print(
+                f"Warning: ZOOM_IN value in config is invalid. Using default zoom factor of 1.0."
+            )
             zoom_factor = 1.0
         # ---------------------------------------------------------
 
@@ -89,7 +99,7 @@ class CursorComponent(RenderObject):
         # 2. 애니메이션 (위로 통통)
         current_time = time.time()
         bounce_ratio = abs(math.sin(current_time * math.pi * 2))
-        
+
         # 수정된 65번째 줄: zoom_factor를 사용하여 안전하게 계산합니다.
         bounce_offset = -bounce_ratio * self._bounce_amplitude * zoom_factor
 

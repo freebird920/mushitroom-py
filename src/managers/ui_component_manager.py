@@ -28,8 +28,10 @@ class UiComponentManager:
             self.cursor.hidden = True
 
     def disable(self, disabled: bool) -> None:
-        if disabled == True and self.cursor is not None:
-            self.cursor.hidden = True
+        if disabled == True:
+            self._try_sleep_cursor()
+        elif disabled == False:
+            self._try_wake_up_cursor()
         self.disabled = disabled
 
     def clear_components(self, reset_index: bool = True) -> None:

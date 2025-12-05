@@ -18,7 +18,13 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
     if scene._game_state is None or scene._game_state.mushitrooms is None:
         print("NO MUSHIT ROOMS")
         return
-
+    scene._mushroom_ui_manager.cursor = CursorComponent(
+        coordinate=RenderCoordinate(0, 0),
+        size=RenderSize(50, 50),
+        ring_hidden=True,
+    )
+    scene._mushroom_ui_manager.cursor.hidden = True
+    scene._mushroom_ui_manager.disable(True)
     for index, mushit_id in enumerate(scene._game_state.mushitrooms):
         print(index)
         mushit_info = scene.db.get_mushitroom(mushit_id)

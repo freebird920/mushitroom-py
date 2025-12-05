@@ -45,10 +45,18 @@ class SelectMushroomScene(BaseScene):
         super().handle_input()
         if self._input_manager.state.is_just_pressed(InputActions.ESCAPE):
             self._scene_manager.switch_scene(SceneType.TITLE_SCENE)
-        if self._input_manager.state.is_just_pressed(InputActions.UP):
+        if self._input_manager.state.is_just_pressed(InputActions.LEFT):
             self._ui_manager.select_prev()
-        if self._input_manager.state.is_just_pressed(InputActions.DOWN):
+            self._mushroom_ui_manager.select_prev()
+        if self._input_manager.state.is_just_pressed(InputActions.RIGHT):
             self._ui_manager.select_next()
+            self._mushroom_ui_manager.select_next()
+        if self._input_manager.state.is_just_pressed(InputActions.UP):
+            self._ui_manager.disable(True)
+            self._mushroom_ui_manager.disable(False)
+        if self._input_manager.state.is_just_pressed(InputActions.DOWN):
+            self._ui_manager.disable(False)
+            self._mushroom_ui_manager.disable(True)
         if self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self._ui_manager.activate_current()
 
