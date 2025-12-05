@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 from src.classes.render_object import RenderObject
 
 if TYPE_CHECKING:
@@ -9,14 +9,13 @@ class RenderUiComponent:
     is_selectable: bool
     render_object: RenderObject
     on_activate: Optional[Callable[[], None]]
-    focused: bool
 
     def __init__(
         self,
         render_object: RenderObject,
         is_selectable: bool = False,
         on_activate: Optional[Callable[[], None]] = None,
-        on_focus_callback: Optional[Callable] = None,
+        on_focus_callback: Optional[Callable[[], Any]] = None,
     ) -> None:
         self.focused = False
         self.render_object = render_object

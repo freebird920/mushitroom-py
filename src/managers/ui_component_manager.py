@@ -55,8 +55,8 @@ class UiComponentManager:
                 self._update_cursor_position()
 
     def draw(self, canvas: "ImageDraw") -> None:
+        self.on_cursor()
         for component in self.render_components:
-
             component.draw(canvas)
 
         if self.cursor is not None and not self.cursor.hidden:

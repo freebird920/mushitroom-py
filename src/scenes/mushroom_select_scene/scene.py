@@ -62,6 +62,7 @@ class SelectMushroomScene(BaseScene):
 
     def on_exit(self):
         self._mushroom_ui_manager.clear_components()
+
         return super().on_exit()
 
     def draw(self, draw_tool: ImageDraw):
@@ -70,6 +71,4 @@ class SelectMushroomScene(BaseScene):
         self._ui_manager.draw(draw_tool)
 
     def update(self):
-        # self._mushroom_ui_manager.on_cursor()
-        # self._ui_manager.on_cursor()
         return super().update()
