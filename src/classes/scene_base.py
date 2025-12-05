@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 from managers.audio_manager import AudioManager
 from managers.input_manager.input_manager import InputManager
-from managers.sq_manager import SqService
+from managers.sq_manager import SqManager
 from managers.ui_component_manager import UiComponentManager
 
 
@@ -16,7 +16,7 @@ class BaseScene:
     _audio_manager: AudioManager
     _input_manager: InputManager
     _ui_manager: UiComponentManager
-    db: SqService
+    db: SqManager
 
     def __init__(
         self,
@@ -27,7 +27,7 @@ class BaseScene:
         self._audio_manager = AudioManager()
         self._input_manager = InputManager()
         self._ui_manager = UiComponentManager()
-        self.db = SqService()
+        self.db = SqManager()
 
     def handle_input(
         self,

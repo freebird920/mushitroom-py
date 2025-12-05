@@ -1,17 +1,18 @@
 import sqlite3
 import os
 import uuid
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 # 설정 파일 및 스키마 임포트 (경로는 프로젝트에 맞게 확인해주세요)
-from schemas.mushitroom_schema import MushitroomSchema
 import settings.mushitroom_config as mushitroom_config
 import schemas.user_schema as schemas
 
+from schemas.mushitroom_schema import MushitroomSchema
 
-class SqService:
+
+class SqManager:
     # [Singleton 1] 인스턴스를 저장할 클래스 변수
-    _instance: Optional["SqService"] = None
+    _instance: Optional["SqManager"] = None
 
     # [Singleton 2] 인스턴스 생성 제어
     def __new__(cls, *args, **kwargs):
@@ -228,7 +229,7 @@ class SqService:
             if should_close:
                 conn.close()
 
-    def save_mushitroom(self, user_id: str, mush_data: MushitroomSchema):
+    def save_mushitroom(self, user_id: str, mush_data: "MushitroomSchema"):
         """
         개별 버섯 정보를 저장하거나 업데이트합니다 (UPSERT 개념).
         살아있는 버섯이 3개 이상이면 생성을 막습니다.
@@ -361,7 +362,7 @@ class SqService:
         finally:
             conn.close()
 
-    def get_user_mushrooms(self, user_id: str) -> List[MushitroomSchema]:
+    def get_user_mushrooms(self, user_id: str) -> "List[MushitroomSchema]":
         """특정 유저가 보유한 모든 버섯의 상세 정보를 리스트로 반환"""
         conn = self._get_connection()
         try:
@@ -381,7 +382,7 @@ class SqService:
         finally:
             conn.close()
 
-    def get_mushitroom(self, mush_id: str) -> Optional[MushitroomSchema]:
+    def get_mushitroom(self, mush_id: str) -> "Optional[MushitroomSchema]":
         """버섯 ID로 버섯 상세 정보를 가져옵니다."""
         conn = self._get_connection()
         try:
@@ -392,8 +393,6 @@ class SqService:
             )
             row = cursor.fetchone()
             if row:
-                # Row 객체를 dict로 변환 후 Dataclass 생성
-                # (주의: created 같은 timestamp 필드는 DB에서 문자열로 오므로 변환 필요 시 처리)
                 return MushitroomSchema(**dict(row))
             return None
         finally:

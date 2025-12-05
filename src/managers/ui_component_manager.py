@@ -13,19 +13,24 @@ class UiComponentManager:
     selectable_components: List[RenderUiComponent]
     selected_index: int
     cursor: Optional[RenderObject]
+    disabled: bool
 
     def __init__(
-        self,
-        cursor: Optional[RenderObject] = None,
+        self, cursor: Optional[RenderObject] = None, disabled: bool = False
     ) -> None:
         self.render_components = []
         self.selectable_components = []
         self.selected_index = -1
         self.cursor = cursor
         self.sound_manager = AudioManager()
-
+        self.disabled = disabled
         if self.cursor:
             self.cursor.hidden = True
+
+    def disable(self, disabled: bool) -> None:
+        if disabled == True and self.cursor is not None:
+            self.cursor.hidden = True
+        self.disabled = disabled
 
     def clear_components(self, reset_index: bool = True) -> None:
         self.render_components.clear()
@@ -69,6 +74,8 @@ class UiComponentManager:
         return False
 
     def activate_current(self) -> None:
+        if self.disabled == True:
+            return None
         if self._try_wake_up_cursor():
             return
 
@@ -78,6 +85,8 @@ class UiComponentManager:
             self._try_sleep_cursor()
 
     def select_next(self) -> None:
+        if self.disabled == True:
+            return None
         if not self.selectable_components:
             return
 
@@ -93,6 +102,8 @@ class UiComponentManager:
             self._on_selection_changed()
 
     def select_prev(self) -> None:
+        if self.disabled == True:
+            return None
         if not self.selectable_components:
             return
 

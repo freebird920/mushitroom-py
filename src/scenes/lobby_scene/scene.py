@@ -9,7 +9,7 @@ from managers.input_manager.input_manager import InputManager
 
 # [수정 1] SceneManager 상단 import 제거 (순환 참조 방지)
 from managers.audio_manager import AudioList, AudioManager
-from managers.sq_manager import SqService
+from managers.sq_manager import SqManager
 from managers.ui_component_manager import UiComponentManager
 from settings.mushitroom_enums import InputActions, SceneType
 
@@ -30,7 +30,7 @@ class LobbySceneArgs(TypedDict):
 
 class LobbyScene(BaseScene):
     ui_component_manager: UiComponentManager
-    db: SqService
+    db: SqManager
 
     user_id: str | None
     game_state: "GameState | None"
@@ -43,7 +43,7 @@ class LobbyScene(BaseScene):
 
     def __init__(self):
         super().__init__()
-        self.db = SqService()
+        self.db = SqManager()
         self.user_id = None
 
         # UI 매니저 초기화
