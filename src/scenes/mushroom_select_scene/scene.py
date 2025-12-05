@@ -59,6 +59,7 @@ class SelectMushroomScene(BaseScene):
             self._mushroom_ui_manager.disable(True)
         if self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self._ui_manager.activate_current()
+            self._mushroom_ui_manager.activate_current()
 
     def on_exit(self):
         self._mushroom_ui_manager.clear_components()
