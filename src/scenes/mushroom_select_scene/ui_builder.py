@@ -72,21 +72,26 @@ def build_mushrooms(scene: "SelectMushroomScene") -> None:
             last_rotate_time = 0.0
 
             def on_focus_logic():
+                '''
+                on_focus_logic의 Docstring
+
+                ## nonlocal
+                파이썬에서는 함수 안에서 변수 = 값 이렇게 할당을 하면, **"아, 이건 이 함수 안에서만 쓰는 새 변수구나"**라고 판단해 버립니다.
+
+                * nonlocal이 없으면: on_focus_logic 안에서 last_rotate_time = current_time을 하는 순간, 바깥의 변수를 갱신하는 게 아니라 새로운 지역 변수를 만들어버립니다. (회전이 안 됨)
+
+                * nonlocal이 있으면: "새로 만드는 거 아니고, 바로 위 함수(공장장)가 가지고 있던 그 변수 고칠 거야!" 라고 알려주는 것입니다.
+                '''
                 nonlocal last_rotate_time
                 # TimerManager에게 "게임 시작하고 얼마나 지났어?"라고 물어봄 (안전함)
                 current_time = TimerManager().get_elapsed_time()
 
-                # 0.1초가 지났는지 확인
                 if current_time - last_rotate_time > 0.1:
-                    # 이미지 회전 및 업데이트
                     u_comp.render_object = m_comp.rotate(True)
-                    # 시간 갱신
                     last_rotate_time = current_time
 
             return on_focus_logic
 
-        # UI 컴포넌트의 on_focus_callback에 연결
-        # -> 이러면 커서가 올라가 있을 때만 위 함수가 실행됩니다.
         mushit_ui_comp.on_focus_callback = create_focus_animator(
             mushit_img, mushit_ui_comp
         )
