@@ -86,6 +86,7 @@ class TitleSceneUiBuilder:
         self,
         on_start: Optional[Callable[[], None]],
         on_exit: Optional[Callable[[], None]],
+        on_goeha: Optional[Callable[[], None]],
     ) -> List[RenderUiComponent]:
         result: List[RenderUiComponent] = [
             # 1. START 버튼
@@ -93,7 +94,7 @@ class TitleSceneUiBuilder:
                 is_selectable=True,
                 on_activate=on_start,
                 render_object=RenderButton(
-                    coordinate=RenderCoordinate(CENTER_X, CENTER_Y + 50),  # 위치 조정
+                    coordinate=RenderCoordinate(CENTER_X, CENTER_Y + 30),  # 위치 조정
                     size=RenderSize(100, 30),
                     text="START",
                 ),
@@ -104,19 +105,19 @@ class TitleSceneUiBuilder:
                 on_activate=on_exit,
                 render_object=RenderButton(
                     coordinate=RenderCoordinate(
-                        CENTER_X, CENTER_Y + 100
+                        CENTER_X, CENTER_Y + 60
                     ),  # START보다 아래로
                     size=RenderSize(100, 30),
                     text="EXIT",
                 ),
             ),
-             # 2. GOEHA 버튼
+            # 2. GOEHA 버튼
             RenderUiComponent(
                 is_selectable=True,
-                on_activate=on_exit,
+                on_activate=on_goeha,
                 render_object=RenderButton(
                     coordinate=RenderCoordinate(
-                        CENTER_X, CENTER_Y + 150
+                        CENTER_X, CENTER_Y + 90
                     ),  # START보다 아래로
                     size=RenderSize(100, 30),
                     text="GOEHA",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from optparse import Option
 from typing import Optional
 
 # [중요] MushroomType이 정의된 위치에서 import 해야 합니다.

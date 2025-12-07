@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 # import classes
 from managers.input_manager.input_manager import InputManager
-from managers.sq_manager import SqService
+from managers.sq_manager import SqManager
 from schemas.user_schema import User
 from components.cursor_component import CursorComponent
 from classes.render_coordinate import RenderCoordinate
@@ -42,7 +42,7 @@ class SelectUserScene(BaseScene):
 
     def __init__(self):
         super().__init__()
-        self.db = SqService()
+        self.db = SqManager()
         self._sound_fx_manager = AudioManager()
         self.users = []
         self._input_manager = InputManager()

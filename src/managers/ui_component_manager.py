@@ -13,19 +13,26 @@ class UiComponentManager:
     selectable_components: List[RenderUiComponent]
     selected_index: int
     cursor: Optional[RenderObject]
+    disabled: bool
 
     def __init__(
-        self,
-        cursor: Optional[RenderObject] = None,
+        self, cursor: Optional[RenderObject] = None, disabled: bool = False
     ) -> None:
         self.render_components = []
         self.selectable_components = []
         self.selected_index = -1
         self.cursor = cursor
         self.sound_manager = AudioManager()
-
+        self.disabled = disabled
         if self.cursor:
             self.cursor.hidden = True
+
+    def disable(self, disabled: bool) -> None:
+        if disabled == True:
+            self._try_sleep_cursor()
+        elif disabled == False:
+            self._try_wake_up_cursor()
+        self.disabled = disabled
 
     def clear_components(self, reset_index: bool = True) -> None:
         self.render_components.clear()
@@ -48,6 +55,7 @@ class UiComponentManager:
                 self._update_cursor_position()
 
     def draw(self, canvas: "ImageDraw") -> None:
+        self.on_cursor()
         for component in self.render_components:
             component.draw(canvas)
 
@@ -68,7 +76,25 @@ class UiComponentManager:
             return True
         return False
 
+    def on_cursor(self) -> None:
+        # 1. 매니저가 비활성화 상태거나 커서가 숨겨진 상태면 실행하지 않음
+        if self.disabled:
+            return
+        if self.cursor and self.cursor.hidden:
+            return
+
+        # 2. 현재 선택된 인덱스가 유효한지 확인
+        if 0 <= self.selected_index < len(self.selectable_components):
+            target = self.selectable_components[self.selected_index]
+
+            # 3. 해당 컴포넌트의 on_focus (또는 지정한 메서드) 실행
+            # RenderUiComponent에 on_focus 메서드가 있다고 가정합니다.
+            if hasattr(target, "on_focus"):
+                target.on_focus()
+
     def activate_current(self) -> None:
+        if self.disabled == True:
+            return None
         if self._try_wake_up_cursor():
             return
 
@@ -78,6 +104,8 @@ class UiComponentManager:
             self._try_sleep_cursor()
 
     def select_next(self) -> None:
+        if self.disabled == True:
+            return None
         if not self.selectable_components:
             return
 
@@ -93,6 +121,8 @@ class UiComponentManager:
             self._on_selection_changed()
 
     def select_prev(self) -> None:
+        if self.disabled == True:
+            return None
         if not self.selectable_components:
             return
 

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Dict, Type, Optional
 
 # 순환 참조(Circular Import) 방지를 위한 타입 힌팅용 임포트
 from settings.mushitroom_enums import SceneType
-from managers.sq_manager import SqService
+from managers.sq_manager import SqManager
 
 if TYPE_CHECKING:
     from classes.scene_base import BaseScene
@@ -13,7 +13,7 @@ class SceneManager:
     _instance: Optional["SceneManager"] = None
 
     # 타입 힌트
-    db: "SqService"
+    db: "SqManager"
     current_scene: Optional["BaseScene"]
     scene_cache: Dict[SceneType, "BaseScene"]
     scene_registry: Dict[SceneType, Type["BaseScene"]]
@@ -33,7 +33,7 @@ class SceneManager:
         print("[System] SceneManager 초기화 (Singleton)")
 
         # 최초 생성 시 DB 인스턴스는 필수입니다.
-        self.db = SqService()
+        self.db = SqManager()
         self.current_scene = None
         self.scene_cache = {}
 

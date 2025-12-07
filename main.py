@@ -31,7 +31,7 @@ try:
     from managers.input_manager.input_manager import InputManager
     from managers.timer_manager import TimerManager
 
-    from managers.sq_manager import SqService
+    from managers.sq_manager import SqManager
     from settings.mushitroom_config import (
         GPIO_PINS,
         BG_COLOR,
@@ -65,7 +65,7 @@ IS_WINDOWS = platform.system() == "Windows" or platform.system() == "Win32"
 # ============
 # 전역 변수 (초기화는 main에서)
 # ============
-db: SqService | None = None
+db: SqManager | None = None
 timer_manager: TimerManager | None = None
 audio_manager: AudioManager | None = None
 scene_manager: SceneManager | None = None
@@ -134,7 +134,7 @@ def main():
         print(">>> 프로그램 초기화 시작...")
 
         # 1. DB 연결
-        db = SqService()
+        db = SqManager()
 
         # 2. 화면(Device) 설정
         if IS_WINDOWS:
