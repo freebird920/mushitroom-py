@@ -59,9 +59,11 @@ class SelectMushroomScene(BaseScene):
             self._mushroom_ui_manager.disable(True)
         if self._input_manager.state.is_just_pressed(InputActions.ENTER):
             self._ui_manager.activate_current()
+            self._mushroom_ui_manager.activate_current()
 
     def on_exit(self):
         self._mushroom_ui_manager.clear_components()
+
         return super().on_exit()
 
     def draw(self, draw_tool: ImageDraw):
@@ -70,8 +72,4 @@ class SelectMushroomScene(BaseScene):
         self._ui_manager.draw(draw_tool)
 
     def update(self):
-        self._mushroom_ui_manager.on_cursor()
-
-        # 만약 ADOPT 버튼 같은 다른 UI도 커서 반응이 필요하면 이것도 호출
-        self._ui_manager.on_cursor()
         return super().update()

@@ -55,6 +55,7 @@ class UiComponentManager:
                 self._update_cursor_position()
 
     def draw(self, canvas: "ImageDraw") -> None:
+        self.on_cursor()
         for component in self.render_components:
             component.draw(canvas)
 
@@ -85,11 +86,12 @@ class UiComponentManager:
         # 2. 현재 선택된 인덱스가 유효한지 확인
         if 0 <= self.selected_index < len(self.selectable_components):
             target = self.selectable_components[self.selected_index]
-            
+
             # 3. 해당 컴포넌트의 on_focus (또는 지정한 메서드) 실행
             # RenderUiComponent에 on_focus 메서드가 있다고 가정합니다.
-            if hasattr(target, 'on_focus'):
+            if hasattr(target, "on_focus"):
                 target.on_focus()
+
     def activate_current(self) -> None:
         if self.disabled == True:
             return None

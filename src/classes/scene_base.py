@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any
 from managers.audio_manager import AudioManager
 from managers.input_manager.input_manager import InputManager
 from managers.sq_manager import SqManager
+from managers.timer_manager import TimerManager
 from managers.ui_component_manager import UiComponentManager
 
 
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
 
 
 class BaseScene:
+    _timer_manager: TimerManager
     _scene_manager: "SceneManager"
     _audio_manager: AudioManager
     _input_manager: InputManager
@@ -23,6 +25,7 @@ class BaseScene:
     ):
         from managers.scene_manager import SceneManager
 
+        self._timer_manager = TimerManager()
         self._scene_manager = SceneManager()
         self._audio_manager = AudioManager()
         self._input_manager = InputManager()
@@ -36,6 +39,7 @@ class BaseScene:
         pass
 
     def update(self):
+        self._timer_manager.update()
         """게임 로직 업데이트 (이동, 충돌 등)"""
         pass
 
@@ -51,4 +55,5 @@ class BaseScene:
     def on_exit(self):
         """씬을 나갈 때 실행 (정리)"""
         self._ui_manager.clear_components()
+        self._timer_manager.clear_all_intervals()
         pass
