@@ -107,7 +107,7 @@ def load_resized_image(path: str, width: int, height: int) -> Image.Image | None
         try:
             with Image.open(img_stream) as img:
                 img = img.convert("RGBA")
-                # NEAREST는 도트 게임에 필수
+
                 resized_img = img.resize(
                     (width, height), resample=Image.Resampling.NEAREST
                 )

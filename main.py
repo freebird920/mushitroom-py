@@ -172,7 +172,7 @@ def main():
             root = device.root
 
             # 아이콘 설정
-            icon_path = os.path.join(src_path, "assets", "images", "salgu3.png")
+            icon_path = os.path.join(src_path, "assets", "images", "gwang1.png")
             if os.path.exists(icon_path):
                 try:
                     icon = tk.PhotoImage(file=icon_path)

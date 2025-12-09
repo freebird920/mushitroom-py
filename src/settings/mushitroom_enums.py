@@ -19,7 +19,6 @@ class ObjectType(Enum):
     DEFAULT = "DEFAULT"
     INTERFACE = "INTERFACE"
 
-
 class FontStyle(Enum):
     LIGHT = "NanumSquareNeo-aLt.ttf"
     REGULAR = "NanumSquareNeo-bRg.ttf"
