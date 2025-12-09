@@ -13,7 +13,7 @@ class MushitroomSchema:
     created: str
     name: str
     type: Optional[MushroomType] = None  # DB에서 읽을 땐 str, 쓸 땐 Enum
-
+ 
     age: int = 0
     exp: int = 0
     level: int = 1
@@ -21,6 +21,7 @@ class MushitroomSchema:
     talent: int = 0
     cute: int = 0
     is_alive: Optional[bool] = True
+    shit_count: Optional[int] = 0
 
     def __post_init__(self):
         if isinstance(self.is_alive, int):

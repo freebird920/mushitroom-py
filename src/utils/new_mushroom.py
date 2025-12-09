@@ -30,7 +30,6 @@ def new_mushroom(user_id: str, mushroom_type: MushroomType):
         exp=0,
         level=1,
         health=100,
-        strong=10
         talent=5,
         cute=10,
         is_alive=True,

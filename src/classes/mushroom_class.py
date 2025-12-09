@@ -5,12 +5,12 @@ from enum import Enum
 class MushroomType(Enum):
     # (영문명, 한글명, 이미지 경로, 이미지 이름)
     GOMBO = ("Morel", "곰보버섯", "assets/images/gombo.png", "gombo")
-    MAGUI = ("Devil's Bolete", "마귀버섯", "assets/images/magui.png", "magui")
+    MAGUI = ("Devil's Bolete", "마귀광대버섯", "assets/images/magui.png", "magui")
     DALGYAL = ("DALGYAL", "달걀버섯", "assets/images/dalgyal.png", "dalgyal")
     GWANG = ("GWANG", "광대버섯", "assets/images/dalgyal.png", "gwang")
-    SASUM = ("SASUM", "사슴버섯", "assets/images/dalgyal.png", "sasum")
-    SALGU = ("SALGU", "SALGU", "", "salgu")
-    HWANGUM = ("HWANGUM", "HWANGUM", "HWANGUM", "hwangum")
+    SASUM = ("SASUM", "붉은뿔사슴버섯", "assets/images/dalgyal.png", "sasum")
+    SALGU = ("SALGU", "살구버섯", "", "salgu")
+    HWANGUM = ("HWANGUM", "황금등불버섯", "HWANGUM", "hwangum")
 
     def __init__(self, name_en: str, name_kr: str, image_path: str, image_name: str):
         self.name_en = name_en
