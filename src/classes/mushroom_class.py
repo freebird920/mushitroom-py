@@ -11,6 +11,7 @@ class MushroomType(Enum):
     SASUM = ("SASUM", "붉은뿔사슴버섯", "assets/images/dalgyal.png", "sasum")
     SALGU = ("SALGU", "살구버섯", "", "salgu")
     HWANGUM = ("HWANGUM", "황금등불버섯", "HWANGUM", "hwangum")
+    PYOGO = ("PYOGO", "표고버섯", "PYOGO", "pyogo")
 
     def __init__(self, name_en: str, name_kr: str, image_path: str, image_name: str):
         self.name_en = name_en
