@@ -23,10 +23,10 @@ class TitleSceneUiBuilder:
             render_object=RenderText(
                 coordinate=RenderCoordinate(x=CENTER_X, y=title_text_y),
                 size=RenderSize(0, 0),
-                font_size=42,
+                font_size=30,
                 color="black",
                 font_style=FontStyle.COOKIE_BOLD,
-                text="니얼굴윤겔라",
+                text="MUSHROOM MAKER",
             ),
             is_selectable=False,
             on_activate=None,
